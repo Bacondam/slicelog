@@ -245,7 +245,7 @@ async function main() {
   await capture('fit-oppo-settings');
 
   await evaluate(`closeMobileTools()`);
-  await evaluate(`androidHandleBack(); switchView('learning'); androidHandleBack()`);
+  await evaluate(`androidHandleBack(); switchView('goals'); androidHandleBack()`);
   passed.push('返回键');
 
   console.log(JSON.stringify({ report, passed }, null, 2));

@@ -109,7 +109,7 @@ const assert = (ok, msg) => { if (!ok) throw new Error('FAIL: ' + msg); };
   assert(afterOk.toast.indexOf('已删除') >= 0, '删除后没有提示文案');
 
   // 其他板块的删除按钮同样要弹自定义确认框（不触发原生 dialog）
-  for (const [view, action] of [['goals', 'del-goal'], ['journal', 'del-journal'], ['learning', 'del-item'], ['finance', 'del-tx']]) {
+  for (const [view, action] of [['goals', 'del-goal'], ['journal', 'del-journal'], ['finance', 'del-tx']]) {
     await evaluate(`${app}.switchView('${view}')`);
     await delay(350);
     const has = await evaluate(`!!${app}.document.querySelector('[data-action="${action}"]')`);

@@ -1,4 +1,4 @@
-/** v1.9.C 回归：折叠箭头 / 记账线性图标 / 学习记录按类型分化 / 五套主题与交互令牌 */
+/** v1.9.C 回归：折叠箭头 / 记账线性图标 / 目标进度写回 / 五套主题与交互令牌 */
 const { spawn } = require('child_process');
 const path = require('path');
 const { pathToFileURL } = require('url');
@@ -133,50 +133,24 @@ async function main() {
   assert(fin.options.every(t => !/\s/.test(t)), '分类下拉里混入了图标：' + JSON.stringify(fin.options));
   pass('记账图标统一', `${fin.rows} 行分类 + 行内按钮 + 分类列表全部线性 svg，下拉仅文字`);
 
-  /* ---------- 3. 记录学习：三种类型字段不一样 ---------- */
-  await evaluate(`switchView('learning')`);
-  const book = await evaluate(`(() => { openSessionModal('l1');
-    const p = document.querySelector('#sessProg');
-    return { has: !!p, max: p && p.max, hint: (document.querySelector('.sp-head span') || {}).textContent,
-      stars: document.querySelectorAll('[data-sess-level] button').length }; })()`);
-  assert(book.has && book.max === '400', '阅读记录缺少页码进度输入');
-  assert(/读到第几页/.test(book.hint || ''), '阅读记录的字段文案不对：' + book.hint);
-  assert(book.stars === 0, '阅读记录不应出现熟练度星星');
-
-  const course = await evaluate(`(() => { openSessionModal('l3');
-    const p = document.querySelector('#sessProg');
-    return { has: !!p, max: p && p.max, hint: (document.querySelector('.sp-head span') || {}).textContent }; })()`);
-  assert(course.has && course.max === '24', '课程记录缺少讲数进度输入');
-  assert(/完成到第几讲/.test(course.hint || ''), '课程记录文案不对：' + course.hint);
-
-  const skill = await evaluate(`(() => { openSessionModal('l2');
-    return { prog: !!document.querySelector('#sessProg'), stars: document.querySelectorAll('[data-sess-level] button').length,
-      level: document.querySelector('[name="level"]').value }; })()`);
-  assert(!skill.prog, '技能记录不应出现页码输入');
-  assert(skill.stars === 5, '技能记录缺少 5 星熟练度');
-  pass('学习记录分类型', '阅读→页码 / 课程→讲数 / 技能→时长+熟练度，三种字段不同');
-
-  /* ---------- 4. 提交后进度与熟练度真的写回 ---------- */
-  const submit = await evaluate(`(() => {
-    openSessionModal('l1');
-    const form = document.querySelector('form[data-form="session"]');
-    form.elements.minutes.value = '40';
-    document.querySelector('#sessProg').value = '260';
+  /* ---------- 3. 目标进度：按数量推进的卡片能直接改数字（v2.2 起学习记录已下线） ---------- */
+  await evaluate(`switchView('goals')`);
+  const prog = await evaluate(`(() => {
+    const g = state.goals.find(x => x.track === 'count');
+    const want = Math.min(g.target, 260);
+    openProgressModal(g.id);
+    const form = document.querySelector('form[data-form="progress"]');
+    form.elements.current.value = String(want);
     form.requestSubmit();
-    const it = findLearn('l1');
-    const last = state.learning.sessions[state.learning.sessions.length - 1];
-    openSessionModal('l2');
-    const f2 = document.querySelector('form[data-form="session"]');
-    document.querySelector('[data-action="sess-level"][data-level="4"]').click();
-    f2.requestSubmit();
-    const sk = findLearn('l2');
-    return { cur: it.current, sp: last.progress, min: last.minutes, lv: sk.level, closed: document.getElementById('modal').classList.contains('hidden') };
+    const after = state.goals.find(x => x.id === g.id);
+    const card = document.querySelector('#view-goals .goal-card[data-id="' + g.id + '"]');
+    return { want, cur: after.current, text: card ? card.querySelector('.goal-prog .cnt').textContent.trim() : '',
+      closed: document.getElementById('modal').classList.contains('hidden') };
   })()`);
-  assert(submit.cur === 260, `阅读进度没有写回：${submit.cur}`);
-  assert(submit.sp === 260 && submit.min === 40, '记录没有保存页码/时长');
-  assert(submit.lv === 4, `技能熟练度没有写回：${submit.lv}`);
-  assert(submit.closed, '提交后弹窗没有关闭');
-  pass('进度自动推进', '读到 260/400 写回项目；熟练度点星后写入 4 级');
+  assert(prog.cur === prog.want, `进度没有写回：${prog.cur} ≠ ${prog.want}`);
+  assert(prog.text.includes(String(prog.want)), `卡片没跟着更新：${prog.text}`);
+  assert(prog.closed, '提交后弹窗没有关闭');
+  pass('进度写回', `更新到 ${prog.cur} · 卡片显示「${prog.text}」`);
 
   /* ---------- 5. 交互令牌：五套主题都有，松烟夜的控件描边比结构线更亮 ---------- */
   const tokens = await evaluate(`(() => {

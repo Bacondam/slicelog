@@ -92,8 +92,6 @@ async function main() {
 
   // 造 4 个已完成目标
   await evaluate(`
-    /* 学习目标单独一套卡片，这里只看普通目标的折叠行为 */
-    state.goals = state.goals.filter(g => !isLearnGoal(g));
     state.goals.forEach(g => { g.done = true; g.doneAt = Date.now(); });
     state.settings.doneOpen = {};
     switchView('goals');
@@ -118,14 +116,15 @@ async function main() {
       overflow: document.documentElement.scrollWidth
     };
   })()`);
-  assert(base.strips === 4, `已完成目标应一条一行共 4 条，实际 ${base.strips}`);
-  assert(base.titles.length === 4 && new Set(base.titles).size === 4, '已完成目标标题没有拆开：' + JSON.stringify(base.titles));
+  const total = await evaluate(`state.goals.length`);
+  assert(base.strips === total, `已完成目标应一条一行共 ${total} 条，实际 ${base.strips}`);
+  assert(base.titles.length === total && new Set(base.titles).size === total, '已完成目标标题没有拆开：' + JSON.stringify(base.titles));
   assert(base.titles.every(t => !t.includes('·')), '标题仍被拼接在一条里');
   assert(base.circles.every(c => c && c.w === 26 && c.h === 26), '⊕ 按钮尺寸不是 26px：' + JSON.stringify(base.circles));
   assert(base.circles.every(c => c.hasPlus), '折叠状态应显示加号');
   assert(base.headBtn && !base.headMinus, '区块标题按钮应为折叠箭头');
   assert(base.overflow <= 452, `页面出现横向溢出：${base.overflow}`);
-  pass('已完成目标一条一行', '4 条，每行右侧箭头 26×26');
+  pass('已完成目标一条一行', `${total} 条，每行右侧箭头 26×26`);
 
   /* ---------- 2. 单条点击展开 / 收起 ---------- */
   const firstId = await evaluate(`state.goals[0].id`);
@@ -139,17 +138,17 @@ async function main() {
     saved: !!state.settings.doneOpen['${firstId}'],
     stored: JSON.parse(localStorage.getItem('growth-os-v1')).settings.doneOpen['${firstId}']
   }))()`);
-  assert(one.cards === 1 && one.strips === 3, `单条展开异常：卡片 ${one.cards}，折叠 ${one.strips}`);
+  assert(one.cards === 1 && one.strips === total - 1, `单条展开异常：卡片 ${one.cards}，折叠 ${one.strips}`);
   assert(one.minusBtn, '展开后的卡片缺少 ⊖ 收起按钮');
   assert(one.stored === true, '展开状态没有写入本地存档');
-  pass('单条展开 / 状态记住', '展开 1 条，其余 3 条保持折叠');
+  pass('单条展开 / 状态记住', `展开 1 条，其余 ${total - 1} 条保持折叠`);
 
   // 点击卡片里的 ⊖ 收起
   await evaluate(`document.querySelector('.done-list .goal-card [data-action="toggle-done-one"]').click()`);
   await delay(300);
   const back = await evaluate(`({ cards: document.querySelectorAll('.done-list .goal-card').length, strips: document.querySelectorAll('.done-strip').length })`);
-  assert(back.cards === 0 && back.strips === 4, '点 ⊖ 没有收起：' + JSON.stringify(back));
-  pass('卡片内 ⊖ 可收起', '回到 4 条折叠行');
+  assert(back.cards === 0 && back.strips === total, '点 ⊖ 没有收起：' + JSON.stringify(back));
+  pass('卡片内 ⊖ 可收起', `回到 ${total} 条折叠行`);
 
   /* ---------- 3. 区块 ⊕ / ⊖ 全部展开与收起 ---------- */
   await evaluate(`document.querySelector('[data-action="toggle-done-goals"]').click()`);
@@ -159,13 +158,13 @@ async function main() {
     strips: document.querySelectorAll('.done-strip').length,
     head: document.querySelector('[data-action="toggle-done-goals"]').classList.contains('minus')
   }))()`);
-  assert(allOpen.cards === 4 && allOpen.strips === 0, '点 ⊕ 没有全部展开：' + JSON.stringify(allOpen));
+  assert(allOpen.cards === total && allOpen.strips === 0, '点 ⊕ 没有全部展开：' + JSON.stringify(allOpen));
   assert(allOpen.head, '全部展开后区块按钮应变为 ⊖');
   await evaluate(`document.querySelector('[data-action="toggle-done-goals"]').click()`);
   await delay(300);
   const allClosed = await evaluate(`({ cards: document.querySelectorAll('.done-list .goal-card').length, strips: document.querySelectorAll('.done-strip').length })`);
-  assert(allClosed.cards === 0 && allClosed.strips === 4, '点 ⊖ 没有全部收起：' + JSON.stringify(allClosed));
-  pass('区块 ⊕ / ⊖ 全部展开收起', '4 ↔ 0 条');
+  assert(allClosed.cards === 0 && allClosed.strips === total, '点 ⊖ 没有全部收起：' + JSON.stringify(allClosed));
+  pass('区块 ⊕ / ⊖ 全部展开收起', `${total} ↔ 0 条`);
 
   /* ---------- 4. 新完成的目标默认折叠 ---------- */
   await evaluate(`

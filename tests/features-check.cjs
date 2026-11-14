@@ -96,10 +96,10 @@ async function main() {
       dual: document.querySelectorAll('.stats .stat.dual .dual-cell[data-action="open-stat"]').length };
   })()`);
   assert(keys.count === 4, `概览统计卡数量异常：${keys.count}`);
-  assert(keys.dual === 2, `概览「学习与目标」双数据卡异常：${keys.dual}`);
+  assert(keys.dual === 2, `概览「目标」双数据卡异常：${keys.dual}`);
   assert(keys.tag === 'BUTTON', '概览统计卡不是可点击按钮');
   const seen = [];
-  for (const key of ['streak', 'study', 'goals', 'journal', 'finance']) {
+  for (const key of ['streak', 'goals', 'journal', 'finance']) {
     await evaluate(`switchView('dashboard'); document.querySelector('[data-action="open-stat"][data-stat="${key}"]').click();`);
     const info = await evaluate(`(() => {
       const root = document.getElementById('view-detail');
@@ -123,9 +123,14 @@ async function main() {
 
   /* ---------- 2. 目标：小目标未完成时不能结束大目标 ---------- */
   await evaluate(`switchView('goals')`);
-  await evaluate(`document.querySelector('[data-action="toggle-goal"][data-id="g1"]').click()`);
+  await evaluate(`(() => {
+    const g = state.goals.find(x => x.track === 'sub' && (x.subtasks || []).some(t => !t.done) && !x.done);
+    window.__subId = g ? g.id : '';
+    const card = document.querySelector('.goal-card[data-id="' + window.__subId + '"]');
+    if (card) card.querySelector('[data-action="toggle-goal"]').click();
+  })()`);
   const blocked = await evaluate(`(() => {
-    const g = state.goals.find(x => x.id === 'g1');
+    const g = state.goals.find(x => x.id === window.__subId);
     return {
       done: g.done,
       toast: document.getElementById('toast').textContent,
@@ -138,12 +143,17 @@ async function main() {
   assert(blocked.hint, '未显示「还剩 N 个小目标」提示');
   await shot('goal-blocked-452.png');
 
-  await evaluate(`
-    document.querySelector('[data-action="toggle-sub"][data-id="g1"][data-sub="g1s3"]').click();
-    document.querySelector('[data-action="toggle-sub"][data-id="g1"][data-sub="g1s4"]').click();
-  `);
-  await evaluate(`document.querySelector('[data-action="toggle-goal"][data-id="g1"]').click()`);
-  assert(await evaluate(`state.goals.find(x => x.id === 'g1').done`) === true, '小目标全部完成后仍无法完成目标');
+  /* 点一个就重建一次 DOM，每次重新取「还没勾的那条」 */
+  await evaluate(`(() => {
+    const gid = window.__subId;
+    for (let i = 0; i < 30; i++) {
+      const b = document.querySelector('.goal-card[data-id="' + gid + '"] .sub-item:not(.done) [data-action="toggle-sub"]');
+      if (!b) break;
+      b.click();
+    }
+  })()`);
+  await evaluate(`document.querySelector('.goal-card[data-id="' + window.__subId + '"] [data-action="toggle-goal"]').click()`);
+  assert(await evaluate(`state.goals.find(x => x.id === window.__subId).done`) === true, '小目标全部完成后仍无法完成目标');
   results.push('目标完成门禁：未完成小目标被拦截并提醒，完成后放行');
 
   /* ---------- 3. 习惯：周视图与每周重置 ---------- */

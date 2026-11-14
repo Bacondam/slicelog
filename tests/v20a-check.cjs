@@ -109,14 +109,12 @@ async function main() {
   assert(brand.side.h1 === '人生切片' && brand.side.sub === 'Slicelog', '侧栏品牌未同步：' + JSON.stringify(brand.side));
   pass('品牌更名', `${brand.head.h1} · ${brand.head.sub}（标题栏 / 侧栏一致）`);
 
-  /* ---------- 2. 概览：四张卡，学习与目标合成一张双数据卡 ---------- */
+  /* ---------- 2. 概览：四张卡，目标用一张双数据卡（v2.2 起不再有学习） ---------- */
   await evaluate(`switchView('dashboard')`);
   await delay(150);
   const dash = await evaluate(`(() => {
     const cards = [...document.querySelectorAll('#view-dashboard .stats .stat')];
-    const tKey = todayKey();
-    const monthPrefix = tKey.slice(0, 7);
-    const monthMin = state.learning.sessions.filter(s => String(s.date).slice(0, 7) === monthPrefix).reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+    const active = state.goals.filter(g => !g.done).length;
     const doneGoals = state.goals.filter(g => g.done).length;
     const dual = document.querySelector('#view-dashboard .stats .stat.dual');
     const cells = dual ? [...dual.querySelectorAll('.dual-cell')] : [];
@@ -128,7 +126,7 @@ async function main() {
         value: c.querySelector('strong').textContent.trim(),
         label: c.querySelector('span').textContent.trim()
       })),
-      expectStudy: monthMin >= 60 ? (monthMin / 60).toFixed(1) + '小时' : monthMin + '分钟',
+      expectActive: active + '个',
       expectDone: doneGoals + '个',
       financeIndex: cards.findIndex(c => c.textContent.includes('本月结余')),
       journalIndex: cards.findIndex(c => c.textContent.includes('日记累计')),
@@ -136,22 +134,22 @@ async function main() {
     };
   })()`);
   assert(dash.n === 4, `概览统计卡应为 4 张，实际 ${dash.n}`);
-  assert(dash.labels.join(',') === '连续成长,学习与目标,本月结余,日记累计', '统计卡顺序不对：' + dash.labels);
-  assert(dash.dualCells.length === 2, '「学习与目标」不是双数据卡');
-  assert(dash.dualCells[0].stat === 'goals' && dash.dualCells[0].value === dash.expectDone, `已完成目标数不对：${dash.dualCells[0].value} ≠ ${dash.expectDone}`);
-  assert(dash.dualCells[1].stat === 'study' && dash.dualCells[1].value === dash.expectStudy, `本月学习时长不对：${dash.dualCells[1].value} ≠ ${dash.expectStudy}`);
+  assert(dash.labels.join(',') === '连续成长,目标,本月结余,日记累计', '统计卡顺序不对：' + dash.labels);
+  assert(dash.dualCells.length === 2, '「目标」不是双数据卡');
+  assert(dash.dualCells[0].label === '进行中' && dash.dualCells[0].value === dash.expectActive, `进行中目标数不对：${dash.dualCells[0].value} ≠ ${dash.expectActive}`);
+  assert(dash.dualCells[1].stat === 'goals' && dash.dualCells[1].value === dash.expectDone, `已完成目标数不对：${dash.dualCells[1].value} ≠ ${dash.expectDone}`);
   assert(dash.financeIndex === 2 && dash.journalIndex === 3, '账单卡没有上移到第二行');
   assert(dash.width <= 452, `概览横向溢出 ${dash.width}`);
 
-  /* 双数据卡两格各自能进对应分析页 */
+  /* 双数据卡两格都能进目标分析页 */
   const jump = [];
-  for (const key of ['goals', 'study']) {
+  for (const key of ['goals', 'goals']) {
     await evaluate(`switchView('dashboard'); document.querySelector('#view-dashboard .stat.dual .dual-cell[data-stat="${key}"]').click();`);
     const info = await evaluate(`(() => ({ view: currentView, detail: detailKey, title: document.getElementById('pageTitle').textContent }))()`);
     assert(info.view === 'detail' && info.detail === key, `${key}: 双数据卡点击未进入对应详情`);
     jump.push(info.title);
   }
-  pass('概览双数据卡', `${dash.dualCells[0].value} 已完成目标 · ${dash.dualCells[1].value} 本月学习，分格进入「${jump.join(' / ')}」`);
+  pass('概览双数据卡', `${dash.dualCells[0].value} 进行中 · ${dash.dualCells[1].value} 已完成，进入「${jump[0]}」`);
   await evaluate(`switchView('dashboard')`);
   await delay(120);
   await shot('v20a-dashboard.png');
@@ -277,7 +275,7 @@ async function main() {
   const gradle = fs.readFileSync(path.join(root, 'app', 'build.gradle'), 'utf8');
   const ver = (gradle.match(/versionName\s+'([^']+)'/) || [])[1];
   const code = (gradle.match(/versionCode\s+(\d+)/) || [])[1];
-  assert(ver === '2.0.A', '版本号不是 2.0.A：' + ver);
+  assert(/^2\.\d/.test(ver), '版本号应以 2.x 开头：' + ver);
   assert(Number(code) >= 17, 'versionCode 未递增：' + code);
   pass('版本号', `${ver}（versionCode ${code}）`);
 

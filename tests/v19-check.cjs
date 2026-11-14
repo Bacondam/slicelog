@@ -134,14 +134,21 @@ async function main() {
       inputRadius: [...f.querySelectorAll('input:not([type=hidden]), textarea')].map(e => getComputedStyle(e).borderTopLeftRadius)
     };
   })()`);
-  const expectNames = ['title', 'category', 'deadline', 'dueTime', 'subtasks'];
+  /* v2.2：进度字段只在「按数量」面板里出现，跟着推进方式走 */
+  const expectNames = ['title', 'category', 'track', 'current', 'total', 'unit', 'deadline', 'dueTime', 'subtasks'];
   assert(JSON.stringify(fields.names) === JSON.stringify(expectNames), '表单字段异常：' + JSON.stringify(fields.names));
-  assert(!fields.names.some(n => ['current', 'target', 'unit', 'note'].includes(n)), '旧字段还在：' + JSON.stringify(fields.names));
+  assert(!fields.names.includes('note'), 'note 不该出现在表单里');
   assert(fields.hasSelect === false, '表单里还有原生下拉框');
+  const trackPanel = await evaluate(`(() => {
+    const f = document.querySelector('form[data-form="goal"]');
+    const panes = [...f.querySelectorAll('[data-track-panel="count"]')];
+    return { allHidden: panes.every(p => p.hidden), segs: [...f.querySelectorAll('.track-seg button')].map(b => b.textContent.trim()) };
+  })()`);
+  assert(trackPanel.allHidden && trackPanel.segs.join('/') === '拆小目标/按数量', '推进方式默认应是「拆小目标」且数量面板收起：' + JSON.stringify(trackPanel));
   assert(fields.chips === 6 && fields.chipOn === '学习', '分类胶囊异常：' + fields.chips + ' / ' + fields.chipOn);
   assert(new Set(fields.inputBgs).size === 1, '输入框底色不统一：' + JSON.stringify(fields.inputBgs));
   assert(new Set(fields.inputRadius).size === 1, '输入框圆角不统一：' + JSON.stringify(fields.inputRadius));
-  pass('目标表单精简', `字段 ${fields.names.join('/')}，分类为 6 个胶囊，控件底色圆角一致`);
+  pass('目标表单精简', `字段 ${fields.names.join('/')}，分类 6 个胶囊 + 两种推进方式，控件底色圆角一致`);
 
   /* ---------- 3. 分类胶囊点击写回隐藏字段 ---------- */
   await evaluate(`[...document.querySelectorAll('.cat-opt')].find(b => b.textContent === '财务').click()`);
@@ -294,7 +301,7 @@ async function main() {
   assert(pctAfter === 50, `勾掉 1/2 小目标后进度应为 50，实际 ${pctAfter}`);
   pass('进度由小目标驱动', '1/2 小目标 → 50%');
 
-  /* ---------- 8. 图标统一：习惯 / 学习 / 日记 / 底栏全部线性 SVG ---------- */
+  /* ---------- 8. 图标统一：习惯 / 目标 / 日记 / 底栏全部线性 SVG ---------- */
   await evaluate(`state = seedState(); saveState(); render();`);
   await delay(250);
   const icons = await evaluate(`(() => {
@@ -302,28 +309,27 @@ async function main() {
     switchView('habits');
     const habits = { items: q('#view-habits .habit-item'), badge: q('#view-habits .ico-badge svg'), del: q('#view-habits .habit-item > .icon-btn svg') };
     switchView('goals');
-    const learning = {
-      cards: q('#view-goals .goal-card.is-learn'),
-      chip: q('#view-goals .goal-card.is-learn .chip svg'),
-      acts: q('#view-goals .goal-card.is-learn .icon-btn svg'),
-      stars: q('#view-goals .goal-card.is-learn .stars svg'),
-      inlineForm: q('#view-goals .goal-card.is-learn form[data-form="session"]')
+    /* v2.2 起学习卡并入普通目标卡，这里只看目标卡本身的图标 */
+    const goals = {
+      cards: q('#view-goals .goal-card'),
+      chip: q('#view-goals .goal-card .chip'),
+      acts: q('#view-goals .goal-card .icon-btn svg'),
+      update: q('#view-goals .goal-card [data-action="edit-progress"]')
     };
     switchView('journal');
     const journal = { entries: q('#view-journal .journal-entry'), acts: q('#view-journal .journal-entry .icon-btn svg') };
     switchView('dashboard');
     const nav = q('#nav .ico svg');
-    return { habits, learning, journal, nav };
+    return { habits, goals, journal, nav };
   })()`);
   assert(icons.habits.badge === icons.habits.items && icons.habits.items > 0, '习惯图标没换成线性 SVG：' + JSON.stringify(icons.habits));
   assert(icons.habits.del === icons.habits.items, '习惯删除按钮不是线性图标：' + JSON.stringify(icons.habits));
-  assert(icons.learning.chip === icons.learning.cards, '学习分类标签没带图标：' + JSON.stringify(icons.learning));
-  assert(icons.learning.acts === icons.learning.cards * 2, '学习卡片按钮不全是线性的：' + JSON.stringify(icons.learning));
-  assert(icons.learning.stars >= 5, '星级没换成 SVG：' + JSON.stringify(icons.learning));
-  assert(icons.learning.inlineForm === 0, '学习页的内联「记录学习」表单应已移除');
+  assert(icons.goals.chip === icons.goals.cards, '目标分类标签数量不对：' + JSON.stringify(icons.goals));
+  assert(icons.goals.acts === icons.goals.cards * 2, '目标卡片按钮不全是线性的：' + JSON.stringify(icons.goals));
+  assert(icons.goals.update > 0, '按数量推进的卡片缺少「更新进度」入口');
   assert(icons.journal.acts === icons.journal.entries * 2, '日记按钮不全是线性的：' + JSON.stringify(icons.journal));
   assert(icons.nav === 5, '底栏图标不是 5 个 SVG：' + icons.nav);
-  pass('图标统一', `习惯 ${icons.habits.badge} 个徽标 / 学习 ${icons.learning.chip} 个分类 / 底栏 6 个，全部线性 SVG`);
+  pass('图标统一', `习惯 ${icons.habits.badge} 个徽标 / 目标 ${icons.goals.cards} 张卡 / 底栏 5 个，全部线性 SVG`);
 
   /* ---------- 9. 五套新配色接入主题系统 ---------- */
   const themes = await evaluate(`(() => {
