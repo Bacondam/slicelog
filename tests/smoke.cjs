@@ -127,7 +127,6 @@ async function main() {
   await evaluate(`(() => {
     const form = document.querySelector('form[data-form="goal"]');
     form.elements.title.value = '安卓测试目标';
-    form.elements.target.value = '20';
     form.requestSubmit();
   })()`);
   assert(await evaluate(`state.goals.some(g => g.title === '安卓测试目标')`), '新建目标失败');

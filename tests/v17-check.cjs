@@ -119,11 +119,11 @@ async function main() {
   assert(base.strips === 4, `已完成目标应一条一行共 4 条，实际 ${base.strips}`);
   assert(base.titles.length === 4 && new Set(base.titles).size === 4, '已完成目标标题没有拆开：' + JSON.stringify(base.titles));
   assert(base.titles.every(t => !t.includes('·')), '标题仍被拼接在一条里');
-  assert(base.circles.every(c => c && c.w === 32 && c.h === 32), '⊕ 按钮尺寸不是 32px：' + JSON.stringify(base.circles));
+  assert(base.circles.every(c => c && c.w === 26 && c.h === 26), '⊕ 按钮尺寸不是 26px：' + JSON.stringify(base.circles));
   assert(base.circles.every(c => c.hasPlus), '折叠状态应显示加号');
   assert(base.headBtn === '⊕' && !base.headMinus, '区块标题按钮应为 ⊕');
   assert(base.overflow <= 452, `页面出现横向溢出：${base.overflow}`);
-  pass('已完成目标一条一行', `4 条，每行右侧 ⊕ 32×32`);
+  pass('已完成目标一条一行', `4 条，每行右侧 ⊕ 26×26`);
 
   /* ---------- 2. 单条点击展开 / 收起 ---------- */
   const firstId = await evaluate(`state.goals[0].id`);
@@ -218,14 +218,14 @@ async function main() {
     const body = document.querySelector('.quick-body');
     return { w: Math.round(r.width), h: Math.round(r.height), minus: b.classList.contains('minus'), hidden: body.hasAttribute('hidden'), bodyH: Math.round(body.getBoundingClientRect().height) };
   })()`);
-  assert(quickBtn.w === 32 && quickBtn.h === 32, '记账 ⊕ 尺寸异常：' + JSON.stringify(quickBtn));
+  assert(quickBtn.w === 30 && quickBtn.h === 30, '记账 ⊕ 尺寸异常：' + JSON.stringify(quickBtn));
   assert(quickBtn.minus === !quickBtn.hidden, '记账 ⊕/⊖ 状态与实际展开不一致');
   await evaluate(`document.querySelector('[data-action="toggle-quick"]').click()`);
   await delay(250);
   const quickAfter = await evaluate(`(() => { const b = document.querySelector('.quick-body'); return { hidden: b.hasAttribute('hidden'), bodyH: Math.round(b.getBoundingClientRect().height), minus: document.querySelector('[data-action="toggle-quick"]').classList.contains('minus') }; })()`);
   assert(quickAfter.bodyH === 0, '收起后表单区域仍然占位：' + quickAfter.bodyH);
   assert(quickAfter.minus === !quickAfter.hidden, '合并快捷键点击后状态不同步');
-  pass('记账「快速记一笔」⊕ ⊖', `32×32，点击切换正常`);
+  pass('记账「快速记一笔」⊕ ⊖', `30×30，点击切换正常`);
 
   /* ---------- 7. 日记写作区折叠仍可用 ---------- */
   await evaluate(`switchView('journal')`);

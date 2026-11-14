@@ -104,7 +104,7 @@ async function main() {
   }))()`);
   assert(/月\d+日/.test(dash.title), `顶部标题不是日期：${dash.title}`);
   assert(dash.title.includes('周'), `日期缺少星期：${dash.title}`);
-  assert(dash.sub === '' && dash.subHidden, '顶部副标题未清空');
+  assert(dash.sub.length >= 4 && !dash.subHidden, '顶部未显示每日一句：' + dash.sub);
   assert(dash.hero === 0, '概览仍有 hero 卡片');
   assert(dash.study === false, '概览仍有「近 14 天学习」');
   assert(dash.stats === 5, `统计卡数量异常：${dash.stats}`);

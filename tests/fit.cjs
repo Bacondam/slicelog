@@ -209,7 +209,7 @@ async function main() {
   })()`);
   assert(modalFit.bottom <= modalFit.vh - modalFit.sab + 1, `弹窗底部被手势条遮挡 ${JSON.stringify(modalFit)}`);
   await evaluate(`(() => { const f = document.querySelector('form[data-form="goal"]');
-    f.elements.title.value = 'Find X8 Ultra 测试'; f.elements.target.value = '30'; f.requestSubmit(); })()`);
+    f.elements.title.value = 'Find X8 Ultra 测试'; f.requestSubmit(); })()`);
   assert(await evaluate(`state.goals.some(g => g.title === 'Find X8 Ultra 测试')`), '新建目标失败');
   passed.push('目标创建 + 弹窗安全区');
 

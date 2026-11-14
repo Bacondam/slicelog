@@ -194,7 +194,8 @@ try {
   }
   .nav button:hover { background: var(--bg); color: var(--text); }
   .nav button.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
-  .nav .ico { width: 20px; text-align: center; font-size: 15px; }
+  .nav .ico { width: 20px; text-align: center; font-size: 15px; display: grid; place-items: center; }
+  .nav .ico svg { width: 1em; height: 1em; display: block; }
   .sidebar-foot {
     margin-top: auto; display: flex; flex-direction: column; gap: 4px;
     border-top: 1px solid var(--line); padding-top: 14px;
@@ -420,7 +421,6 @@ try {
   }
   .habit-line:first-of-type { border-top: 0; }
   .habit-line:hover { background: var(--bg); }
-  .habit-line .emoji { font-size: 18px; width: 24px; text-align: center; }
   .habit-line .name { flex: 1; font-weight: 500; }
   .habit-line .streak { font-size: 11px; color: var(--muted); }
   .check {
@@ -599,7 +599,6 @@ try {
     flex-wrap: wrap;
   }
   .habit-info { display: flex; align-items: center; gap: 10px; min-width: 170px; flex: 1; }
-  .habit-info .emoji-big { font-size: 24px; }
   .habit-info strong { display: block; font-size: 14px; }
   .habit-info .meta { font-size: 11.5px; color: var(--muted); }
   .week { display: flex; gap: 6px; }
@@ -1001,6 +1000,236 @@ try {
     .nav .ico { font-size: 15px; }
     .toast { bottom: calc(64px + var(--sab)); }
   }
+
+  /* ============================================================
+     v1.9.A — 统一与精简
+     ============================================================ */
+
+  /* ① 表单控件：同一底色 / 同一描边 / 同一圆角 / 同一焦点态 */
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+    min-height: 42px;
+    line-height: 1.35;
+  }
+  select {
+    appearance: none; -webkit-appearance: none;
+    padding-right: 36px;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%2368766e' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+  }
+  [data-mode="dark"] select {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%2393a49b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+  textarea { min-height: 72px; resize: vertical; }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  /* 去掉 WebView 自带日历/时钟小图标，避免和主题打架 */
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
+
+  /* ② 分类：胶囊选择器，替代原生下拉 */
+  .cat-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .cat-opt {
+    padding: 9px 8px; border-radius: 11px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--muted); font-size: 13px; font-weight: 600;
+    transition: .15s; text-align: center;
+  }
+  .cat-opt:hover { border-color: var(--accent); color: var(--accent); }
+  .cat-opt.on {
+    background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+  }
+  .cat-opt:active { transform: scale(.96); }
+
+  /* ③ 截止时间：自绘入口按钮，替代原生 date/time 输入框 */
+  .field-btn {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    width: 100%; padding: 10px 12px; min-height: 42px; text-align: left;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 12px;
+    color: var(--text); font-size: 13.5px; transition: .15s;
+  }
+  .field-btn:hover { border-color: var(--accent); }
+  .field-btn .fb-val { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .field-btn .fb-val.is-empty { color: var(--muted); }
+  .field-btn svg { flex: none; color: var(--muted); }
+
+  /* ④ 自绘日期 + 时间选择器 */
+  .picker-mask {
+    position: fixed; inset: 0; background: rgba(9,18,14,.44); z-index: 70;
+    display: flex; align-items: flex-end; justify-content: center; padding: 16px;
+    padding-bottom: calc(16px + var(--sab));
+  }
+  .picker-mask.hidden { display: none; }
+  .picker {
+    width: min(420px, 100%); background: var(--card); border: 1px solid var(--line);
+    border-radius: 20px; padding: 16px; box-shadow: 0 24px 60px rgba(0,0,0,.3);
+    animation: pop .16s ease;
+  }
+  .picker-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .picker-head h4 { font-size: 14px; font-weight: 700; }
+  .picker-nav { display: flex; align-items: center; gap: 12px; }
+  .picker-nav .mon { font-size: 13px; font-weight: 600; min-width: 74px; text-align: center; }
+  .picker-nav button {
+    width: 28px; height: 28px; border-radius: 9px; border: 1px solid var(--line);
+    color: var(--muted); font-size: 13px; background: var(--bg);
+  }
+  .picker-nav button:active { transform: scale(.94); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-grid .wd { text-align: center; font-size: 10px; color: var(--muted); padding: 4px 0; }
+  .cal-day {
+    height: 34px; border-radius: 9px; font-size: 12.5px; color: var(--text);
+    transition: .12s; background: transparent;
+  }
+  .cal-day:hover { background: var(--bg); }
+  .cal-day.mute { color: var(--muted); opacity: .32; }
+  .cal-day.today { box-shadow: inset 0 0 0 1.4px var(--accent); }
+  .cal-day.on { background: var(--accent); color: var(--on-accent); font-weight: 700; }
+  .cal-day.on:hover { background: var(--accent); }
+  .picker-sep { height: 1px; background: var(--line); margin: 13px 0 11px; }
+  .picker-row { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .picker-row .lbl { font-size: 11.5px; color: var(--muted); width: 28px; flex: none; }
+  .chip-btn {
+    padding: 7px 13px; border-radius: 9px; border: 1px solid var(--line);
+    font-size: 12.5px; color: var(--muted); background: var(--bg); transition: .15s;
+  }
+  .chip-btn.on {
+    background: var(--accent-soft); border-color: var(--accent);
+    color: var(--accent); font-weight: 700;
+  }
+  .picker-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 14px; }
+  .picker-foot .link-btn { color: var(--muted); }
+
+  /* ⑤ 目标卡片：压缩高度、操作按钮同规格 */
+  .goal-card { padding: 13px 14px 12px; }
+  .goal-acts { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+  .goal-acts .icon-btn,
+  .goal-acts .collapse-btn.pm {
+    width: 30px; height: 30px; padding: 0; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--card); color: var(--muted);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0; line-height: 0; flex: 0 0 auto;
+  }
+  .goal-acts .icon-btn svg { width: 14px; height: 14px; }
+  .goal-acts .collapse-btn.pm::before { width: 11px; margin-left: -5.5px; }
+  .goal-acts .collapse-btn.pm::after { height: 11px; margin-top: -5.5px; }
+  .goal-acts .icon-btn:hover { background: var(--bg); color: var(--text); }
+  .goal-acts .icon-btn.danger:hover {
+    background: rgba(194,65,58,.09); color: var(--danger); border-color: rgba(194,65,58,.3);
+  }
+  .goal-acts .collapse-btn.pm:hover { background: var(--bg); color: var(--text); border-color: var(--line); opacity: 1; }
+  .goal-acts .collapse-btn.pm.minus {
+    background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+  }
+  .goal-line { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+  .goal-line .goal-title { margin: 0; flex: 1; min-width: 0; }
+  .goal-due { font-size: 11px; color: var(--muted); white-space: nowrap; flex: none; }
+  .goal-due.soon { color: var(--accent-2); font-weight: 600; }
+  .goal-due.over { color: var(--danger); font-weight: 600; }
+  .goal-prog { display: flex; align-items: center; gap: 9px; margin-top: 9px; }
+  .goal-prog .progress { flex: 1; margin: 0; }
+  .goal-prog .cnt {
+    font-size: 11px; color: var(--muted); white-space: nowrap;
+    font-variant-numeric: tabular-nums; letter-spacing: -.2px;
+  }
+  .goal-card .sub-wrap { margin-top: 10px; padding-top: 9px; }
+  .goal-card .sub-wrap > .sub-head { display: none; }
+  .goal-card .sub-list { margin-top: 2px; padding: 0; list-style: none; }
+
+  /* 折叠按钮全局同规格：30×30、圆角 10、灰描边；展开态才用强调色 */
+  .collapse-btn.pm {
+    width: 30px; height: 30px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--card);
+    color: var(--muted); opacity: 1;
+  }
+  .collapse-btn.pm::before { width: 12px; margin-left: -6px; }
+  .collapse-btn.pm::after { height: 12px; margin-top: -6px; }
+  .collapse-btn.pm:hover {
+    background: var(--bg); color: var(--text);
+    border-color: var(--line); opacity: 1; transform: none;
+  }
+  .collapse-btn.pm.minus {
+    background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+  }
+  .collapse-btn.pm.minus:hover {
+    background: var(--accent-soft); color: var(--accent); border-color: var(--accent);
+  }
+  .done-strip .collapse-btn.pm { width: 26px; height: 26px; border-radius: 9px; }
+  .goal-card .sub-add { margin-top: 6px; }
+
+  /* ⑥ 概览「今日一句」 */
+  .topbar .page-sub.quote-line {
+    position: relative; padding-left: 11px; margin-top: 7px;
+    font-size: 13px; color: var(--text); opacity: .76; line-height: 1.5;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .topbar .page-sub.quote-line::before {
+    content: ''; position: absolute; left: 0; top: 3px; bottom: 3px;
+    width: 2px; border-radius: 2px; background: var(--accent); opacity: .38;
+  }
+
+  /* ⑦ v1.9.B 时间快捷选择 */
+  .time-quick { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+  .time-quick .chip-btn { min-width: 62px; text-align: center; font-variant-numeric: tabular-nums; }
+  .time-custom { display: flex; align-items: center; gap: 6px; margin-top: 9px; }
+  .time-num {
+    width: 56px; height: 38px; text-align: center; padding: 0 2px;
+    font-size: 15px; font-weight: 700; color: var(--text);
+    background: var(--bg); border: 1px solid var(--line); border-radius: 10px;
+    appearance: textfield; -moz-appearance: textfield;
+    font-variant-numeric: tabular-nums;
+  }
+  .time-num::-webkit-outer-spin-button, .time-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .time-num:focus {
+    outline: none; border-color: var(--accent);
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .time-colon { font-size: 15px; font-weight: 700; color: var(--muted); }
+  .time-hint { font-size: 11px; color: var(--muted); margin-left: 3px; }
+
+  /* ⑧ 统一的线性图标容器（习惯 / 学习 / 日记） */
+  .ico-badge {
+    width: 34px; height: 34px; flex: none; border-radius: 11px;
+    display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent);
+  }
+  .ico-badge svg { width: 17px; height: 17px; }
+  .habit-info .ico-badge { width: 36px; height: 36px; border-radius: 12px; }
+  .habit-line .ico-badge.sm { width: 26px; height: 26px; border-radius: 8px; }
+  .habit-line .ico-badge.sm svg { width: 14px; height: 14px; }
+  .habit-item > .icon-btn,
+  .learn-card .icon-btn,
+  .journal-entry .icon-btn {
+    width: 30px; height: 30px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--card);
+  }
+  .habit-item > .icon-btn svg,
+  .learn-card .icon-btn svg,
+  .journal-entry .icon-btn svg { width: 14px; height: 14px; }
+  .habit-item > .icon-btn:hover,
+  .learn-card .icon-btn:hover,
+  .journal-entry .icon-btn:hover { background: var(--bg); color: var(--text); }
+  .chip svg { width: 12px; height: 12px; flex: none; }
+  .stat .stat-ico svg { width: 15px; height: 15px; color: var(--muted); }
+  .learn-card .chip { padding: 3px 10px 3px 8px; }
+  .stars button { padding: 0; display: grid; place-items: center; }
+  .stars button svg { width: 17px; height: 17px; display: block; }
+  .stars button.on { color: var(--accent-2); }
+  /* 新建习惯的图标选择 */
+  .icon-pick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 2px; }
+  .icon-pick button {
+    height: 44px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--muted);
+    display: grid; place-items: center; transition: .15s;
+  }
+  .icon-pick button svg { width: 19px; height: 19px; }
+  .icon-pick button.on {
+    background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
+  }
 </style>
 </head>
 <body>
@@ -1018,12 +1247,12 @@ try {
       <div><h1>成长日志</h1><span class="sub">Growth OS</span></div>
     </div>
     <nav class="nav" id="nav">
-      <button data-action="nav" data-view="dashboard" class="active"><span class="ico">📊</span>概览</button>
-      <button data-action="nav" data-view="goals"><span class="ico">🎯</span>目标</button>
-      <button data-action="nav" data-view="habits"><span class="ico">🔥</span>习惯</button>
-      <button data-action="nav" data-view="journal"><span class="ico">✍️</span>日记</button>
-      <button data-action="nav" data-view="learning"><span class="ico">📚</span>学习</button>
-      <button data-action="nav" data-view="finance"><span class="ico">💰</span>记账</button>
+      <button data-action="nav" data-view="dashboard" class="active"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 20v-9M12 20V4.5M19 20v-6"/></svg></span>概览</button>
+      <button data-action="nav" data-view="goals"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.9"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/></svg></span>目标</button>
+      <button data-action="nav" data-view="habits"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5A3.5 3.5 0 0 1 7.5 6H19"/><path d="M16 3l3.2 3L16 9"/><path d="M20 14.5A3.5 3.5 0 0 1 16.5 18H5"/><path d="M8 15l-3.2 3L8 21"/></svg></span>习惯</button>
+      <button data-action="nav" data-view="journal"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h8l5 5v10a1.6 1.6 0 0 1-1.6 1.6H5.5A1.6 1.6 0 0 1 3.9 19.5v-13A1.6 1.6 0 0 1 5.5 4.5z"/><path d="M13.5 4.5v5h5"/><path d="M8 13.5h7M8 17h4.5"/></svg></span>日记</button>
+      <button data-action="nav" data-view="learning"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 8 4.3 5 4.3v13.9c3 0 5.4.8 7 2.3 1.6-1.5 4-2.3 7-2.3V4.3c-3 0-5.4.8-7 2.3z"/><path d="M12 6.6v13.9"/></svg></span>学习</button>
+      <button data-action="nav" data-view="finance"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10.2h18"/><circle cx="16.6" cy="14.6" r="1.1" fill="currentColor" stroke="none"/></svg></span>记账</button>
     </nav>
     <div class="sidebar-foot">
       <button id="shareBtn">📤 分享备份到微信</button>
@@ -1095,6 +1324,384 @@ const fmtNum = n => String(Math.round(Number(n) * 10) / 10);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
 const MOOD = { 5: '😄', 4: '🙂', 3: '😐', 2: '😕', 1: '😞' };
+/* ==================== 每日一句（365 条，按天轮换） ==================== */
+const QUOTES = [
+  "选那条让你更自由的路。",
+  "少解释，多做事。",
+  "手写清单比脑子可靠。",
+  "忙不等于在进步。",
+  "你走的每一步都算数。",
+  "不必每天都过得有意义。",
+  "想到就做，做完再想。",
+  "做好自己就够难了。",
+  "留点钱，心里有底。",
+  "改变不需要许可。",
+  "你怎么过一天，就怎么过一生。",
+  "不必看清全路才出发。",
+  "先照顾好自己，再谈其他。",
+  "自我讨厌是最亏的努力。",
+  "你已经很不容易了。",
+  "先出门，路才出现。",
+  "别用自己的标准要求所有人。",
+  "累到不行，就睡一觉。",
+  "起点低不要紧，站着才要紧。",
+  "不怕才怪，怕了还走才叫勇。",
+  "先深呼吸四次。",
+  "你不是机器，不用待机。",
+  "不用一次想清十年。",
+  "不必一直坚强，真实就行。",
+  "边界越清楚，活得越舒服。",
+  "会疼说明还在长。",
+  "早起很难，早睡更难。",
+  "有人只能陪你一段。",
+  "烦躁就走走，腿动心通。",
+  "该花的花，该省的省。",
+  "休息本身就是意义。",
+  "你不是想太多，是太在意。",
+  "睡得晚，是因为舍不得今天。",
+  "和让你放松的人待着。",
+  "春天不会跳过谁。",
+  "别用别人的尺子量自己。",
+  "收尾比开头更费劲。",
+  "往前走，别数脚印。",
+  "定期扔东西，包括旧念头。",
+  "想要的生活在待办里。",
+  "别用「没时间」掩盖「不想」。",
+  "家务做不到完美没关系。",
+  "别把「忍一忍」当终身方案。",
+  "不必为一段关系变成别人。",
+  "你比自己以为的敢。",
+  "别把自己当成待修的东西。",
+  "你担心的事，多半不来。",
+  "你不负责别人的情绪。",
+  "你撑过那么多次了。",
+  "一个人吃饭也用好看的碗。",
+  "时间是公平的，它都记着。",
+  "你比想象中更有韧性。",
+  "不必每次都优秀。",
+  "慢一点，也别停。",
+  "想见的人现在就去见。",
+  "第一步永远最贵。",
+  "你身上有你羡慕的东西。",
+  "你不必赢过昨天，只需不退回。",
+  "不用天天精彩，不难受就行。",
+  "缺点只是一部分，不是全部。",
+  "一年够做成一件小事。",
+  "你可以普通，可以慢。",
+  "光从你没锁的窗进来。",
+  "三年后它会替你说话。",
+  "允许自己今天只有六十分。",
+  "关掉通知，多出一小时。",
+  "手机外还有大世界。",
+  "拖延是我的核心竞争力。",
+  "你不需要被所有人理解。",
+  "不是不想动，是腿有想法。",
+  "试错成本低于后悔成本。",
+  "看不到结果时，往往快到了。",
+  "真在乎你的人不用提醒。",
+  "想做就做，别先自我否决。",
+  "早上第一小时定一天的味。",
+  "做完的人比想得好的人值钱。",
+  "被误解是常态。",
+  "开心不需要理由。",
+  "裂缝是给光留的门。",
+  "把「我要」改成「我在」。",
+  "可以情绪化，别被领着走。",
+  "好好吃饭，是最基础的修复。",
+  "现在就是最好的时机。",
+  "你的价值不用别人盖章。",
+  "写下来就不吓人了。",
+  "我的一天从第二杯咖啡开始。",
+  "先把今天过完。",
+  "允许断电，你自带充电宝。",
+  "犹豫就选难走的那条。",
+  "一天不算什么，一千天算。",
+  "别用最好的时间应付小事。",
+  "回不到过去，但能从现在开始。",
+  "番茄钟不是魔法，专注是。",
+  "走路时抬头看看天。",
+  "我的「说到做到」只做到说到。",
+  "现在开始，永远不晚。",
+  "关系要维护，也要筛选。",
+  "把失败想太重，才不敢开始。",
+  "选完别回头。",
+  "有些告别是腾地方。",
+  "坚持不是死磕，是再来一次。",
+  "成果都在你不想练的那天。",
+  "更好的你在前面等你。",
+  "完成比完美重要。",
+  "第一次最难，第二次平常。",
+  "你不欠任何人解释。",
+  "选了一条路，别看另一条。",
+  "「完了」改成「有点麻烦」。",
+  "学会说不，你会轻很多。",
+  "一天一点，一年三百点。",
+  "今天只做了一件事：活着。",
+  "你已经在改了，别打断自己。",
+  "完美是拖延的外衣。",
+  "我的自律在收藏夹里。",
+  "累就歇，别把歇当放弃。",
+  "你值得一个好消息。",
+  "深度一小时，胜过忙一天。",
+  "你不需要向谁解释低谷。",
+  "说不，是在保护时间。",
+  "想要，就去拿。",
+  "先别急着讨厌自己。",
+  "别等状态，先动。",
+  "别人卷，我卷被子。",
+  "别在发芽前把它拔出来。",
+  "雨停后空气最好。",
+  "允许崩溃，但设个闹钟。",
+  "一顿热饭能治很多情绪。",
+  "笨拙的那部分也是你。",
+  "想一万遍，不如试一遍。",
+  "你忍的会变成你能扛的。",
+  "该说的话早该说。",
+  "洗衣服的水声很治愈。",
+  "会累说明在往上走。",
+  "你已经在路上了，别回头。",
+  "计划再美，不如动手。",
+  "你只是迷路，不是走错人生。",
+  "目标不大，就是不想动。",
+  "转机正在路上。",
+  "别让「以后」变成「从不」。",
+  "质感藏在小事里，不在购物车。",
+  "行动是焦虑的解药。",
+  "你不需要说服谁。",
+  "今天递梯子给明天。",
+  "减肥从明天开始，明天也是。",
+  "今天的水磨，明天的刀锋。",
+  "我唯一准时的是迟到。",
+  "吃得下睡得着走得动，就好。",
+  "慢点吃饭，身体会谢你。",
+  "好日子不声不响就来。",
+  "最值钱的是没人打扰那小时。",
+  "犯错不会让你贬值。",
+  "努力的方向不会白费。",
+  "被讨厌需要练习。",
+  "先啃硬骨头。",
+  "别问值不值，先做够久。",
+  "你的感受不需要先证明。",
+  "复利长在你身上。",
+  "别拿别人的进度表量自己。",
+  "收拾房间，脑子也清了。",
+  "每天出现，比每天满分强。",
+  "自责说明在乎，别过头。",
+  "孤独不可怕，错的人才可怕。",
+  "今天做，别等明天。",
+  "错就错，改了就行。",
+  "会减法的人更快。",
+  "走过的路会在你身上发光。",
+  "最坏的结果，大多不来。",
+  "先理桌面，再理思路。",
+  "拆到不会失败为止。",
+  "沉默有时最体面。",
+  "会好的，这是统计不是安慰。",
+  "难过是真的，也会过去。",
+  "反复卡住处就是突破口。",
+  "不用对所有人好脾气。",
+  "你不是脆弱，是撑久了。",
+  "远路难走，但站着更难受。",
+  "先喝水，再讲道理。",
+  "今年不做，明年照旧。",
+  "关系里最贵的是听。",
+  "一切都会过去。",
+  "手先动，脑子会跟上。",
+  "感谢要说出口。",
+  "三年不长，够你换个人。",
+  "让情绪坐会儿，别住下。",
+  "洗个热水澡，事就轻了。",
+  "今天过完就算赢。",
+  "今天到此为止，明天继续发光。",
+  "先做五分钟。",
+  "一件没完，别开第二件。",
+  "时间不能省着用。",
+  "明天是新的，今天很糟也是。",
+  "该折腾的年纪别太稳。",
+  "没有人是突然变好的。",
+  "怕也要做，做完不怕。",
+  "你也值得被自己温柔对待。",
+  "每次坚持都在抬高下限。",
+  "你可以不解释、不讨好。",
+  "晒十分钟太阳，胜过刷一小时。",
+  "我努力了，我努力地躺下。",
+  "一公里人多，十公里人少。",
+  "每天多一件，一年多三百件。",
+  "慢没关系，别停就行。",
+  "一次只做一件事。",
+  "打着鸡血，睡着大觉。",
+  "别卷了，头发会走。",
+  "不用一次跨过整条沟。",
+  "把喜欢的事排进日程。",
+  "你也闪光过，别装忘。",
+  "慢不是问题，停才是。",
+  "情绪没有对错，做法有。",
+  "一做事就想上厕所。",
+  "我不是没时间，是没心情。",
+  "情绪是天气，你不是天气。",
+  "今天多走一步，明天少走一步。",
+  "你怕的不是失败，是被看见。",
+  "别用一生准备生活。",
+  "竹子四年，第五年疯长。",
+  "机会只来一次，也会等你。",
+  "喝水，很多难受会缓解。",
+  "撑不住就说，别硬扛。",
+  "开了头就不难了。",
+  "不用人人满意，自己不后悔。",
+  "别总说「我就这样」。",
+  "五分钟的事，别过夜。",
+  "你不欠谁一个更好的自己。",
+  "有些花在秋天开。",
+  "事与愿违，多半另有安排。",
+  "起不来的早上，不算数。",
+  "我不是摆烂，是战略休息。",
+  "熬得住无人问津。",
+  "会做减法，日子更清。",
+  "时间给谁，命就给谁。",
+  "答案在走的过程里。",
+  "星星白天也在。",
+  "别等所有人同意再动。",
+  "别急，慌里没有好决定。",
+  "我不拖延，我只是在酝酿。",
+  "学不动时，先学会休息。",
+  "给自己买束花，不需要理由。",
+  "答案会在路上出现。",
+  "你不是懒，你是在省电。",
+  "别人的成功不是你的失败。",
+  "不必和所有人合得来。",
+  "手机放远，注意回来。",
+  "好起来是慢慢发生的。",
+  "你只是还没到开花那页。",
+  "做过的事会连成线。",
+  "不用很厉害开始，开始才厉害。",
+  "松懈一天不会毁掉你。",
+  "注意力在哪，成果在哪。",
+  "半路开始也算开始。",
+  "做错至少知道往哪改。",
+  "我的闹钟比我勇敢。",
+  "今天先当人，明天当神。",
+  "拆小一点，怕就少一半。",
+  "人生建议：先吃口饭。",
+  "会走的人本来就不顺路。",
+  "别人看结果，你知过程。",
+  "会哭不是软弱，是排毒。",
+  "你还有机会，今天就是。",
+  "看起来的轻松都是熬出来的。",
+  "不必信一切会好，能试就行。",
+  "身体比你先知道你在勉强。",
+  "你的人生不用投票通过。",
+  "天好就出门，别待在屋里。",
+  "长跑没有冲刺，只有节奏。",
+  "心累就先放下手机。",
+  "一点点来，其实更快。",
+  "有些决定只能自己下。",
+  "你退一步，别人就进一步。",
+  "计划再全，生活自有安排。",
+  "生活偶尔发糖，伸手接。",
+  "慢工细活，别慢到做不完。",
+  "你会变成你常来往的人。",
+  "每天留一段不被打扰。",
+  "留白也是生活。",
+  "你做得够多了，可以歇。",
+  "你缺的不是勇气，是习惯。",
+  "日子是一天一天过出来的。",
+  "你努力的样子，是未来的样子。",
+  "偶尔浪费时间，也是尊重。",
+  "今天的我，明天的传奇。",
+  "想太远，手太闲。",
+  "沉默的日子在攒力气。",
+  "好事来得很安静。",
+  "你是解题的人，不是题。",
+  "你焦虑的事，没人注意。",
+  "别把天赋挂在嘴上，动手。",
+  "会照顾人，也要会被人照顾。",
+  "可以难过，别让它当家。",
+  "别问为什么是我，试试能怎样。",
+  "别在信息里游泳。",
+  "睡前半小时不看手机。",
+  "勇气是怕着也去。",
+  "最累的时候别做决定。",
+  "先做个粗糙的版本。",
+  "喘不过气的多半是想象。",
+  "期待明天，也过好今天。",
+  "今天不动，明天照旧。",
+  "我和理想之间差一个我。",
+  "早睡是最高性价比。",
+  "好的关系不用小心翼翼。",
+  "我不怕难，我怕开始。",
+  "该争的争，该让的让。",
+  "我不缺目标，缺的是开始。",
+  "今天开始，时间就是朋友。",
+  "开始就没有太晚。",
+  "不必每天状态在线。",
+  "我的毅力是充电式的。",
+  "不必参与每场争论。",
+  "拖延是怕做不好。",
+  "铺好床，就有了第一个完成。",
+  "一天不练自己知道。",
+  "天会亮，有时晚点。",
+  "计划做了，等于完成一半。",
+  "先努力，才有得选。",
+  "细节要值那个价。",
+  "不用赢过谁，别背叛自己。",
+  "别等雨停，学着淋雨走。",
+  "别信三天速成，信三年不弃。",
+  "别用今天否定全部过去。",
+  "有盏喜欢的灯，人不容易丧。",
+  "种子在土里也在长。",
+  "焦虑不会让事变好，动手会。",
+  "你不用变完美才配被喜欢。",
+  "重新开始，你又不是没试过。",
+  "帮人是情分，不帮是本分。",
+  "做少一点，做对一点。",
+  "你要的风正在翻山。",
+  "你要的是决定，不是时机。",
+  "普通也很不容易。",
+  "别把「有空」说成一辈子。",
+  "少看别人，多做自己。",
+  "走一步看一步，也是走。",
+  "最后几百米别回头。",
+  "你有资格过轻松一点。",
+  "一天只安排三件事。",
+  "质变前有一大段没人鼓掌。",
+  "做起来没那么可怕。",
+  "我也曾热血过，昨天。",
+  "你的边界不是冷漠，是自爱。",
+  "深夜别清算，写清单。",
+  "说出来就不好意思不做。",
+  "焦虑的反面是具体。",
+  "与其讨好，不如坦率。",
+  "走到最后的，是没走的。",
+  "你现在的水深，是以后的高度。",
+  "有些话不用赢，说完就放。",
+  "你的优先级写在你日程上。",
+  "别用忙碌证明努力。",
+  "你的时间比你以为的够。",
+  "今天先睡，明天再想。",
+  "先走一步，再说。",
+  "风不来，就自己做帆。",
+  "你不是不够好，是还没习惯。",
+  "你不是没进步，是在打地基。",
+  "你值得被好好对待。",
+  "我能坚持，坚持放弃。",
+  "别人怎么看你，是他的事。",
+  "怕的是原地转圈，不是慢。",
+  "你比自己以为的能扛。",
+  "重复的事做久了就不简单。",
+  "不是不专注，是总被打断。",
+  "运动计划在购物车里。",
+  "手停嘴就闲，手勤心就静。"
+];
+
+/** 距 1970-01-01 的天数（用 UTC 算，避免时区/夏令时跳变） */
+function dayIndexOf(d) {
+  return Math.floor((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(1970, 0, 1)) / 86400000);
+}
+function quoteOfDay(d) {
+  const n = dayIndexOf(d || new Date());
+  return QUOTES[((n % QUOTES.length) + QUOTES.length) % QUOTES.length];
+}
+
 const CATS = [['学习', 1], ['健康', 0], ['事业', 3], ['财务', 2], ['关系', 4], ['其他', 5]];
 const FIN_CATS = {
   expense: [
@@ -1389,6 +1996,10 @@ function saveState() {
 
 /* ==================== 统计辅助 ==================== */
 function goalPct(g) {
+  // 有小目标时用「已完成小目标 / 全部小目标」，没有才回退到数值进度
+  const st = goalSubStats(g);
+  if (st.total) return clamp(Math.round(st.done / st.total * 100), 0, 100);
+  if (g.done) return 100;
   const target = Number(g.target) || 0;
   if (!target) return 0;
   return clamp(Math.round((Number(g.current) || 0) / target * 1000) / 10, 0, 100);
@@ -1579,17 +2190,21 @@ function render() {
   $$('#nav button').forEach(b => b.classList.toggle('active', b.dataset.view === navActive));
   const meta = VIEW_META[currentView];
   if (currentView === 'dashboard') {
-    // 概览顶部只保留日期，字号与标题一致
+    // 概览顶部：问候 + 日期，下面挂一句当天的文案
     const d = new Date();
     const hour = d.getHours();
     const greet = hour < 6 ? '夜深了' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好';
     $('#pageTitle').textContent = `${greet} · ${d.getMonth() + 1}月${d.getDate()}日 周${WEEK[d.getDay()]}`;
-    $('#pageSub').textContent = '';
-    $('#pageSub').hidden = true;
+    const sub = $('#pageSub');
+    sub.textContent = quoteOfDay(d);
+    sub.className = 'page-sub quote-line';
+    sub.hidden = false;
   } else {
     $('#pageTitle').textContent = meta.title;
-    $('#pageSub').textContent = meta.sub;
-    $('#pageSub').hidden = false;
+    const sub = $('#pageSub');
+    sub.className = 'page-sub';
+    sub.textContent = meta.sub;
+    sub.hidden = false;
   }
   $('#todayChip').textContent = `${new Date().getFullYear()}年${new Date().getMonth() + 1}月${new Date().getDate()}日 周${WEEK[new Date().getDay()]}`;
   const renderers = { dashboard: renderDashboard, goals: renderGoals, habits: renderHabits, journal: renderJournal, learning: renderLearning, finance: renderFinance, detail: renderDetail };
@@ -1694,11 +2309,11 @@ function renderDashboard() {
   const greet = hour < 6 ? '夜深了' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好';
 
   const stats = [
-    { key: 'streak', label: '连续成长', value: `${streak} 天`, icon: '🔥', hint: streak > 0 ? '别让链条断掉' : '今天就是起点' },
-    { key: 'study', label: '本月学习', value: monthMin >= 60 ? `${(monthMin / 60).toFixed(1)} 小时` : `${monthMin} 分钟`, icon: '📚', hint: `今日 ${fmtDuration(todayMin)}` },
-    { key: 'goals', label: '目标平均进度', value: `${avg}%`, icon: '🎯', hint: `进行中 ${activeGoals.length} 个${doneGoalCount ? ` · 已完成 ${doneGoalCount}` : ''}` },
-    { key: 'journal', label: '日记累计', value: `${state.journal.length} 篇`, icon: '✍️', hint: '记录即成长' },
-    { key: 'finance', label: '本月结余', value: fmtMoney(fin.balance), icon: '💰', hint: `收 ${fmtMoneyShort(fin.income)} · 支 ${fmtMoneyShort(fin.expense)}` }
+    { key: 'streak', label: '连续成长', value: `${streak} 天`, icon: ICON_LEAF, hint: streak > 0 ? '别让链条断掉' : '今天就是起点' },
+    { key: 'study', label: '本月学习', value: monthMin >= 60 ? `${(monthMin / 60).toFixed(1)} 小时` : `${monthMin} 分钟`, icon: ICON_BOOK, hint: `今日 ${fmtDuration(todayMin)}` },
+    { key: 'goals', label: '目标平均进度', value: `${avg}%`, icon: ICON_TARGET, hint: `进行中 ${activeGoals.length} 个${doneGoalCount ? ` · 已完成 ${doneGoalCount}` : ''}` },
+    { key: 'journal', label: '日记累计', value: `${state.journal.length} 篇`, icon: ICON_NOTE, hint: '记录即成长' },
+    { key: 'finance', label: '本月结余', value: fmtMoney(fin.balance), icon: ICON_WALLET, hint: `收 ${fmtMoneyShort(fin.income)} · 支 ${fmtMoneyShort(fin.expense)}` }
   ];
   const weekDone = habits.reduce((a, h) => a + habitWeekCount(h.id, 0), 0);
   const weekTotal = habits.length * 7;
@@ -1709,7 +2324,7 @@ function renderDashboard() {
     const wk = habitWeekCount(h.id, 0);
     return `<button class="habit-line" data-action="toggle-habit" data-id="${h.id}" data-date="${tKey}">
       <span class="check ${on ? 'on' : ''}">${on ? '✓' : ''}</span>
-      <span class="emoji">${h.emoji}</span>
+      <span class="ico-badge sm">${habitIconSVG(h)}</span>
       <span class="name">${esc(h.name)}</span>
       <span class="streak">${st > 0 ? '🔥 ' + st + ' 天' : ''}${st > 0 ? ' · ' : ''}本周 ${wk}/7</span>
     </button>`;
@@ -1771,7 +2386,7 @@ function detailStreak() {
   const keys = Array.from({ length: 30 }, (_, i) => toKey(addDays(new Date(), -i)));
   const items = state.habits.map((h, i) => {
     const n = keys.filter(k => habitDone(h.id, k)).length;
-    return { label: `${h.emoji} ${h.name}`, value: n, color: FIN_COLORS[i % FIN_COLORS.length], valueText: `${n} 次` };
+    return { label: h.name, value: n, color: FIN_COLORS[i % FIN_COLORS.length], valueText: `${n} 次` };
   });
   const total = items.reduce((a, i) => a + i.value, 0);
   const weekDone = state.habits.reduce((a, h) => a + habitWeekCount(h.id, 0), 0);
@@ -1991,10 +2606,64 @@ function goalSubStats(g) {
   return { total: list.length, done, left: list.length - done };
 }
 
+const ICON_PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5 17.5 10.5"/></svg>';
+const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7"/><path d="M6.6 7l.8 11.6A2 2 0 0 0 9.4 20.5h5.2a2 2 0 0 0 2-1.9L17.4 7"/><path d="M10.5 11v6M13.5 11v6"/></svg>';
+
+/* ---- 统一线性图标：24×24、1.8 描边、currentColor（随主题变色） ---- */
+const ICON_BOOK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 8 4.3 5 4.3v13.9c3 0 5.4.8 7 2.3 1.6-1.5 4-2.3 7-2.3V4.3c-3 0-5.4.8-7 2.3z"/><path d="M12 6.6v13.9"/></svg>';
+const ICON_CAP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.4 12 5l9 4.4-9 4.4z"/><path d="M7 11.5V16c0 1.4 2.2 2.5 5 2.5s5-1.1 5-2.5v-4.5"/><path d="M20.5 10v4.2"/></svg>';
+const ICON_BOLT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3.2 6 13.4h4.7L10 20.8l7-10.2h-4.6z"/></svg>';
+const ICON_STAR_ON = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.9l2.5 5.1 5.6.8-4.05 3.95.95 5.6L12 16.7l-5 2.65.95-5.6L3.9 9.8l5.6-.8z"/></svg>';
+const ICON_STAR_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 3.9l2.5 5.1 5.6.8-4.05 3.95.95 5.6L12 16.7l-5 2.65.95-5.6L3.9 9.8l5.6-.8z"/></svg>';
+const ICON_LEAF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4.2c-8 0-14 3.5-14 9.8a6 6 0 0 0 6 6c6.3 0 8-5.8 8-15.8z"/><path d="M4 20.2c2-4.2 5-7.2 9-9.2"/></svg>';
+const ICON_ACTIVITY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12.5h3.6L9.2 5l4 14 2.2-6.5H21"/></svg>';
+const ICON_DROP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.4c3 4 5.4 6.7 5.4 9.6A5.4 5.4 0 0 1 12 18.4a5.4 5.4 0 0 1-5.4-5.4c0-2.9 2.4-5.6 5.4-9.6z"/></svg>';
+const ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 14.6A8.3 8.3 0 0 1 9.4 3.8 8.4 8.4 0 1 0 20.2 14.6z"/></svg>';
+const ICON_NOTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h8l5 5v10a1.6 1.6 0 0 1-1.6 1.6H5.5A1.6 1.6 0 0 1 3.9 19.5v-13A1.6 1.6 0 0 1 5.5 4.5z"/><path d="M13.5 4.5v5h5"/><path d="M8 13.5h7M8 17h4.5"/></svg>';
+const ICON_CODE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 8 4.5 12 9 16"/><path d="M15 8l4.5 4L15 16"/></svg>';
+const ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3.2v2.2M12 18.6v2.2M3.2 12h2.2M18.6 12h2.2M5.7 5.7l1.6 1.6M16.7 16.7l1.6 1.6M18.3 5.7l-1.6 1.6M7.3 16.7l-1.6 1.6"/></svg>';
+const ICON_TARGET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.9"/><circle cx="12" cy="12" r=".9" fill="currentColor"/></svg>';
+const ICON_WALLET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10.2h18"/><circle cx="16.6" cy="14.6" r="1.1" fill="currentColor" stroke="none"/></svg>';
+
+const HABIT_ICONS = [
+  { key: 'leaf', label: '成长', svg: ICON_LEAF },
+  { key: 'book', label: '阅读', svg: ICON_BOOK },
+  { key: 'activity', label: '运动', svg: ICON_ACTIVITY },
+  { key: 'water', label: '喝水', svg: ICON_DROP },
+  { key: 'moon', label: '睡眠', svg: ICON_MOON },
+  { key: 'note', label: '写作', svg: ICON_NOTE },
+  { key: 'code', label: '代码', svg: ICON_CODE },
+  { key: 'sun', label: '早起', svg: ICON_SUN }
+];
+const HABIT_EMOJI_MAP = {
+  '📖': 'book', '📚': 'book', '📕': 'book', '🏃': 'activity', '🏃‍♂️': 'activity', '💪': 'activity',
+  '💧': 'water', '🥤': 'water', '🌙': 'moon', '😴': 'moon', '🧘': 'moon', '✍️': 'note', '📝': 'note',
+  '💻': 'code', '👨‍💻': 'code', '🌞': 'sun', '☀️': 'sun', '🌅': 'sun', '🌱': 'leaf', '✅': 'leaf', '🔥': 'leaf'
+};
+function habitIconKey(h) {
+  if (h && h.icon && HABIT_ICONS.some(i => i.key === h.icon)) return h.icon;
+  return (h && HABIT_EMOJI_MAP[h.emoji]) || 'leaf';
+}
+function habitIconSVG(h) {
+  const it = HABIT_ICONS.find(i => i.key === habitIconKey(h)) || HABIT_ICONS[0];
+  return it.svg;
+}
+
+/** 小目标折叠状态：默认展开；用户手动收起后记住该目标的选择 */
+function subOpenOf(g) {
+  const m = (state.settings.subOpen && typeof state.settings.subOpen === 'object' && !Array.isArray(state.settings.subOpen))
+    ? state.settings.subOpen : {};
+  if (Object.prototype.hasOwnProperty.call(m, g.id)) return !!m[g.id];
+  return !g.done;
+}
+
 function goalCardHTML(g, collapsible) {
   const p = goalPct(g);
   const dl = goalDeadline(g);
   const st = goalSubStats(g);
+  const open = g.done ? true : subOpenOf(g);
+  const foldAction = g.done ? 'toggle-done-one' : 'toggle-subfold';
+  const foldTitle = g.done ? '收起这条已完成目标' : (open ? '收起小目标' : '展开小目标');
   const subs = (g.subtasks || []).map(t => `
       <li class="sub-item${t.done ? ' done' : ''}">
         ${g.done
@@ -2005,34 +2674,35 @@ function goalCardHTML(g, collapsible) {
       </li>`).join('');
 
   const blocked = !g.done && st.left > 0;
+  const dueText = g.done
+    ? (g.doneAt ? `完成于 ${fmtDate(toKey(new Date(g.doneAt)))}` : '已完成')
+    : dl.text;
+  const dueCls = g.done ? 'is-done-due' : (dl.cls || '');
+  const legacyTarget = Number(g.target) > 1 ? `${fmtNum(g.current)}/${fmtNum(g.target)}${g.unit ? ' ' + esc(g.unit) : ''}` : '';
+  const countText = st.total ? `${st.done}/${st.total}` : legacyTarget;
+
   return `<article class="goal-card card${g.done ? ' is-done' : ''}">
       <div class="goal-top">
         <button class="goal-check${g.done ? ' on' : ''}${blocked ? ' locked' : ''}" data-action="toggle-goal" data-id="${g.id}" title="${g.done ? '恢复为进行中' : blocked ? `还有 ${st.left} 个小目标没完成` : '标记为已完成'}">${blocked ? '!' : '✓'}</button>
         <span class="chip cat-${catClass(g.category)}">${esc(g.category || '其他')}</span>
-        <div class="chips">
-          ${collapsible ? `<button class="collapse-btn pm minus" data-action="toggle-done-one" data-id="${g.id}" title="收起这条已完成目标" aria-label="收起">⊖</button>` : ''}
-          <button class="icon-btn" data-action="edit-goal" data-id="${g.id}" title="编辑">✏️</button>
-          <button class="icon-btn danger" data-action="del-goal" data-id="${g.id}" title="删除">🗑️</button>
+        <div class="goal-acts">
+          <button class="icon-btn" data-action="edit-goal" data-id="${g.id}" title="编辑" aria-label="编辑">${ICON_PENCIL}</button>
+          <button class="icon-btn danger" data-action="del-goal" data-id="${g.id}" title="删除" aria-label="删除">${ICON_TRASH}</button>
+          <button class="collapse-btn pm${open ? ' minus' : ''}" data-action="${foldAction}" data-id="${g.id}" title="${foldTitle}" aria-label="${foldTitle}">${open ? '⊖' : '⊕'}</button>
         </div>
       </div>
-      <h3 class="goal-title">${esc(g.title)}</h3>
-      ${g.note ? `<div class="note">${esc(g.note)}</div>` : ''}
-      <div class="progress" style="margin-top:12px"><i style="width:${p}%"></i></div>
-      <div class="goal-meta"><strong>${fmtNum(g.current)} / ${fmtNum(g.target)} ${esc(g.unit || '')}</strong><span>${p}%</span></div>
-      <div class="sub-wrap">
-        <div class="sub-head"><span>小目标${st.total ? ` · 还剩 ${st.left} 个` : ''}</span><span>${st.done}/${st.total}</span></div>
+      <div class="goal-line">
+        <h3 class="goal-title">${esc(g.title)}</h3>
+        <span class="goal-due ${dueCls}">${dueText}</span>
+      </div>
+      <div class="goal-prog">
+        <div class="progress"><i style="width:${p}%"></i></div>
+        ${countText ? `<span class="cnt">${countText}</span>` : ''}
+      </div>
+      <div class="sub-wrap"${open ? '' : ' hidden'}>
         ${st.total ? `<ul class="sub-list">${subs}</ul>` : `<div class="sub-empty">${g.done ? '没有小目标' : '把它拆小一点，更容易开始'}</div>`}
         ${blocked ? `<div class="sub-note">⏳ 还有 ${st.left} 个小目标没完成，全部勾完才能结束这个目标</div>` : ''}
         ${g.done ? '' : `<form class="sub-add" data-form="sub" data-id="${g.id}"><input name="title" maxlength="80" placeholder="+ 添加小目标，回车保存" autocomplete="off"></form>`}
-      </div>
-      <div class="goal-foot">
-        <span class="${g.done ? '' : dl.cls}">${g.done ? '已完成' : dl.text}</span>
-        ${g.done
-      ? `<span>${g.doneAt ? '完成于 ' + fmtDate(toKey(new Date(g.doneAt))) : ''}</span>`
-      : `<div class="stepper">
-          <button data-action="goal-minus" data-id="${g.id}" title="减少">−</button>
-          <button data-action="goal-plus" data-id="${g.id}" title="增加">＋</button>
-        </div>`}
       </div>
     </article>`;
 }
@@ -2129,11 +2799,11 @@ function renderHabits() {
     }).join('');
     return `<div class="habit-item">
       <div class="habit-info">
-        <span class="emoji-big">${h.emoji}</span>
+        <span class="ico-badge">${habitIconSVG(h)}</span>
         <div><strong>${esc(h.name)}</strong><div class="meta">🔥 连续 ${st} 天 · ${habitWeekOffset === 0 ? '本周' : '该周'} ${wk}/7 · 累计 ${total} 次</div></div>
       </div>
       <div class="week">${dayBtns}</div>
-      <button class="icon-btn danger" data-action="del-habit" data-id="${h.id}" title="删除习惯">🗑️</button>
+      <button class="icon-btn danger" data-action="del-habit" data-id="${h.id}" title="删除习惯">${ICON_TRASH}</button>
     </div>`;
   }).join('');
   const weekTotal = state.habits.reduce((a, h) => a + habitWeekDays(habitWeekOffset).filter(d => habitDone(h.id, toKey(d))).length, 0);
@@ -2211,8 +2881,8 @@ function journalEntryHTML(j) {
       <header>
         <div class="jdate"><span class="mood">${MOOD[j.mood] || '🙂'}</span>${fmtDate(j.date)}</div>
         <div class="chips">
-          <button class="icon-btn" data-action="edit-journal" data-id="${j.id}" title="编辑">✏️</button>
-          <button class="icon-btn danger" data-action="del-journal" data-id="${j.id}" title="删除">🗑️</button>
+          <button class="icon-btn" data-action="edit-journal" data-id="${j.id}" title="编辑">${ICON_PENCIL}</button>
+          <button class="icon-btn danger" data-action="del-journal" data-id="${j.id}" title="删除">${ICON_TRASH}</button>
         </div>
       </header>
       ${j.good ? `<p><span class="label">做得好</span>${esc(j.good)}</p>` : ''}
@@ -2290,9 +2960,9 @@ function renderJournal() {
 
 /* ==================== 学习页 ==================== */
 const LEARN_TYPES = {
-  book: { name: '阅读', icon: '📖' },
-  course: { name: '课程', icon: '🎓' },
-  skill: { name: '技能', icon: '⚡' }
+  book: { name: '阅读', icon: ICON_BOOK },
+  course: { name: '课程', icon: ICON_CAP },
+  skill: { name: '技能', icon: ICON_BOLT }
 };
 
 function renderLearning() {
@@ -2301,7 +2971,7 @@ function renderLearning() {
   const cards = items.map(it => {
     const p = itemPct(it);
     const type = LEARN_TYPES[it.type] || LEARN_TYPES.book;
-    const stars = `<div class="stars">${[1, 2, 3, 4, 5].map(i => `<button class="${i <= (it.level || 0) ? 'on' : ''}" data-action="set-level" data-id="${it.id}" data-level="${i}" title="设为 ${i} 级">${i <= (it.level || 0) ? '★' : '☆'}</button>`).join('')}</div>
+    const stars = `<div class="stars">${[1, 2, 3, 4, 5].map(i => `<button class="${i <= (it.level || 0) ? 'on' : ''}" data-action="set-level" data-id="${it.id}" data-level="${i}" title="设为 ${i} 级" aria-label="设为 ${i} 级">${i <= (it.level || 0) ? ICON_STAR_ON : ICON_STAR_OFF}</button>`).join('')}</div>
       <div class="small muted">技能等级 ${clamp(it.level || 1, 1, 5)} / 5</div>`;
     const bar = `<div class="progress" style="margin-top:10px"><i style="width:${p}%"></i></div>
       <div class="goal-meta"><strong>${fmtNum(it.current)} / ${fmtNum(it.total)} ${esc(it.unit || '')}</strong><span>${p}%</span></div>`;
@@ -2309,8 +2979,8 @@ function renderLearning() {
       <div class="learn-top">
         <span class="chip">${type.icon} ${type.name}</span>
         <div class="chips">
-          <button class="icon-btn" data-action="edit-item" data-id="${it.id}" title="编辑">✏️</button>
-          <button class="icon-btn danger" data-action="del-item" data-id="${it.id}" title="删除">🗑️</button>
+          <button class="icon-btn" data-action="edit-item" data-id="${it.id}" title="编辑">${ICON_PENCIL}</button>
+          <button class="icon-btn danger" data-action="del-item" data-id="${it.id}" title="删除">${ICON_TRASH}</button>
         </div>
       </div>
       <h3>${esc(it.title)}</h3>
@@ -2322,7 +2992,6 @@ function renderLearning() {
     </article>`;
   }).join('');
 
-  const itemOptions = items.map(it => `<option value="${it.id}">${esc(it.title)}</option>`).join('');
   const sorted = [...state.learning.sessions].sort((a, b) => String(b.date).localeCompare(String(a.date)) || (b.createdAt || 0) - (a.createdAt || 0));
   const sessionRows = sorted.slice(0, 12).map(s => {
     const it = items.find(i => i.id === s.itemId);
@@ -2340,20 +3009,9 @@ function renderLearning() {
       <button class="btn primary" data-action="add-item">+ 添加项目</button>
     </div>
     ${items.length ? `<div class="learn-grid">${cards}</div>` : `<div class="card"><div class="empty"><div class="big">📚</div>把正在读的书、在学的课程、想练的技能加进来，记录每一次投入。<div style="margin-top:12px"><button class="btn primary" data-action="add-item">+ 添加第一个项目</button></div></div></div>`}
-    <form class="card" data-form="session" id="sessionForm">
-      <div class="card-head"><h3>记录学习</h3><span class="small muted">积累每一次投入</span></div>
-      ${items.length ? `
-      <div class="form-row three">
-        <label>学习内容<select name="itemId">${itemOptions}</select></label>
-        <label>日期<input type="date" name="date" value="${todayKey()}" required></label>
-        <label>时长（分钟）<input type="number" name="minutes" min="1" max="1440" step="1" value="30" required></label>
-      </div>
-      <label>备注<input name="note" placeholder="选填，比如：读完第 3 章"></label>
-      <div class="form-actions"><button class="btn primary" type="submit">添加记录</button></div>` : `<div class="empty">先添加一个学习项目，就可以开始记录时长。</div>`}
-    </form>
     <div class="card">
       <div class="card-head"><h3>最近记录</h3><span class="small muted">显示最近 12 条</span></div>
-      ${sessionRows || `<div class="empty">还没有学习记录。</div>`}
+      ${sessionRows || `<div class="empty">还没有学习记录。点卡片右下角的「记录学习」就能加一条。</div>`}
     </div>`;
 }
 
@@ -2706,26 +3364,40 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !confirmEl.classList.contains('hidden')) closeConfirm(false);
 });
 
+/** 截止的显示文案 */
+function deadlineText(dateStr, timeStr) {
+  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return '不设截止';
+  const d = new Date(dateStr + 'T00:00:00');
+  if (isNaN(d.getTime())) return '不设截止';
+  const base = `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日 周${WEEK[d.getDay()]}`;
+  return timeStr ? `${base} · ${timeStr}` : base;
+}
+
 function openGoalModal(id) {
   const g = id ? state.goals.find(x => x.id === id) : null;
-  const cats = CATS.map(([name]) => `<option value="${name}"${g && g.category === name ? ' selected' : ''}>${name}</option>`).join('');
+  const selCat = (g && g.category) ? g.category : '学习';
+  const dStr = g ? (g.deadline || '') : '';
+  const tStr = g ? (g.dueTime || '') : '';
   openModal(`
     <div class="modal-head"><h3>${g ? '编辑目标' : '新建目标'}</h3><button class="close" data-action="close-modal">✕</button></div>
     <form data-form="goal" data-id="${g ? g.id : ''}">
-      <label>目标名称<input name="title" required maxlength="60" value="${esc(g ? g.title : '')}" placeholder="例如：全年读完 24 本书"></label>
-      <div class="form-row three">
-        <label>分类<select name="category">${cats}</select></label>
-        <label>截止日期<input type="date" name="deadline" value="${esc(g ? g.deadline : '')}"></label>
-        <label>截止时间<input type="time" name="dueTime" value="${esc(g && g.dueTime ? g.dueTime : '')}"></label>
-      </div>
-      <div class="small muted" style="margin:-6px 0 12px">填了截止时间后，到期前 1 小时会弹窗并推送通知提醒你。</div>
-      <div class="form-row three">
-        <label>当前值<input type="number" name="current" step="any" min="0" value="${g ? g.current : 0}"></label>
-        <label>目标值<input type="number" name="target" step="any" min="0.01" required value="${g ? g.target : 1}"></label>
-        <label>单位<input name="unit" maxlength="10" value="${esc(g ? g.unit : '')}" placeholder="本 / 公里 / 次"></label>
-      </div>
+      <label>目标名称<input name="title" required maxlength="60" value="${esc(g ? g.title : '')}" placeholder="例如：全年读完 24 本书" autocomplete="off"></label>
+      <label>分类
+        <div class="cat-picker">
+          ${CATS.map(([name]) => `<button type="button" class="cat-opt${name === selCat ? ' on' : ''}" data-action="pick-cat" data-cat="${name}">${name}</button>`).join('')}
+        </div>
+        <input type="hidden" name="category" value="${esc(selCat)}">
+      </label>
+      <label>截止
+        <button type="button" class="field-btn" data-action="pick-deadline">
+          <span class="fb-val${dStr ? '' : ' is-empty'}">${deadlineText(dStr, tStr)}</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10.2h17"/></svg>
+        </button>
+        <input type="hidden" name="deadline" value="${esc(dStr)}">
+        <input type="hidden" name="dueTime" value="${esc(tStr)}">
+      </label>
+      <div class="small muted" style="margin:-6px 0 14px">选了具体时间才会提醒：到期前 1 小时弹窗 + 系统通知。</div>
       <label>小目标<textarea name="subtasks" rows="3" placeholder="一行一个，例如：&#10;读完《原则》&#10;每周写一篇读书笔记">${esc(g && g.subtasks && g.subtasks.length ? g.subtasks.map(t => t.title).join('\n') : '')}</textarea></label>
-      <label>备注<textarea name="note" rows="2" placeholder="选填：为什么想完成它？">${esc(g ? g.note : '')}</textarea></label>
       <div class="form-actions">
         <button type="button" class="btn ghost" data-action="close-modal">取消</button>
         <button class="btn primary" type="submit">保存</button>
@@ -2733,16 +3405,186 @@ function openGoalModal(id) {
     </form>`);
 }
 
+/* ---- 自绘日期 + 时间选择器（替代原生 date/time，避免系统的蓝色下拉） ---- */
+function ensurePickerHost() {
+  let el = document.getElementById('pickerHost');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'pickerHost';
+    el.className = 'picker-mask hidden';
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+function closePicker() {
+  const el = document.getElementById('pickerHost');
+  if (el) { el.classList.add('hidden'); el.innerHTML = ''; }
+}
+
+function openDeadlinePicker(curDate, curTime, onDone) {
+  const host = ensurePickerHost();
+  const pad = n => String(n).padStart(2, '0');
+  const QUICK_TIMES = ['09:00', '14:00', '18:00'];
+  let selDate = /^\d{4}-\d{2}-\d{2}$/.test(curDate || '') ? curDate : '';
+  let selTime = /^([01]\d|2[0-3]):[0-5]\d$/.test(curTime || '') ? curTime : '';
+  let customMode = !!selTime && !QUICK_TIMES.includes(selTime);
+  const start0 = selDate ? new Date(selDate + 'T00:00:00') : new Date();
+  let cursor = new Date(start0.getFullYear(), start0.getMonth(), 1);
+
+  const draw = () => {
+    const y = cursor.getFullYear(), m = cursor.getMonth();
+    const firstDow = new Date(y, m, 1).getDay();
+    const start = new Date(y, m, 1 - firstDow);
+    const tk = todayKey();
+    const cells = [];
+    for (let i = 0; i < 42; i++) {
+      const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+      const k = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const cls = [d.getMonth() === m ? '' : 'mute', k === tk ? 'today' : '', k === selDate ? 'on' : ''].filter(Boolean).join(' ');
+      cells.push(`<button type="button" class="cal-day ${cls}" data-d="${k}">${d.getDate()}</button>`);
+    }
+    const ch = selTime ? clamp(Number(selTime.slice(0, 2)), 0, 23) : 9;
+    const cm = selTime ? clamp(Number(selTime.slice(3)), 0, 59) : 0;
+    const quick = QUICK_TIMES.map(t => `<button type="button" class="chip-btn${selTime === t && !customMode ? ' on' : ''}" data-t="${t}">${t}</button>`).join('');
+    host.innerHTML = `
+      <div class="picker" style="max-height:88vh;overflow:auto">
+        <div class="picker-head">
+          <h4>设定截止</h4>
+          <div class="picker-nav">
+            <button type="button" data-nav="-1" aria-label="上个月">‹</button>
+            <span class="mon">${y} 年 ${m + 1} 月</span>
+            <button type="button" data-nav="1" aria-label="下个月">›</button>
+          </div>
+        </div>
+        <div class="cal-grid">
+          ${['日', '一', '二', '三', '四', '五', '六'].map(w => `<span class="wd">${w}</span>`).join('')}
+          ${cells.join('')}
+        </div>
+        <div class="picker-sep"></div>
+        <div class="picker-row">
+          <span class="lbl">时间</span>
+          <button type="button" class="chip-btn${selTime ? '' : ' on'}" data-timeclear="1">不提醒</button>
+          <button type="button" class="chip-btn" data-now="1">此刻</button>
+        </div>
+        <div class="time-quick">${quick}<button type="button" class="chip-btn${customMode ? ' on' : ''}" data-custom="1">自定义</button></div>
+        ${customMode ? `<div class="time-custom">
+          <input type="number" class="time-num" id="pickerHour" min="0" max="23" inputmode="numeric" value="${pad(ch)}" aria-label="小时">
+          <span class="time-colon">:</span>
+          <input type="number" class="time-num" id="pickerMin" min="0" max="59" inputmode="numeric" value="${pad(cm)}" aria-label="分钟">
+          <span class="time-hint">24 小时制 · 手填任意时间</span>
+        </div>` : ''}
+        <div class="picker-foot">
+          <button type="button" class="link-btn" data-clear="1">清除截止</button>
+          <div style="display:flex;gap:8px">
+            <button type="button" class="btn ghost" data-cancel="1">取消</button>
+            <button type="button" class="btn primary" data-ok="1">确定</button>
+          </div>
+        </div>
+      </div>`;
+  };
+
+  host.onclick = e => {
+    const b = e.target.closest('button');
+    if (!b) { if (e.target === host) closePicker(); return; }
+    if (b.dataset.nav) {
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth() + Number(b.dataset.nav), 1);
+      draw(); return;
+    }
+    if (b.dataset.d) { selDate = b.dataset.d; draw(); return; }
+    if (b.dataset.t) { selTime = b.dataset.t; customMode = false; draw(); return; }
+    if (b.dataset.custom) {
+      customMode = true;
+      if (!selTime) selTime = '09:00';
+      draw();
+      setTimeout(() => {
+        const i = document.getElementById('pickerHour');
+        if (i) { i.focus(); i.select(); }
+      }, 30);
+      return;
+    }
+    if (b.dataset.timeclear) { selTime = ''; customMode = false; draw(); return; }
+    if (b.dataset.now) {
+      const n = new Date();
+      selDate = `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`;
+      cursor = new Date(n.getFullYear(), n.getMonth(), 1);
+      selTime = pad(n.getHours()) + ':' + pad(n.getMinutes());
+      customMode = !QUICK_TIMES.includes(selTime);
+      draw(); return;
+    }
+    if (b.dataset.clear) { closePicker(); onDone('', ''); return; }
+    if (b.dataset.cancel === '1') { closePicker(); return; }
+    if (b.dataset.ok) {
+      if (!selDate && selTime) { toast('先选个日期，时间才有意义'); return; }
+      closePicker();
+      onDone(selDate, selTime);
+    }
+  };
+
+  // 自定义时间：边输边写进状态，不重绘以免丢焦点
+  host.oninput = e => {
+    const t = e.target;
+    if (!t || !t.classList || !t.classList.contains('time-num')) return;
+    const hEl = document.getElementById('pickerHour');
+    const mEl = document.getElementById('pickerMin');
+    const h = clamp(Number(hEl && hEl.value) || 0, 0, 23);
+    const mi = clamp(Number(mEl && mEl.value) || 0, 0, 59);
+    selTime = pad(h) + ':' + pad(mi);
+  };
+  // 失焦时把输入归一到合法范围（不重绘，避免点击「确定」被吞）
+  host.addEventListener('focusout', e => {
+    const t = e.target;
+    if (!t || !t.classList || !t.classList.contains('time-num')) return;
+    const hEl = document.getElementById('pickerHour');
+    const mEl = document.getElementById('pickerMin');
+    const h = clamp(Number(hEl && hEl.value) || 0, 0, 23);
+    const mi = clamp(Number(mEl && mEl.value) || 0, 0, 59);
+    if (hEl) hEl.value = pad(h);
+    if (mEl) mEl.value = pad(mi);
+    selTime = pad(h) + ':' + pad(mi);
+  }, true);
+
+  draw();
+  host.classList.remove('hidden');
+}
+
 function openHabitModal() {
+  const def = HABIT_ICONS[0].key;
   openModal(`
     <div class="modal-head"><h3>新建习惯</h3><button class="close" data-action="close-modal">✕</button></div>
     <form data-form="habit">
       <label>习惯名称<input name="name" required maxlength="30" placeholder="例如：每天阅读 30 分钟"></label>
-      <label>图标<input name="emoji" maxlength="4" value="🌱" placeholder="一个 emoji"></label>
-      <div class="small muted" style="margin:-4px 0 14px">建议从一个「5 分钟就能完成」的最小版本开始。</div>
+      <label>图标
+        <div class="icon-pick">
+          ${HABIT_ICONS.map((i, idx) => `<button type="button" class="${idx === 0 ? 'on' : ''}" data-action="pick-icon" data-icon="${i.key}" title="${i.label}" aria-label="${i.label}">${i.svg}</button>`).join('')}
+        </div>
+        <input type="hidden" name="icon" value="${def}">
+      </label>
+      <div class="small muted" style="margin:-2px 0 14px">建议从一个「5 分钟就能完成」的最小版本开始。</div>
       <div class="form-actions">
         <button type="button" class="btn ghost" data-action="close-modal">取消</button>
         <button class="btn primary" type="submit">创建习惯</button>
+      </div>
+    </form>`);
+}
+
+function openSessionModal(itemId) {
+  const items = state.learning.items;
+  if (!items.length) { toast('先添加一个学习项目'); return; }
+  const sel = (itemId && items.some(i => i.id === itemId)) ? itemId : items[0].id;
+  const opts = items.map(it => `<option value="${it.id}"${it.id === sel ? ' selected' : ''}>${esc(it.title)}</option>`).join('');
+  openModal(`
+    <div class="modal-head"><h3>记录学习</h3><button class="close" data-action="close-modal">✕</button></div>
+    <form data-form="session">
+      <label>学习内容<select name="itemId">${opts}</select></label>
+      <div class="form-row">
+        <label>日期<input type="date" name="date" value="${todayKey()}" required></label>
+        <label>时长（分钟）<input type="number" name="minutes" min="1" max="1440" step="1" value="30" required></label>
+      </div>
+      <label>备注<input name="note" placeholder="选填，比如：读完第 3 章"></label>
+      <div class="form-actions">
+        <button type="button" class="btn ghost" data-action="close-modal">取消</button>
+        <button class="btn primary" type="submit">添加记录</button>
       </div>
     </form>`);
 }
@@ -2751,7 +3593,7 @@ function openItemModal(id) {
   const it = id ? state.learning.items.find(x => x.id === id) : null;
   const type = it ? it.type : 'book';
   const typeOptions = Object.entries(LEARN_TYPES).map(([key, v]) =>
-    `<option value="${key}"${type === key ? ' selected' : ''}>${v.icon} ${v.name}</option>`).join('');
+    `<option value="${key}"${type === key ? ' selected' : ''}>${v.name}</option>`).join('');
   openModal(`
     <div class="modal-head"><h3>${it ? '编辑学习项目' : '添加学习项目'}</h3><button class="close" data-action="close-modal">✕</button></div>
     <form data-form="item" data-id="${it ? it.id : ''}">
@@ -2857,13 +3699,14 @@ document.addEventListener('submit', e => {
     const data = {
       title,
       category: String(fd.get('category') || '其他'),
-      current: Math.max(0, Number(fd.get('current')) || 0),
-      target: Math.max(0.01, Number(fd.get('target')) || 1),
-      unit: String(fd.get('unit') || '').trim(),
       deadline: String(fd.get('deadline') || ''),
       dueTime: /^([01]\d|2[0-3]):[0-5]\d$/.test(dueTimeRaw) ? dueTimeRaw : '',
-      note: String(fd.get('note') || '').trim(),
-      subtasks
+      subtasks,
+      // v1.9.A 起表单不再收这几个字段，但保留旧数据，避免历史目标丢信息
+      current: old && typeof old.current === 'number' ? old.current : 0,
+      target: old && Number(old.target) > 0 ? old.target : 1,
+      unit: old ? (old.unit || '') : '',
+      note: old ? (old.note || '') : ''
     };
     if (old) {
       Object.assign(old, data);
@@ -2901,7 +3744,8 @@ document.addEventListener('submit', e => {
     const name = String(fd.get('name') || '').trim();
     if (!name) { toast('请填写习惯名称'); return; }
     const id = uid();
-    state.habits.push({ id, name, emoji: String(fd.get('emoji') || '').trim() || '✅', createdAt: Date.now() });
+    const icon = String(fd.get('icon') || 'leaf');
+    state.habits.push({ id, name, icon: HABIT_ICONS.some(i => i.key === icon) ? icon : 'leaf', emoji: '', createdAt: Date.now() });
     state.habitLogs[id] = [];
     closeModal();
     saveState();
@@ -2981,6 +3825,7 @@ document.addEventListener('submit', e => {
       note: String(fd.get('note') || '').trim(),
       createdAt: Date.now()
     });
+    closeModal();
     saveState();
     render();
     toast(`已记录 ${minutes} 分钟 🎉`);
@@ -3086,8 +3931,48 @@ document.addEventListener('click', e => {
     return;
   }
 
+  if (action === 'pick-cat') {
+    const wrap = el.closest('.cat-picker');
+    if (!wrap) return;
+    wrap.querySelectorAll('.cat-opt').forEach(b => b.classList.toggle('on', b === el));
+    const hid = wrap.parentElement.querySelector('input[name="category"]');
+    if (hid) hid.value = el.dataset.cat || '其他';
+    return;
+  }
+  if (action === 'pick-icon') {
+    const wrap = el.closest('.icon-pick');
+    if (!wrap) return;
+    wrap.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el));
+    const hid = wrap.parentElement.querySelector('input[name="icon"]');
+    if (hid) hid.value = el.dataset.icon || 'leaf';
+    return;
+  }
+  if (action === 'pick-deadline') {
+    const form = el.closest('form');
+    if (!form) return;
+    const dInput = form.querySelector('input[name="deadline"]');
+    const tInput = form.querySelector('input[name="dueTime"]');
+    const label = el.querySelector('.fb-val');
+    openDeadlinePicker(dInput.value, tInput.value, (d, t) => {
+      dInput.value = d;
+      tInput.value = t;
+      if (label) {
+        label.textContent = deadlineText(d, t);
+        label.classList.toggle('is-empty', !d);
+      }
+    });
+    return;
+  }
   if (action === 'add-goal') { openGoalModal(); return; }
   if (action === 'edit-goal') { openGoalModal(id); return; }
+  if (action === 'toggle-subfold') {
+    const g = state.goals.find(x => x.id === id);
+    if (!g) return;
+    const s = state.settings.subOpen = (state.settings.subOpen && typeof state.settings.subOpen === 'object') ? state.settings.subOpen : {};
+    s[g.id] = !subOpenOf(g);
+    saveState(); render();
+    return;
+  }
   if (action === 'goal-filter') {
     goalFilter = el.dataset.cat || 'all';
     render();
@@ -3273,13 +4158,7 @@ document.addEventListener('click', e => {
     return;
   }
   if (action === 'log-session') {
-    const form = $('#sessionForm');
-    if (!form) return;
-    const sel = $('select[name="itemId"]', form);
-    if (sel) sel.value = id;
-    const minutes = $('input[name="minutes"]', form);
-    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    if (minutes) setTimeout(() => { minutes.focus(); minutes.select(); }, 300);
+    openSessionModal(id);
     return;
   }
 
@@ -3559,9 +4438,17 @@ window.addEventListener('hashchange', () => {
 setTimeout(() => { syncGoalAlarms(true); checkGoalReminders(); }, 1600);
 setInterval(() => { if (!document.hidden) checkGoalReminders(); }, 60000);
 document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) { checkGoalReminders(); syncGoalAlarms(true); }
+  if (!document.hidden) { checkGoalReminders(); syncGoalAlarms(true); refreshQuote(); }
 });
 window.addEventListener('focus', () => checkGoalReminders());
+
+/* 跨零点 / 从后台切回时，把「今日一句」换成当天的 */
+function refreshQuote() {
+  const sub = document.getElementById('pageSub');
+  if (sub && sub.classList.contains('quote-line')) sub.textContent = quoteOfDay();
+}
+setInterval(refreshQuote, 60000);
+
 window.androidHandleBack = androidHandleBack;
 </script>
 </body>
