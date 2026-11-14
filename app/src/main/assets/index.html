@@ -9,9 +9,9 @@
 try {
   var _s = JSON.parse(localStorage.getItem('growth-os-v1'));
   var _t = _s && _s.settings && _s.settings.theme;
-  var _map = { light: 'forest', dark: 'midnight' };
-  var _dark = ['midnight', 'ink', 'pine'];
-  var _themes = ['oat', 'mist', 'clay', 'graphite', 'pine', 'forest', 'midnight', 'ocean', 'sunset', 'sakura', 'mono', 'ink'];
+  var _map = { light: 'oat', dark: 'pine' };
+  var _dark = ['pine'];
+  var _themes = ['oat', 'mist', 'clay', 'graphite', 'pine'];
   _t = _map[_t] || _t;
   if (_themes.indexOf(_t) >= 0) {
     document.documentElement.dataset.theme = _t;
@@ -55,107 +55,13 @@ try {
     --sab: env(safe-area-inset-bottom, 0px);
     --sal: env(safe-area-inset-left, 0px);
   }
+  /* ===== 配色：一套 = 1 个强调色 + 3 级中性色，画面内不出现第五种色 =====
+     通用交互令牌（1.9.C）
+     --line      结构线：卡片/分隔
+     --line-ctl  可交互描边：按钮、输入框、分段控件（比结构线更亮一档）
+     --ctl-bg    可交互底色
+     --ctl-hover 悬停/按压填充 */
   :root,
-  [data-theme="forest"] {
-    --bg: #f4f7f5;
-    --card: #ffffff;
-    --text: #17231d;
-    --muted: #68766e;
-    --line: #e2e9e5;
-    --accent: #2e7d5b;
-    --accent-soft: #e3f2eb;
-    --accent-2: #d97706;
-    --accent-hi: #7cc7a6;
-    --on-accent: #ffffff;
-    --danger: #c2413a;
-    --shadow: 0 1px 2px rgba(16,40,30,.04), 0 8px 24px rgba(16,40,30,.05);
-    --radius: 18px;
-  }
-  [data-theme="midnight"] {
-    --bg: #0e1411;
-    --card: #151d19;
-    --text: #e9f1ec;
-    --muted: #93a49b;
-    --line: #26332c;
-    --accent: #5ec99a;
-    --accent-soft: #183327;
-    --accent-2: #f0a24b;
-    --accent-hi: #8ee0bb;
-    --on-accent: #08130d;
-    --danger: #f0776f;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.32);
-  }
-  [data-theme="ocean"] {
-    --bg: #eef4fb;
-    --card: #ffffff;
-    --text: #102437;
-    --muted: #5b7186;
-    --line: #dbe7f3;
-    --accent: #1f6feb;
-    --accent-soft: #e2eefc;
-    --accent-2: #0d9488;
-    --accent-hi: #63a4ff;
-    --on-accent: #ffffff;
-    --danger: #c2413a;
-    --shadow: 0 1px 2px rgba(16,48,84,.04), 0 8px 24px rgba(16,48,84,.06);
-  }
-  [data-theme="sunset"] {
-    --bg: #fbf4ea;
-    --card: #fffaf3;
-    --text: #2d2016;
-    --muted: #806b57;
-    --line: #efe1d0;
-    --accent: #c2571a;
-    --accent-soft: #fbe8da;
-    --accent-2: #2e7d5b;
-    --accent-hi: #e8925c;
-    --on-accent: #ffffff;
-    --danger: #b3372f;
-    --shadow: 0 1px 2px rgba(92,58,26,.04), 0 8px 24px rgba(92,58,26,.06);
-  }
-  [data-theme="sakura"] {
-    --bg: #fdf2f6;
-    --card: #fffafc;
-    --text: #301e25;
-    --muted: #83626d;
-    --line: #f3dee5;
-    --accent: #c2477c;
-    --accent-soft: #fce3ed;
-    --accent-2: #7c6bd6;
-    --accent-hi: #e889b0;
-    --on-accent: #ffffff;
-    --danger: #bd3b46;
-    --shadow: 0 1px 2px rgba(94,38,60,.04), 0 8px 24px rgba(94,38,60,.06);
-  }
-  [data-theme="mono"] {
-    --bg: #f5f5f4;
-    --card: #ffffff;
-    --text: #121212;
-    --muted: #6b6b6b;
-    --line: #e4e4e2;
-    --accent: #1f1f1f;
-    --accent-soft: #ececeb;
-    --accent-2: #8a6d3b;
-    --accent-hi: #6e6e6e;
-    --on-accent: #ffffff;
-    --danger: #b3261e;
-    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06);
-  }
-  [data-theme="ink"] {
-    --bg: #0f1013;
-    --card: #18191e;
-    --text: #ecebe6;
-    --muted: #9a978e;
-    --line: #2a2b31;
-    --accent: #e0b062;
-    --accent-soft: #2b2519;
-    --accent-2: #8ab4f8;
-    --accent-hi: #f0cd8f;
-    --on-accent: #1a1408;
-    --danger: #f0776f;
-    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.35);
-  }
-  /* ===== 1.9.B 新版配色：一套 = 1 个强调色 + 3 级中性色，五行内不出现第五种色 ===== */
   [data-theme="oat"] {
     --bg: #F5F1E8;
     --card: #FFFDF7;
@@ -169,7 +75,11 @@ try {
     --accent-hi: #8AA684;
     --on-accent: #FFFDF7;
     --danger: #A9473C;
+    --line-ctl: #DCD3C2;
+    --ctl-bg: var(--bg);
+    --ctl-hover: #EFE9DC;
     --shadow: 0 1px 2px rgba(74,64,44,.05), 0 8px 24px rgba(74,64,44,.05);
+    --radius: 18px;
   }
   [data-theme="mist"] {
     --bg: #EFF3F5;
@@ -184,6 +94,9 @@ try {
     --accent-hi: #629BB4;
     --on-accent: #FFFFFF;
     --danger: #B14A3F;
+    --line-ctl: #CFDDE4;
+    --ctl-bg: var(--bg);
+    --ctl-hover: #E7EFF3;
     --shadow: 0 1px 2px rgba(30,60,80,.05), 0 8px 24px rgba(30,60,80,.06);
   }
   [data-theme="clay"] {
@@ -199,6 +112,9 @@ try {
     --accent-hi: #C88A74;
     --on-accent: #FFFCF6;
     --danger: #96322B;
+    --line-ctl: #E0D0BF;
+    --ctl-bg: var(--bg);
+    --ctl-hover: #F3E8DC;
     --shadow: 0 1px 2px rgba(90,66,48,.06), 0 8px 24px rgba(90,66,48,.06);
   }
   [data-theme="graphite"] {
@@ -214,22 +130,29 @@ try {
     --accent-hi: #6A8175;
     --on-accent: #FFFFFF;
     --danger: #A33B33;
+    --line-ctl: #DADAD3;
+    --ctl-bg: var(--bg);
+    --ctl-hover: #F0F0EB;
     --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
   }
+  /* 松烟夜：夜间不刺眼，但结构线与可交互件必须看得见 */
   [data-theme="pine"] {
-    --bg: #121614;
-    --card: #1A1F1C;
+    --bg: #101412;
+    --card: #1B211E;
     --text: #E9EEE8;
-    --muted: #8A968C;
-    --line: #282F2A;
-    --accent: #79B695;
-    --accent-ink: #A8E0C0;
-    --accent-soft: rgba(121,182,149,.14);
-    --accent-2: #D69A5C;
-    --accent-hi: #9ED8B8;
-    --on-accent: #10201A;
-    --danger: #E07B6F;
-    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.32);
+    --muted: #9DA9A0;
+    --line: #38423B;
+    --accent: #86C7A5;
+    --accent-ink: #B4E8C8;
+    --accent-soft: rgba(134,199,165,.16);
+    --accent-2: #E0A667;
+    --accent-hi: #A9E2C2;
+    --on-accent: #0C1A14;
+    --danger: #E88C80;
+    --line-ctl: #4C5850;
+    --ctl-bg: rgba(255,255,255,.055);
+    --ctl-hover: rgba(255,255,255,.11);
+    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -372,32 +295,25 @@ try {
 
   /* 折叠按钮 */
   .collapse-btn {
-    height: 26px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line);
-    background: var(--bg); color: var(--muted); font-size: 11.5px; white-space: nowrap;
+    height: 26px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--line-ctl);
+    background: var(--ctl-bg); color: var(--muted); font-size: 11.5px; white-space: nowrap;
     display: inline-flex; align-items: center; gap: 3px; transition: .16s; flex: 0 0 auto;
   }
   .collapse-btn:hover { color: var(--accent); border-color: var(--accent); background: var(--card); }
   .collapse-btn:active { transform: scale(.95); }
   .card-head .chips { align-items: center; }
-  /* ⊕ / ⊖ 折叠按钮：圆的大小 = 可点击范围，加号用 CSS 画，铺满圆 */
+  /* 折叠按钮：轮廓大小 = 点击范围，内部是线性箭头
+     收起 → 箭头朝右；展开（.minus）→ 箭头转 90° 朝下。字形不再参与渲染，避免和 CSS 图形叠字 */
   .collapse-btn.pm {
     position: relative; width: 32px; height: 32px; padding: 0; border-radius: 50%;
     display: inline-flex; align-items: center; justify-content: center;
-    font-size: 0; line-height: 0; flex: 0 0 auto; overflow: hidden;
+    flex: 0 0 auto; overflow: hidden;
     color: var(--accent); border: 1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
     background: var(--accent-soft); -webkit-tap-highlight-color: transparent;
   }
-  .collapse-btn.pm::before {
-    content: ''; position: absolute; left: 50%; top: 50%; width: 14px; height: 2px;
-    margin: -1px 0 0 -7px; border-radius: 2px; background: currentColor;
-  }
-  .collapse-btn.pm::after {
-    content: ''; position: absolute; left: 50%; top: 50%; width: 2px; height: 14px;
-    margin: -7px 0 0 -1px; border-radius: 2px; background: currentColor;
-    transition: transform .16s, opacity .16s;
-  }
-  .collapse-btn.pm.minus::after { transform: scaleY(0); opacity: 0; }
-  .collapse-btn.pm:hover { background: var(--accent); color: #fff; border-color: var(--accent); transform: none; opacity: .92; }
+  .collapse-btn.pm .pm-chev { width: 15px; height: 15px; flex: none; transition: transform .18s ease; }
+  .collapse-btn.pm.minus .pm-chev { transform: rotate(90deg); }
+  .collapse-btn.pm:hover { background: var(--accent); color: var(--on-accent); border-color: var(--accent); transform: none; }
   .collapse-btn.pm:active { transform: scale(.92); }
   span.collapse-btn.pm { cursor: inherit; }
   /* 已完成目标：一条一个，整行可点 */
@@ -421,7 +337,7 @@ try {
   .fold-head .ftag { font-size: 10.5px; color: var(--muted); background: var(--bg); border-radius: 999px; padding: 2px 7px; }
   .fold-sub { margin: 8px 0 0 10px; padding-left: 12px; border-left: 1px dashed var(--line); }
   .fold-sub > .fold-head { background: transparent; border-color: transparent; padding: 5px 8px; gap: 9px; }
-  .fold-sub .fold-pm { width: 28px; height: 28px; font-size: 18px; }
+  .fold-sub .fold-pm { width: 26px; height: 26px; border-radius: 9px; }
   .fold-sub > .fold-head:hover { background: var(--card); border-color: var(--line); }
   .fold-sub > .fold-head .fname { font-size: 13px; font-weight: 500; }
   .fold-body { margin: 8px 0 4px; display: flex; flex-direction: column; gap: 10px; }
@@ -649,11 +565,14 @@ try {
   .stepper { display: flex; gap: 4px; }
   .stepper button, .icon-btn {
     width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center;
-    color: var(--muted); font-size: 14px; border: 1px solid var(--line); background: var(--card); transition: .15s;
+    color: var(--muted); font-size: 14px; border: 1px solid var(--line-ctl); background: var(--ctl-bg); transition: .15s;
   }
   .stepper button:hover { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
-  .icon-btn { border-color: transparent; }
-  .icon-btn:hover { background: var(--bg); color: var(--text); }
+  .icon-btn { border-color: var(--line-ctl); background: var(--ctl-bg); }
+  .icon-btn svg { width: 14px; height: 14px; }
+  .ico-inline { display: inline-flex; vertical-align: -2px; margin-right: 3px; color: var(--accent-2); }
+  .ico-inline svg { width: 12.5px; height: 12.5px; }
+  .icon-btn:hover { background: var(--ctl-hover); color: var(--text); }
   .icon-btn.danger:hover { background: rgba(194,65,58,.09); color: var(--danger); }
   .chips { display: flex; gap: 6px; flex-wrap: wrap; }
   .chip {
@@ -693,6 +612,45 @@ try {
   .learn-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 11.5px; color: var(--muted); }
   .link-btn { color: var(--accent); font-size: 12px; font-weight: 600; padding: 2px 4px; border-radius: 6px; }
   .link-btn:hover { background: var(--accent-soft); }
+  /* 记录学习弹窗：三种类型共用一套骨架，只有中间字段按类型换 */
+  .sess-pick { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 2px; scrollbar-width: none; }
+  .sess-pick::-webkit-scrollbar { display: none; }
+  .sess-opt {
+    display: inline-flex; align-items: center; gap: 6px; flex: none;
+    padding: 8px 12px; border-radius: 11px; border: 1px solid var(--line-ctl);
+    background: var(--ctl-bg); color: var(--muted); font-size: 12.5px; font-weight: 600;
+    max-width: 62vw; transition: .15s;
+  }
+  .sess-opt svg { width: 15px; height: 15px; flex: none; }
+  .sess-opt span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sess-opt:active { transform: scale(.97); }
+  .sess-opt.on { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink, var(--accent)); }
+  .sess-block { margin-bottom: 15px; }
+  .sp-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+  .sp-head > span { font-size: 12.5px; font-weight: 600; }
+  .sp-head em { font-style: normal; font-size: 11px; color: var(--muted); text-align: right; }
+  /* 数字 + 单位合成一个字段，避免「页」孤零零挂在输入框外 */
+  .sp-row {
+    display: flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line-ctl); border-radius: 12px; background: var(--ctl-bg);
+    padding-right: 12px; transition: .15s;
+  }
+  .sp-row:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .sp-row input {
+    flex: 1; min-width: 0; border: 0; background: transparent; box-shadow: none;
+    padding: 10px 12px; min-height: 42px; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums;
+  }
+  .sp-row input:focus { border: 0; box-shadow: none; }
+  .sp-unit { font-size: 12px; color: var(--muted); flex: none; }
+  .sess-block .progress { margin: 9px 0 0; }
+  .sess-block .small { margin-top: 6px; }
+  .stars.big { margin: 2px 0 0; gap: 6px; }
+  .stars.big button { width: 36px; height: 36px; }
+  .stars.big button svg { width: 21px; height: 21px; }
+  .session-row .stag {
+    font-size: 10.5px; font-weight: 600; color: var(--accent-ink, var(--accent));
+    background: var(--accent-soft); border-radius: 6px; padding: 1px 6px; margin-left: 6px; white-space: nowrap;
+  }
   .stars { display: flex; gap: 2px; margin: 6px 0 2px; }
   .stars button { font-size: 17px; line-height: 1; color: var(--line); padding: 0 1px; transition: transform .1s; }
   .stars button.on { color: #f0a24b; }
@@ -718,8 +676,8 @@ try {
   .month-nav { display: flex; align-items: center; gap: 8px; }
   .month-nav strong { font-size: 15px; min-width: 92px; text-align: center; letter-spacing: -.2px; }
   .month-nav .nav-btn {
-    width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line);
-    background: var(--card); display: grid; place-items: center;
+    width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line-ctl);
+    background: var(--ctl-bg); display: grid; place-items: center;
     color: var(--muted); font-size: 17px; line-height: 1;
   }
   .month-nav .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -732,8 +690,15 @@ try {
   .tx-row:first-of-type { border-top: 0; }
   .tx-icon {
     width: 36px; height: 36px; border-radius: 11px; flex: 0 0 auto;
-    display: grid; place-items: center; font-size: 17px; background: var(--bg);
+    display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink, var(--accent));
   }
+  .tx-icon svg { width: 18px; height: 18px; }
+  .tx-row .icon-btn { width: 28px; height: 28px; border-radius: 8px; }
+  .tx-row .icon-btn svg { width: 14px; height: 14px; }
+  .cat-name { display: inline-flex; align-items: center; gap: 5px; }
+  .cat-name svg { width: 15px; height: 15px; color: var(--muted); flex: none; }
+  .stat-top svg { width: 15px; height: 15px; display: block; }
+  .fin-fact svg { width: 14px; height: 14px; vertical-align: -2px; margin-right: 2px; }
   .tx-main { flex: 1; min-width: 0; }
   .tx-title { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
   .tx-sub { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -748,7 +713,7 @@ try {
 
   /* finance year view */
   .fin-head-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-  .seg { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+  .seg { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line-ctl); border-radius: 10px; background: var(--bg); }
   .seg button { padding: 5px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--muted); transition: .15s; }
   .seg button:hover { color: var(--text); }
   .seg button.active { background: var(--card); color: var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
@@ -805,8 +770,8 @@ try {
   .btn { padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; transition: .15s; }
   .btn.primary { background: var(--accent); color: var(--on-accent); box-shadow: 0 4px 12px rgba(0,0,0,.16); }
   .btn.primary:hover { filter: brightness(1.07); }
-  .btn.ghost { border: 1px solid var(--line); color: var(--muted); }
-  .btn.ghost:hover { background: var(--bg); color: var(--text); }
+  .btn.ghost { border: 1px solid var(--line-ctl); color: var(--muted); background: var(--ctl-bg); }
+  .btn.ghost:hover { background: var(--ctl-hover); color: var(--text); }
   .btn.danger { color: var(--danger); border: 1px solid rgba(194,65,58,.3); }
   .btn.danger:hover { background: rgba(194,65,58,.08); }
   .page-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -835,17 +800,10 @@ try {
   .modal .close:hover { background: var(--bg); }
 
   /* theme picker */
-  .theme-group {
-    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
-    font-size: 12px; font-weight: 700; letter-spacing: .4px; color: var(--muted);
-    margin: 4px 0 9px;
-  }
-  .theme-group:not(:first-of-type) { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
-  .theme-group em { font-style: normal; font-weight: 500; font-size: 11.5px; opacity: .8; letter-spacing: 0; }
   .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .theme-card {
     position: relative; display: flex; flex-direction: column; gap: 6px; align-items: stretch;
-    padding: 9px; border-radius: 13px; border: 1px solid var(--line); background: var(--card);
+    padding: 9px; border-radius: 13px; border: 1px solid var(--line-ctl); background: var(--card);
     text-align: left; color: var(--text); transition: .15s;
   }
   .theme-card:hover { border-color: var(--accent); transform: translateY(-1px); }
@@ -884,7 +842,7 @@ try {
     .theme-grid > .theme-card:last-child:nth-child(odd) {
       grid-column: span 2; flex-direction: row; align-items: center; gap: 13px;
     }
-    .theme-grid > .theme-card:last-child:nth-child(odd) .theme-preview { width: 48%; flex: none; }
+    .theme-grid > .theme-card:last-child:nth-child(odd) .theme-preview { width: 104px; flex: none; }
   }
   .toast {
     position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 16px);
@@ -1094,8 +1052,8 @@ try {
 
   /* ① 表单控件：同一底色 / 同一描边 / 同一圆角 / 同一焦点态 */
   input, select, textarea {
-    background: var(--bg);
-    border: 1px solid var(--line);
+    background: var(--ctl-bg);
+    border: 1px solid var(--line-ctl);
     border-radius: 12px;
     padding: 10px 12px;
     min-height: 42px;
@@ -1202,8 +1160,7 @@ try {
     font-size: 0; line-height: 0; flex: 0 0 auto;
   }
   .goal-acts .icon-btn svg { width: 14px; height: 14px; }
-  .goal-acts .collapse-btn.pm::before { width: 11px; margin-left: -5.5px; }
-  .goal-acts .collapse-btn.pm::after { height: 11px; margin-top: -5.5px; }
+  .goal-acts .collapse-btn.pm .pm-chev { width: 11px; height: 11px; }
   .goal-acts .icon-btn:hover { background: var(--bg); color: var(--text); }
   .goal-acts .icon-btn.danger:hover {
     background: rgba(194,65,58,.09); color: var(--danger); border-color: rgba(194,65,58,.3);
@@ -1227,17 +1184,16 @@ try {
   .goal-card .sub-wrap > .sub-head { display: none; }
   .goal-card .sub-list { margin-top: 2px; padding: 0; list-style: none; }
 
-  /* 折叠按钮全局同规格：30×30、圆角 10、灰描边；展开态才用强调色 */
+  /* 折叠按钮全局同规格：30×30、圆角 10、可交互描边；展开态才用强调色 */
   .collapse-btn.pm {
     width: 30px; height: 30px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--card);
+    border: 1px solid var(--line-ctl); background: var(--ctl-bg);
     color: var(--muted); opacity: 1;
   }
-  .collapse-btn.pm::before { width: 12px; margin-left: -6px; }
-  .collapse-btn.pm::after { height: 12px; margin-top: -6px; }
+  .collapse-btn.pm .pm-chev { width: 12px; height: 12px; }
   .collapse-btn.pm:hover {
-    background: var(--bg); color: var(--text);
-    border-color: var(--line); opacity: 1; transform: none;
+    background: var(--ctl-hover); color: var(--text);
+    border-color: var(--line-ctl); opacity: 1; transform: none;
   }
   .collapse-btn.pm.minus {
     background: var(--accent-soft); border-color: var(--accent); color: var(--accent);
@@ -1790,37 +1746,49 @@ function quoteOfDay(d) {
 }
 
 const CATS = [['学习', 1], ['健康', 0], ['事业', 3], ['财务', 2], ['关系', 4], ['其他', 5]];
+/* 记账图标：全部线性描边，1.7px，24 栅格，跟习惯/学习/日记同一套视觉语言 */
+const FIN_ICONS = {
+  food: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12.4h16.8a8.4 8.4 0 0 1-16.8 0z"/><path d="M9 8.9c0-1 .9-1.4.9-2.4M13.4 8.9c0-1 .9-1.4.9-2.4"/></svg>',
+  transit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.9 15.6v-1.7l1.8-4a2.4 2.4 0 0 1 2.2-1.4h8.2a2.4 2.4 0 0 1 2.2 1.4l1.8 4v1.7z"/><circle cx="7.4" cy="17.6" r="1.7"/><circle cx="16.6" cy="17.6" r="1.7"/></svg>',
+  shop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.6 8.2h12.8l-1.1 10.6a2 2 0 0 1-2 1.8H8.7a2 2 0 0 1-2-1.8z"/><path d="M9.2 8.2V6.6a2.8 2.8 0 0 1 5.6 0v1.6"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.6 12 4l8 6.6V19a1.6 1.6 0 0 1-1.6 1.6H5.6A1.6 1.6 0 0 1 4 19z"/><path d="M9.6 20.4v-6.2h4.8v6.2"/></svg>',
+  fun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.4"/><path d="M10.2 8.5 16 12l-5.8 3.5z"/></svg>',
+  med: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8.2" y="2.8" width="7.6" height="18.4" rx="3.8"/><path d="M8.2 12h7.6"/></svg>',
+  study: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 8 4.3 5 4.3v13.9c3 0 5.4.8 7 2.3 1.6-1.5 4-2.3 7-2.3V4.3c-3 0-5.4.8-7 2.3z"/><path d="M12 6.6v13.9"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 8.4h16.8v4.2H3.6z"/><path d="M5.2 12.6v6.6a1.4 1.4 0 0 0 1.4 1.4h10.8a1.4 1.4 0 0 0 1.4-1.4v-6.6"/><path d="M12 8.4v12.2"/><path d="M12 8.4C10.2 8.4 7.4 7.9 7.4 5.9a2.2 2.2 0 0 1 4.6 2.5zM12 8.4c1.8 0 4.6-.5 4.6-2.5a2.2 2.2 0 0 0-4.6 2.5z"/></svg>',
+  other: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.4 12h.01M12 12h.01M17.6 12h.01"/></svg>',
+  salary: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.4" width="18" height="11.2" rx="2.2"/><circle cx="12" cy="12" r="2.6"/><path d="M6.6 12h.01M17.4 12h.01"/></svg>',
+  bonus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.2 4.2h7.6v4.4a3.8 3.8 0 0 1-7.6 0z"/><path d="M8.2 5.4H5.4v1.4a3 3 0 0 0 2.8 3M15.8 5.4h2.8v1.4a3 3 0 0 1-2.8 3"/><path d="M12 12.4v3.4"/><path d="M8.6 19.8h6.8l-.7-4h-5.4z"/></svg>',
+  invest: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.8 16.6 9 11.4l3.2 3.2 8-8"/><path d="M15.4 6.6h4.8v4.8"/></svg>',
+  parttime: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7.4" width="18" height="12.2" rx="2.4"/><path d="M9 7.4V5.8A1.8 1.8 0 0 1 10.8 4h2.4A1.8 1.8 0 0 1 15 5.8v1.6"/><path d="M3 12.4h18"/></svg>',
+  redpacket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.6" width="18" height="12.8" rx="2.4"/><path d="M3.8 6.8 12 13l8.2-6.2"/></svg>'
+};
 const FIN_CATS = {
   expense: [
-    { name: '餐饮', icon: '🍜' }, { name: '交通', icon: '🚇' }, { name: '购物', icon: '🛍️' },
-    { name: '居住', icon: '🏠' }, { name: '娱乐', icon: '🎮' }, { name: '医疗', icon: '💊' },
-    { name: '学习', icon: '📚' }, { name: '人情', icon: '🎁' }, { name: '其他', icon: '📦' }
+    { name: '餐饮', icon: 'food' }, { name: '交通', icon: 'transit' }, { name: '购物', icon: 'shop' },
+    { name: '居住', icon: 'home' }, { name: '娱乐', icon: 'fun' }, { name: '医疗', icon: 'med' },
+    { name: '学习', icon: 'study' }, { name: '人情', icon: 'gift' }, { name: '其他', icon: 'other' }
   ],
   income: [
-    { name: '工资', icon: '💼' }, { name: '奖金', icon: '🏆' }, { name: '理财', icon: '📈' },
-    { name: '兼职', icon: '🧑‍💻' }, { name: '红包', icon: '🧧' }, { name: '其他', icon: '📦' }
+    { name: '工资', icon: 'salary' }, { name: '奖金', icon: 'bonus' }, { name: '理财', icon: 'invest' },
+    { name: '兼职', icon: 'parttime' }, { name: '红包', icon: 'redpacket' }, { name: '其他', icon: 'other' }
   ]
 };
-const FIN_COLORS = ['#2e7d5b', '#3b82f6', '#d97706', '#8b5cf6', '#ec4899', '#0ea5e9', '#84cc16', '#f97316', '#6b7280'];
+/* 分类色：与五套配色同温的低饱和自然色，不用高饱和霓虹，避免和主题打架 */
+const FIN_COLORS = ['#5F7A5A', '#A5604A', '#7C8A6E', '#3E7089', '#9A7B36', '#8A6E7A', '#6E8E8A', '#8A7E6A', '#8A8A85'];
 const THEMES = [
-  { id: 'oat', name: '燕麦 · 苔绿', desc: '暖白纸感', group: 'new', dark: false, bg: '#F5F1E8', card: '#FFFDF7', line: '#E8E1D3', accent: '#5F7A5A' },
-  { id: 'mist', name: '雾霭 · 石青', desc: '冷调干净', group: 'new', dark: false, bg: '#EFF3F5', card: '#ffffff', line: '#E0E8EC', accent: '#3E7089' },
-  { id: 'clay', name: '陶土 · 亚麻', desc: '暖而不燥', group: 'new', dark: false, bg: '#F6F0E8', card: '#FFFCF6', line: '#ECE0D3', accent: '#A5604A' },
-  { id: 'graphite', name: '素纸 · 墨绿', desc: '最安静', group: 'new', dark: false, bg: '#FAFAF8', card: '#ffffff', line: '#E9E9E4', accent: '#3A4E42' },
-  { id: 'pine', name: '松烟 · 夜', desc: '夜间不刺眼', group: 'new', dark: true, bg: '#121614', card: '#1A1F1C', line: '#282F2A', accent: '#79B695' },
-  { id: 'forest', name: '森林绿', desc: '清新自然', group: 'classic', dark: false, bg: '#f4f7f5', card: '#ffffff', line: '#e2e9e5', accent: '#2e7d5b' },
-  { id: 'ocean', name: '海盐蓝', desc: '干净专注', group: 'classic', dark: false, bg: '#eef4fb', card: '#ffffff', line: '#dbe7f3', accent: '#1f6feb' },
-  { id: 'sunset', name: '暖阳橙', desc: '温暖柔和', group: 'classic', dark: false, bg: '#fbf4ea', card: '#fffaf3', line: '#efe1d0', accent: '#c2571a' },
-  { id: 'sakura', name: '樱花粉', desc: '轻盈柔和', group: 'classic', dark: false, bg: '#fdf2f6', card: '#fffafc', line: '#f3dee5', accent: '#c2477c' },
-  { id: 'mono', name: '极简白', desc: '黑白纯粹', group: 'classic', dark: false, bg: '#f5f5f4', card: '#ffffff', line: '#e4e4e2', accent: '#1f1f1f' },
-  { id: 'midnight', name: '暗夜绿', desc: '低光护眼', group: 'classic', dark: true, bg: '#0e1411', card: '#151d19', line: '#26332c', accent: '#5ec99a' },
-  { id: 'ink', name: '墨金夜色', desc: '沉稳质感', group: 'classic', dark: true, bg: '#0f1013', card: '#18191e', line: '#2a2b31', accent: '#e0b062' }
+  { id: 'oat', name: '燕麦 · 苔绿', desc: '暖白纸感', dark: false, bg: '#F5F1E8', card: '#FFFDF7', line: '#E8E1D3', accent: '#5F7A5A' },
+  { id: 'mist', name: '雾霭 · 石青', desc: '冷调干净', dark: false, bg: '#EFF3F5', card: '#FFFFFF', line: '#E0E8EC', accent: '#3E7089' },
+  { id: 'clay', name: '陶土 · 亚麻', desc: '暖而不燥', dark: false, bg: '#F6F0E8', card: '#FFFCF6', line: '#ECE0D3', accent: '#A5604A' },
+  { id: 'graphite', name: '素纸 · 墨绿', desc: '最安静', dark: false, bg: '#FAFAF8', card: '#FFFFFF', line: '#E9E9E4', accent: '#3A4E42' },
+  { id: 'pine', name: '松烟 · 夜', desc: '夜间不刺眼', dark: true, bg: '#101412', card: '#1B211E', line: '#4C5850', accent: '#86C7A5' }
 ];
+const THEME_FALLBACK = 'oat';
 const themeMeta = id => THEMES.find(t => t.id === id) || THEMES[0];
 const normalizeTheme = id => {
-  if (id === 'light') return 'forest';
-  if (id === 'dark') return 'midnight';
-  return THEMES.some(t => t.id === id) ? id : 'forest';
+  if (id === 'light') return THEME_FALLBACK;
+  if (id === 'dark') return 'pine';
+  return THEMES.some(t => t.id === id) ? id : THEME_FALLBACK;
 };
 function applyTheme(id) {
   const t = themeMeta(normalizeTheme(id));
@@ -1860,13 +1828,17 @@ const shiftMonth = (m, delta) => {
   const d = new Date(p[0], p[1] - 1 + delta, 1);
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
 };
-const finCat = (type, name) => (FIN_CATS[type] || []).find(c => c.name === name) || { name, icon: '📦' };
+const finCat = (type, name) => {
+  const c = (FIN_CATS[type] || []).find(x => x.name === name);
+  const key = c ? c.icon : 'other';
+  return { name, icon: key, svg: FIN_ICONS[key] || FIN_ICONS.other };
+};
 const finCatColor = (type, name) => {
   const i = (FIN_CATS[type] || []).findIndex(c => c.name === name);
   return FIN_COLORS[(i < 0 ? 0 : i) % FIN_COLORS.length];
 };
 const categoryOptions = (type, selected) => (FIN_CATS[type] || [])
-  .map(c => `<option value="${c.name}"${c.name === selected ? ' selected' : ''}>${c.icon} ${c.name}</option>`).join('');
+  .map(c => `<option value="${c.name}"${c.name === selected ? ' selected' : ''}>${c.name}</option>`).join('');
 
 /* ==================== 数据层 ==================== */
 const STORAGE_KEY = 'growth-os-v1';
@@ -2012,7 +1984,7 @@ function seedState() {
       sessions
     },
     finance,
-    settings: { theme: 'light' },
+    settings: { theme: THEME_FALLBACK },
     seeded: true
   };
 }
@@ -2418,7 +2390,7 @@ function renderDashboard() {
       <span class="check ${on ? 'on' : ''}">${on ? '✓' : ''}</span>
       <span class="ico-badge sm">${habitIconSVG(h)}</span>
       <span class="name">${esc(h.name)}</span>
-      <span class="streak">${st > 0 ? '🔥 ' + st + ' 天' : ''}${st > 0 ? ' · ' : ''}本周 ${wk}/7</span>
+      <span class="streak">${st > 0 ? `<i class="ico-inline">${ICON_FLAME}</i>${st} 天 · ` : ''}本周 ${wk}/7</span>
     </button>`;
   }).join('') : `<div class="empty"><div class="big">🌱</div>还没有习惯，先创建一个吧。<div style="margin-top:10px"><button class="btn primary" data-action="add-habit">+ 新建习惯</button></div></div>`;
 
@@ -2495,7 +2467,7 @@ function detailStreak() {
       ['当前连续', `${globalStreak()} 天`],
       ['本周打卡', `${weekDone} / ${state.habits.length * 7} 次`],
       ['近 30 天打卡', `${total} 次`],
-      ['连续最长', longest ? `${longest.emoji} ${esc(longest.name)} · ${habitStreak(longest.id)} 天` : '—']
+      ['连续最长', longest ? `${esc(longest.name)} · ${habitStreak(longest.id)} 天` : '—']
     ],
     goView: 'habits', goText: '去习惯页打卡'
   };
@@ -2623,7 +2595,7 @@ function detailFinance() {
     catMap[t.category] = (catMap[t.category] || 0) + (Number(t.amount) || 0);
   });
   const items = Object.entries(catMap).sort((a, b) => b[1] - a[1]).map(([name, amount]) => ({
-    label: `${finCat('expense', name).icon} ${name}`,
+    label: name,
     value: amount,
     color: finCatColor('expense', name),
     valueText: fmtMoney(amount)
@@ -2721,6 +2693,12 @@ const ICON_CODE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" st
 const ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 3.2v2.2M12 18.6v2.2M3.2 12h2.2M18.6 12h2.2M5.7 5.7l1.6 1.6M16.7 16.7l1.6 1.6M18.3 5.7l-1.6 1.6M7.3 16.7l-1.6 1.6"/></svg>';
 const ICON_TARGET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.9"/><circle cx="12" cy="12" r=".9" fill="currentColor"/></svg>';
 const ICON_WALLET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10.2h18"/><circle cx="16.6" cy="14.6" r="1.1" fill="currentColor" stroke="none"/></svg>';
+const ICON_FLAME = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.4c3.3 0 5.9-2.3 5.9-5.5 0-4.2-4.5-6.1-4.7-11.2-2 1.3-3.1 3.3-3.1 5.1 0 1.6 1 2.4 1 3.3 0 .9-.7 1.6-1.5 1.6-1 0-1.8-.9-1.8-2.1-1.2 1.2-1.6 2.7-1.6 3.8 0 2.9 2.5 5 5.8 5z"/></svg>';
+const ICON_TREND_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19.2V5"/><path d="M6.4 10.4 12 4.8l5.6 5.6"/></svg>';
+const ICON_TREND_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.8v14.2"/><path d="M6.4 13.6 12 19.2l5.6-5.6"/></svg>';
+/* 折叠箭头：一套图标只画一种形状，朝向靠 CSS 旋转 */
+const ICON_CHEV = '<svg class="pm-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.4 5.2 16.2 12l-6.8 6.8"/></svg>';
+const pmIcon = () => ICON_CHEV;
 
 const HABIT_ICONS = [
   { key: 'leaf', label: '成长', svg: ICON_LEAF },
@@ -2785,7 +2763,7 @@ function goalCardHTML(g, collapsible) {
         <div class="goal-acts">
           <button class="icon-btn" data-action="edit-goal" data-id="${g.id}" title="编辑" aria-label="编辑">${ICON_PENCIL}</button>
           <button class="icon-btn danger" data-action="del-goal" data-id="${g.id}" title="删除" aria-label="删除">${ICON_TRASH}</button>
-          <button class="collapse-btn pm${open ? ' minus' : ''}" data-action="${foldAction}" data-id="${g.id}" title="${foldTitle}" aria-label="${foldTitle}">${open ? '⊖' : '⊕'}</button>
+          <button class="collapse-btn pm${open ? ' minus' : ''}" data-action="${foldAction}" data-id="${g.id}" title="${foldTitle}" aria-label="${foldTitle}">${pmIcon()}</button>
         </div>
       </div>
       <div class="goal-line">
@@ -2860,7 +2838,7 @@ function renderGoals() {
       : `<button class="done-strip" data-action="toggle-done-one" data-id="${g.id}" aria-expanded="false" title="展开这条已完成目标">
            <span class="ds-tick">✓</span>
            <span class="ds-titles">${esc(g.title)}</span>
-           <span class="collapse-btn pm" aria-hidden="true">⊕</span>
+           <span class="collapse-btn pm" aria-hidden="true">${pmIcon()}</span>
          </button>`).join('')}</div>`
     : groupHTML(doneShown, '完成的目标会保留在这里，一条一个，随时可以展开回顾。');
 
@@ -2871,7 +2849,7 @@ function renderGoals() {
     </section>
     <section class="goal-section">
       <div class="section-head"><h3>已完成</h3><span class="cnt">${doneShown.length}</span>
-        ${doneShown.length ? `<button class="collapse-btn pm${anyDoneClosed ? '' : ' minus'}" style="margin-left:auto" data-action="toggle-done-goals" title="${anyDoneClosed ? '展开全部已完成目标' : '收起全部已完成目标'}" aria-label="${anyDoneClosed ? '展开全部' : '收起全部'}">${anyDoneClosed ? '⊕' : '⊖'}</button>` : ''}
+        ${doneShown.length ? `<button class="collapse-btn pm${anyDoneClosed ? '' : ' minus'}" style="margin-left:auto" data-action="toggle-done-goals" title="${anyDoneClosed ? '展开全部已完成目标' : '收起全部已完成目标'}" aria-label="${anyDoneClosed ? '展开全部' : '收起全部'}">${pmIcon()}</button>` : ''}
       </div>
       ${doneSection}
     </section>` : `${head}
@@ -2897,7 +2875,7 @@ function renderHabits() {
     return `<div class="habit-item">
       <div class="habit-info">
         <span class="ico-badge">${habitIconSVG(h)}</span>
-        <div><strong>${esc(h.name)}</strong><div class="meta">🔥 连续 ${st} 天 · ${habitWeekOffset === 0 ? '本周' : '该周'} ${wk}/7 · 累计 ${total} 次</div></div>
+        <div><strong>${esc(h.name)}</strong><div class="meta"><i class="ico-inline">${ICON_FLAME}</i>连续 ${st} 天 · ${habitWeekOffset === 0 ? '本周' : '该周'} ${wk}/7 · 累计 ${total} 次</div></div>
       </div>
       <div class="week">${dayBtns}</div>
       <button class="icon-btn danger" data-action="del-habit" data-id="${h.id}" title="删除习惯">${ICON_TRASH}</button>
@@ -2942,7 +2920,7 @@ function energyOptions(sel) {
 function journalFormHTML(draft, isEdit) {
   const d = draft || { date: todayKey(), mood: 3, energy: 3, good: '', improve: '', tomorrow: '', tags: '' };
   const collapsed = !isEdit && !!state.settings.journalCollapsed;
-  const toggle = `<button type="button" class="collapse-btn pm${collapsed ? '' : ' minus'}" data-action="toggle-journal" title="${collapsed ? '展开写作区' : '收起写作区'}" aria-label="${collapsed ? '展开写作区' : '收起写作区'}">${collapsed ? '⊕' : '⊖'}</button>`;
+  const toggle = `<button type="button" class="collapse-btn pm${collapsed ? '' : ' minus'}" data-action="toggle-journal" title="${collapsed ? '展开写作区' : '收起写作区'}" aria-label="${collapsed ? '展开写作区' : '收起写作区'}">${pmIcon()}</button>`;
   if (collapsed) {
     return `<div class="card">
       <div class="card-head" style="margin-bottom:0">
@@ -3027,7 +3005,7 @@ function renderJournal() {
       const label = mKey.includes('-') ? `${Number(mKey.slice(5, 7))} 月` : '未标注月份';
       return `<div class="fold-block">
         <button class="fold-head${monthOpen ? ' open' : ''}" data-action="fold-journal" data-key="${monthKey}" data-open="${monthOpen ? 1 : 0}" aria-expanded="${monthOpen}">
-          <span class="collapse-btn pm fold-pm${monthOpen ? ' minus' : ''}" aria-hidden="true">${monthOpen ? '⊖' : '⊕'}</span><span class="fname">${label}</span>
+          <span class="collapse-btn pm fold-pm${monthOpen ? ' minus' : ''}" aria-hidden="true">${pmIcon()}</span><span class="fname">${label}</span>
           <span class="fcount">${list.length} 篇</span>
         </button>
         ${monthOpen ? `<div class="fold-body">${list.map(journalEntryHTML).join('')}</div>` : ''}
@@ -3037,7 +3015,7 @@ function renderJournal() {
     yIdx++;
     return `<div class="fold-block">
       <button class="fold-head${yearOpen ? ' open' : ''}" data-action="fold-journal" data-key="${yearKey}" data-open="${yearOpen ? 1 : 0}" aria-expanded="${yearOpen}">
-        <span class="collapse-btn pm fold-pm${yearOpen ? ' minus' : ''}" aria-hidden="true">${yearOpen ? '⊖' : '⊕'}</span><span class="fname">${esc(year)} 年</span>
+        <span class="collapse-btn pm fold-pm${yearOpen ? ' minus' : ''}" aria-hidden="true">${pmIcon()}</span><span class="fname">${esc(year)} 年</span>
         <span class="ftag">${months.size} 个月</span>
         <span class="fcount">${yearCount} 篇</span>
       </button>
@@ -3092,11 +3070,15 @@ function renderLearning() {
   const sorted = [...state.learning.sessions].sort((a, b) => String(b.date).localeCompare(String(a.date)) || (b.createdAt || 0) - (a.createdAt || 0));
   const sessionRows = sorted.slice(0, 12).map(s => {
     const it = items.find(i => i.id === s.itemId);
+    const unit = (it && it.unit) || (it && SESS_META[it.type] ? SESS_META[it.type].unit : '页');
+    const tag = s.progress != null
+      ? `<span class="stag">${it && it.type === 'course' ? `讲到 ${fmtNum(s.progress)} ${esc(unit)}` : `读到 ${fmtNum(s.progress)} ${esc(unit)}`}</span>`
+      : (s.level ? `<span class="stag">熟练度 ${clamp(s.level, 1, 5)} 级</span>` : '');
     return `<div class="session-row">
       <span class="sdate">${String(s.date).slice(5).replace('-', '/')}</span>
-      <span class="stitle">${esc(it ? it.title : '已删除的项目')}${s.note ? ` <span class="muted small">· ${esc(truncate(s.note, 24))}</span>` : ''}</span>
+      <span class="stitle">${esc(it ? it.title : '已删除的项目')}${tag}${s.note ? ` <span class="muted small">· ${esc(truncate(s.note, 20))}</span>` : ''}</span>
       <span class="smin">${fmtDuration(s.minutes)}</span>
-      <button class="icon-btn danger" data-action="del-session" data-id="${s.id}" title="删除记录">✕</button>
+      <button class="icon-btn danger" data-action="del-session" data-id="${s.id}" title="删除记录" aria-label="删除记录">${ICON_TRASH}</button>
     </div>`;
   }).join('');
 
@@ -3138,10 +3120,10 @@ function renderFinance() {
   const expenseCount = sum.list.length - incomeCount;
 
   const summary = [
-    { label: '本月收入', value: fmtMoney(sum.income), icon: '📈', hint: `${incomeCount} 笔` },
-    { label: '本月支出', value: fmtMoney(sum.expense), icon: '📉', hint: `${expenseCount} 笔` },
-    { label: '本月结余', value: fmtMoney(sum.balance), icon: '💰', hint: sum.balance >= 0 ? '保持正结余' : '支出超过收入' },
-    { label: '预算剩余', value: budget ? fmtMoney(remaining) : '未设置', icon: '🎯', hint: budget ? (over ? `已超支 ${fmtMoney(-remaining)}` : `预算 ${fmtMoneyShort(budget)} · 已用 ${usedPct}%`) : '点击设置月度预算', action: 'edit-budget' }
+    { label: '本月收入', value: fmtMoney(sum.income), icon: ICON_TREND_UP, hint: `${incomeCount} 笔` },
+    { label: '本月支出', value: fmtMoney(sum.expense), icon: ICON_TREND_DOWN, hint: `${expenseCount} 笔` },
+    { label: '本月结余', value: fmtMoney(sum.balance), icon: ICON_WALLET, hint: sum.balance >= 0 ? '保持正结余' : '支出超过收入' },
+    { label: '预算剩余', value: budget ? fmtMoney(remaining) : '未设置', icon: ICON_TARGET, hint: budget ? (over ? `已超支 ${fmtMoney(-remaining)}` : `预算 ${fmtMoneyShort(budget)} · 已用 ${usedPct}%`) : '点击设置月度预算', action: 'edit-budget' }
   ];
 
   const catMap = {};
@@ -3161,12 +3143,12 @@ function renderFinance() {
     const w = maxCat ? Math.max(3, amount / maxCat * 100) : 0;
     const share = sum.expense ? Math.round(amount / sum.expense * 1000) / 10 : 0;
     return `<div class="cat-row">
-      <div class="cat-top"><span>${c.icon} ${esc(name)} <span class="muted small">· ${share}%</span></span><strong>${fmtMoney(amount)}</strong></div>
+      <div class="cat-top"><span class="cat-name">${c.svg}${esc(name)} <span class="muted small">· ${share}%</span></span><strong>${fmtMoney(amount)}</strong></div>
       <div class="progress slim"><i style="width:${w}%;background:${finCatColor('expense', name)}"></i></div>
     </div>`;
   }).join('') : `<div class="empty" style="padding:18px 6px">这个月还没有支出记录。</div>`;
   const catItems = cats.map(([name, amount]) => ({
-    label: `${finCat('expense', name).icon} ${name}`,
+    label: name,
     value: amount,
     color: finCatColor('expense', name),
     valueText: fmtMoney(amount)
@@ -3179,15 +3161,15 @@ function renderFinance() {
   const rows = filtered.map(t => {
     const c = finCat(t.type, t.category);
     return `<div class="tx-row">
-      <div class="tx-icon">${c.icon}</div>
+      <div class="tx-icon">${c.svg}</div>
       <div class="tx-main">
         <div class="tx-title">${esc(t.category)}<span class="chip ${t.type}">${t.type === 'income' ? '收入' : '支出'}</span></div>
         <div class="tx-sub">${fmtDateShort(t.date)}${t.note ? ' · ' + esc(t.note) : ''}</div>
       </div>
       <div class="tx-amount ${t.type}">${t.type === 'income' ? '+' : '−'}${fmtMoney(t.amount)}</div>
       <div class="chips">
-        <button class="icon-btn" data-action="edit-tx" data-id="${t.id}" title="编辑">✏️</button>
-        <button class="icon-btn danger" data-action="del-tx" data-id="${t.id}" title="删除">🗑️</button>
+        <button class="icon-btn" data-action="edit-tx" data-id="${t.id}" title="编辑" aria-label="编辑">${ICON_PENCIL}</button>
+        <button class="icon-btn danger" data-action="del-tx" data-id="${t.id}" title="删除" aria-label="删除">${ICON_TRASH}</button>
       </div>
     </div>`;
   }).join('');
@@ -3217,7 +3199,7 @@ function renderFinance() {
             <h3>快速记一笔</h3>
             <div class="chips">
               <span class="small muted">${monthLabel(month)}</span>
-              <button type="button" class="collapse-btn pm${quickOpen ? ' minus' : ''}" data-action="toggle-quick" title="${quickOpen ? '收起记录表单' : '展开记录表单'}" aria-label="${quickOpen ? '收起记录表单' : '展开记录表单'}">${quickOpen ? '⊖' : '⊕'}</button>
+              <button type="button" class="collapse-btn pm${quickOpen ? ' minus' : ''}" data-action="toggle-quick" title="${quickOpen ? '收起记录表单' : '展开记录表单'}" aria-label="${quickOpen ? '收起记录表单' : '展开记录表单'}">${pmIcon()}</button>
             </div>
           </div>
           <div class="quick-body"${quickOpen ? '' : ' hidden'}>
@@ -3240,7 +3222,7 @@ function renderFinance() {
           <div class="card-head"><h3>本月小结</h3><span class="small muted">数据自动计算</span></div>
           <div class="fin-fact"><span>日均支出</span><strong>${fmtMoney(dailyAvg)}</strong></div>
           <div class="fin-fact"><span>记账笔数</span><strong>${sum.list.length} 笔</strong></div>
-          <div class="fin-fact"><span>最大支出分类</span><strong>${topCat ? `${finCat('expense', topCat[0]).icon} ${esc(topCat[0])} ${fmtMoney(topCat[1])}` : '暂无'}</strong></div>
+          <div class="fin-fact"><span>最大支出分类</span><strong>${topCat ? `${finCat('expense', topCat[0]).svg}${esc(topCat[0])} ${fmtMoney(topCat[1])}` : '暂无'}</strong></div>
           <div class="fin-fact"><span>结余率</span><strong>${sum.income ? Math.round(sum.balance / sum.income * 100) + '%' : '—'}</strong></div>
         </div>
       </div>
@@ -3314,7 +3296,7 @@ function renderFinanceYear() {
     const w = maxCat ? Math.max(3, amount / maxCat * 100) : 0;
     const share = sum.expense ? Math.round(amount / sum.expense * 100) : 0;
     return `<div class="cat-row">
-      <div class="cat-top"><span>${c.icon} ${esc(name)} <span class="muted small">· ${share}%</span></span><strong>${fmtMoney(amount)}</strong></div>
+      <div class="cat-top"><span class="cat-name">${c.svg}${esc(name)} <span class="muted small">· ${share}%</span></span><strong>${fmtMoney(amount)}</strong></div>
       <div class="progress slim"><i style="width:${w}%;background:${finCatColor('expense', name)}"></i></div>
     </div>`;
   }).join('') : `<div class="empty" style="padding:18px 6px">这一年还没有支出记录。</div>`;
@@ -3330,7 +3312,7 @@ function renderFinanceYear() {
     const w = maxInc ? Math.max(3, amount / maxInc * 100) : 0;
     const share = sum.income ? Math.round(amount / sum.income * 100) : 0;
     return `<div class="cat-row">
-      <div class="cat-top"><span>${c.icon} ${esc(name)} <span class="muted small">· ${share}%</span></span><strong>${fmtMoney(amount)}</strong></div>
+      <div class="cat-top"><span class="cat-name">${c.svg}${esc(name)} <span class="muted small">· ${share}%</span></span><strong>${fmtMoney(amount)}</strong></div>
       <div class="progress slim"><i style="width:${w}%;background:${finCatColor('income', name)}"></i></div>
     </div>`;
   }).join('') : `<div class="empty" style="padding:18px 6px">这一年还没有收入记录。</div>`;
@@ -3380,7 +3362,7 @@ function renderFinanceYear() {
           <div class="fin-fact"><span>记账笔数</span><strong>${sum.list.length} 笔</strong></div>
           <div class="fin-fact"><span>月均支出</span><strong>${activeMonths ? fmtMoney(avgMonthly) : '—'}</strong></div>
           <div class="fin-fact"><span>支出最多</span><strong>${topMonth ? `${topMonth.month}月 · ${fmtMoney(topMonth.expense)}` : '暂无'}</strong></div>
-          <div class="fin-fact"><span>最大分类</span><strong>${topCat ? `${finCat('expense', topCat[0]).icon} ${esc(topCat[0])} ${fmtMoney(topCat[1])}` : '暂无'}</strong></div>
+          <div class="fin-fact"><span>最大分类</span><strong>${topCat ? `${finCat('expense', topCat[0]).svg}${esc(topCat[0])} ${fmtMoney(topCat[1])}` : '暂无'}</strong></div>
         </div>
       </div>
     </div>
@@ -3665,25 +3647,122 @@ function openHabitModal() {
     </form>`);
 }
 
+/* 三种学习类型：字段不一样才算「记得对」
+   阅读 → 读到第几页；课程 → 讲到第几讲；技能 → 时长 + 熟练度 */
+const SESS_META = {
+  book: { unit: '页', prefix: '读到第几', noteHint: '选填，比如：第 3 章读完，记一句感受' },
+  course: { unit: '讲', prefix: '完成到第几', noteHint: '选填，比如：这一节讲了什么' },
+  skill: { unit: '', prefix: '', noteHint: '选填，比如：跟读 3 段对话，卡在连读' }
+};
+let sessState = null;
+
 function openSessionModal(itemId) {
   const items = state.learning.items;
   if (!items.length) { toast('先添加一个学习项目'); return; }
   const sel = (itemId && items.some(i => i.id === itemId)) ? itemId : items[0].id;
-  const opts = items.map(it => `<option value="${it.id}"${it.id === sel ? ' selected' : ''}>${esc(it.title)}</option>`).join('');
+  const it = items.find(i => i.id === sel) || items[0];
+  sessState = {
+    itemId: it.id,
+    date: todayKey(),
+    minutes: it.type === 'course' ? 45 : 30,
+    note: '',
+    level: Number(it.level) || 0
+  };
+  drawSessionModal();
+}
+
+function sessReadFields() {
+  const d = modalBox.querySelector('[name="date"]');
+  const m = modalBox.querySelector('[name="minutes"]');
+  const n = modalBox.querySelector('[name="note"]');
+  if (d && d.value) sessState.date = d.value;
+  if (m && m.value) sessState.minutes = m.value;
+  if (n) sessState.note = n.value;
+}
+
+function sessProgressHTML(it, type) {
+  const meta = SESS_META[type] || SESS_META.book;
+  const total = Number(it.total) || 0;
+  const cur = Number(it.current) || 0;
+  const unit = String(it.unit || meta.unit || '').trim();
+  const verb = `${meta.prefix}${unit}`;
+  if (!total) {
+    return `<div class="sess-block">
+      <div class="sp-head"><span>${verb}</span><em>还没设总量</em></div>
+      <div class="small muted">点卡片右上角的编辑，填上总量（比如 400 页 / 24 讲），这里就能边记边推进度。</div>
+    </div>`;
+  }
+  const pct = Math.round(clamp(cur / total * 100, 0, 100));
+  return `<div class="sess-block">
+    <div class="sp-head"><span>${verb}</span><em>共 ${fmtNum(total)} ${esc(unit)}</em></div>
+    <div class="sp-row">
+      <input id="sessProg" type="number" name="progress" min="0" max="${total}" step="1" value="${cur}" data-base="${cur}" data-unit="${esc(unit)}">
+      <span class="sp-unit">${esc(unit)}</span>
+    </div>
+    <div class="progress slim"><i id="sessBar" style="width:${pct}%"></i></div>
+    <div class="small muted" id="sessHint">这次没推进也正常，记下时长同样算数。</div>
+  </div>`;
+}
+
+function sessSkillHTML(it) {
+  const lv = clamp(sessState.level || Number(it.level) || 0, 0, 5);
+  return `<div class="sess-block">
+    <div class="sp-head"><span>练完之后的熟练度</span><em>${lv ? `第 ${lv} 级` : '点星星评一下'}</em></div>
+    <div class="stars big" data-sess-level>
+      ${[1, 2, 3, 4, 5].map(i => `<button type="button" class="${i <= lv ? 'on' : ''}" data-action="sess-level" data-level="${i}" title="设为 ${i} 级" aria-label="设为 ${i} 级">${i <= lv ? ICON_STAR_ON : ICON_STAR_OFF}</button>`).join('')}
+    </div>
+    <input type="hidden" name="level" value="${lv}">
+  </div>`;
+}
+
+function drawSessionModal() {
+  const items = state.learning.items;
+  if (!items.length) { closeModal(); return; }
+  const it = items.find(i => i.id === sessState.itemId) || items[0];
+  const type = SESS_META[it.type] ? it.type : 'book';
+  const meta = SESS_META[type];
+  const pills = items.map(x => {
+    const t = LEARN_TYPES[x.type] || LEARN_TYPES.book;
+    return `<button type="button" class="sess-opt${x.id === it.id ? ' on' : ''}" data-action="pick-sess-item" data-id="${x.id}">${t.icon}<span>${esc(x.title)}</span></button>`;
+  }).join('');
+
   openModal(`
-    <div class="modal-head"><h3>记录学习</h3><button class="close" data-action="close-modal">✕</button></div>
+    <div class="modal-head"><h3>记录学习</h3><button class="close" data-action="close-modal" aria-label="关闭">✕</button></div>
     <form data-form="session">
-      <label>学习内容<select name="itemId">${opts}</select></label>
+      <div class="sess-pick">${pills}</div>
       <div class="form-row">
-        <label>日期<input type="date" name="date" value="${todayKey()}" required></label>
-        <label>时长（分钟）<input type="number" name="minutes" min="1" max="1440" step="1" value="30" required></label>
+        <label>日期<input type="date" name="date" value="${sessState.date}" required></label>
+        <label>时长（分钟）<input type="number" name="minutes" min="1" max="1440" step="any" value="${sessState.minutes}" required></label>
       </div>
-      <label>备注<input name="note" placeholder="选填，比如：读完第 3 章"></label>
+      ${type === 'skill' ? sessSkillHTML(it) : sessProgressHTML(it, type)}
+      <label>备注<input name="note" maxlength="60" value="${esc(sessState.note)}" placeholder="${meta.noteHint}"></label>
       <div class="form-actions">
         <button type="button" class="btn ghost" data-action="close-modal">取消</button>
-        <button class="btn primary" type="submit">添加记录</button>
+        <button class="btn primary" type="submit">记录这次</button>
       </div>
     </form>`);
+
+  // 页码/讲数输入时，进度条和提示实时跟着走（不重绘，保住焦点）
+  const prog = modalBox.querySelector('#sessProg');
+  if (prog) {
+    prog.addEventListener('input', () => {
+      const total = Number(prog.max) || 0;
+      const base = Number(prog.dataset.base) || 0;
+      const unit = prog.dataset.unit || '';
+      const v = clamp(Number(prog.value) || 0, 0, total);
+      const pct = total ? Math.round(v / total * 100) : 0;
+      const bar = modalBox.querySelector('#sessBar');
+      const hint = modalBox.querySelector('#sessHint');
+      if (bar) bar.style.width = clamp(pct, 0, 100) + '%';
+      if (hint) {
+        hint.textContent = v > base ? `这次 +${v - base} ${unit} · 完成后 ${pct}%`
+          : v < base ? `比现在少 ${base - v} ${unit} · 完成后 ${pct}%`
+            : `这次没推进也正常，记下时长同样算数。`;
+      }
+    });
+  }
+  // 打开时不抢焦点，避免手机上直接弹日历/键盘
+  setTimeout(() => { const a = document.activeElement; if (a && a.blur) a.blur(); }, 80);
 }
 
 function openItemModal(id) {
@@ -3765,19 +3844,10 @@ function openThemeModal() {
           <span class="theme-desc">${t.desc}</span>
         </span>
       </button>`;
-  const groups = [
-    { key: 'new', title: '新版配色', note: '每套只有 1 个强调色 + 3 级中性色' },
-    { key: 'classic', title: '原有配色', note: '' }
-  ];
   openModal(`
     <div class="modal-head"><h3>选择主题</h3><button class="close" data-action="close-modal">✕</button></div>
-    <p class="small muted" style="margin:-8px 0 14px">挑一个喜欢的风格，立即生效并自动记住。</p>
-    ${groups.map(g => {
-    const list = THEMES.filter(t => (t.group || 'classic') === g.key);
-    if (!list.length) return '';
-    return `<div class="theme-group">${g.title}${g.note ? `<em>${g.note}</em>` : ''}</div>
-      <div class="theme-grid">${list.map(cardOf).join('')}</div>`;
-  }).join('')}`);
+    <p class="small muted" style="margin:-8px 0 14px">每套只有 1 个强调色 + 3 级中性色，点一下立即生效并记住。</p>
+    <div class="theme-grid">${THEMES.map(cardOf).join('')}</div>`);
 }
 
 /* ==================== 表单提交 ==================== */
@@ -3920,22 +3990,33 @@ document.addEventListener('submit', e => {
   }
 
   if (kind === 'session') {
-    const itemId = String(fd.get('itemId') || '');
+    const itemId = (sessState && sessState.itemId) || String(fd.get('itemId') || '');
     const item = state.learning.items.find(x => x.id === itemId);
-    if (!item) { toast('请选择一个学习项目'); return; }
+    if (!item) { toast('先选一个学习项目'); return; }
     const minutes = clamp(fd.get('minutes') || 30, 1, 1440);
-    state.learning.sessions.push({
-      id: uid(),
-      itemId,
-      date: String(fd.get('date') || '').trim() || todayKey(),
-      minutes,
-      note: String(fd.get('note') || '').trim(),
-      createdAt: Date.now()
-    });
+    const date = String(fd.get('date') || '').trim() || todayKey();
+    const note = String(fd.get('note') || '').trim();
+    const sess = { id: uid(), itemId, date, minutes, note, createdAt: Date.now() };
+    let tip = '';
+    if (item.type === 'skill') {
+      const lv = clamp(fd.get('level') || 0, 0, 5);
+      if (lv) { sess.level = lv; item.level = lv; tip = ` · 熟练度 ${lv} 级`; }
+    } else {
+      const total = Number(item.total) || 0;
+      const base = Number(item.current) || 0;
+      const to = Number(fd.get('progress'));
+      if (total > 0 && !isNaN(to) && to >= 0) {
+        const v = clamp(to, 0, total);
+        sess.progress = v;
+        if (v !== base) item.current = v;
+        if (v > base) tip = ` · +${v - base} ${item.unit || SESS_META[item.type].unit}`;
+      }
+    }
+    state.learning.sessions.push(sess);
     closeModal();
     saveState();
     render();
-    toast(`已记录 ${minutes} 分钟 🎉`);
+    toast(`已记录 ${minutes} 分钟${tip} 🎉`);
     return;
   }
 
@@ -4266,6 +4347,33 @@ document.addEventListener('click', e => {
   }
   if (action === 'log-session') {
     openSessionModal(id);
+    return;
+  }
+  if (action === 'pick-sess-item') {
+    if (!sessState) return;
+    sessReadFields();
+    sessState.itemId = id;
+    const it = state.learning.items.find(x => x.id === id);
+    sessState.level = it ? (Number(it.level) || 0) : 0;
+    drawSessionModal();
+    return;
+  }
+  if (action === 'sess-level') {
+    if (!sessState) return;
+    sessReadFields();
+    sessState.level = clamp(el.dataset.level, 1, 5);
+    const hidden = modalBox.querySelector('[name="level"]');
+    if (hidden) hidden.value = sessState.level;
+    const wrap = el.closest('.stars');
+    const head = modalBox.querySelector('.sp-head em');
+    if (wrap) {
+      [...wrap.querySelectorAll('button')].forEach(b => {
+        const on = Number(b.dataset.level) <= sessState.level;
+        b.classList.toggle('on', on);
+        b.innerHTML = on ? ICON_STAR_ON : ICON_STAR_OFF;
+      });
+    }
+    if (head) head.textContent = `第 ${sessState.level} 级`;
     return;
   }
 

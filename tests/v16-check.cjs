@@ -122,14 +122,14 @@ async function main() {
       years: years.length, months: months.length,
       firstYearText: years[0] ? years[0].textContent.replace(/\\s+/g,' ').trim() : '',
       entries: document.querySelectorAll('#view-journal .journal-entry').length,
-      toggleIco: document.querySelector('[data-action="toggle-journal"]').textContent.trim(),
+      toggleIco: !!document.querySelector('[data-action="toggle-journal"] .pm-chev'),
       width: document.documentElement.scrollWidth
     };
   })()`);
   assert(jfold.years >= 1, '日记没有按年折叠');
   assert(jfold.months >= 1, '日记没有按月折叠');
   assert(jfold.entries >= 1, '日记条目未渲染');
-  assert(jfold.toggleIco === '⊖' || jfold.toggleIco === '⊕', `日记折叠按钮不是 ⊕/⊖：${jfold.toggleIco}`);
+  assert(jfold.toggleIco === true, '日记折叠按钮缺少箭头图标');
   await shot('v16-journal-fold.png');
 
   // 收起年份 → 条目消失；再展开恢复

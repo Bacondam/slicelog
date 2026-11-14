@@ -345,9 +345,9 @@ async function main() {
       });
     }
     applyTheme(before);
-    return { list, out, groups: THEMES.filter(t => t.group === 'new').length };
+    return { list, out, groups: THEMES.length };
   })()`);
-  assert(themes.groups === 5, `新版配色应为 5 套，实际 ${themes.groups}`);
+  assert(themes.groups === 5, `配色应为 5 套，实际 ${themes.groups}`);
   assert(['oat', 'mist', 'clay', 'graphite', 'pine'].every(id => themes.list.includes(id)), '缺少新版配色：' + themes.list.join(','));
   for (const t of themes.out) {
     assert(t.applied === t.id, `${t.id} 没生效`);
@@ -357,7 +357,7 @@ async function main() {
   }
   assert(themes.out.find(t => t.id === 'pine').mode === 'dark', '松烟·夜应为 dark 模式');
   assert(themes.out.filter(t => t.mode === 'dark').length === 1, '新版里只有松烟·夜是暗色');
-  pass('配色接入', `12 套主题（新版 5 + 原有 7），5 套色值与设计稿一致，松烟·夜走 dark 模式`);
+  pass('配色接入', '5 套主题，色值与设计稿一致，松烟·夜走 dark 模式，旧主题已下线');
 
   console.log(`\n全部通过：${results.length} 项`);
   ws.close();

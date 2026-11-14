@@ -111,7 +111,7 @@ async function main() {
         const r = c.getBoundingClientRect();
         return { w: Math.round(r.width), h: Math.round(r.height), hasPlus: !c.classList.contains('minus') };
       }),
-      headBtn: document.querySelector('[data-action="toggle-done-goals"]').textContent.trim(),
+      headBtn: !!document.querySelector('[data-action="toggle-done-goals"] .pm-chev'),
       headMinus: document.querySelector('[data-action="toggle-done-goals"]').classList.contains('minus'),
       overflow: document.documentElement.scrollWidth
     };
@@ -121,9 +121,9 @@ async function main() {
   assert(base.titles.every(t => !t.includes('·')), '标题仍被拼接在一条里');
   assert(base.circles.every(c => c && c.w === 26 && c.h === 26), '⊕ 按钮尺寸不是 26px：' + JSON.stringify(base.circles));
   assert(base.circles.every(c => c.hasPlus), '折叠状态应显示加号');
-  assert(base.headBtn === '⊕' && !base.headMinus, '区块标题按钮应为 ⊕');
+  assert(base.headBtn && !base.headMinus, '区块标题按钮应为折叠箭头');
   assert(base.overflow <= 452, `页面出现横向溢出：${base.overflow}`);
-  pass('已完成目标一条一行', `4 条，每行右侧 ⊕ 26×26`);
+  pass('已完成目标一条一行', '4 条，每行右侧箭头 26×26');
 
   /* ---------- 2. 单条点击展开 / 收起 ---------- */
   const firstId = await evaluate(`state.goals[0].id`);
