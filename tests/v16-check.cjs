@@ -107,7 +107,7 @@ async function main() {
   assert(dash.sub.length >= 4 && !dash.subHidden, '顶部未显示每日一句：' + dash.sub);
   assert(dash.hero === 0, '概览仍有 hero 卡片');
   assert(dash.study === false, '概览仍有「近 14 天学习」');
-  assert(dash.stats === 5, `统计卡数量异常：${dash.stats}`);
+  assert(dash.stats === 4, `统计卡数量异常：${dash.stats}`);
   assert(dash.width <= 452, `概览横向溢出 ${dash.width}`);
   await shot('v16-dashboard.png');
   results.push(`概览精简：顶部仅日期「${dash.title}」(${dash.titleSize})，移除学习图表与 hero`);

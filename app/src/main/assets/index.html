@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#f4f7f5">
-<title>成长日志 · Growth OS</title>
+<title>人生切片 · Slicelog</title>
 <script>
 try {
   var _s = JSON.parse(localStorage.getItem('growth-os-v1'));
@@ -187,6 +187,7 @@ try {
     width: 40px; height: 40px; border-radius: 13px;
     background: linear-gradient(135deg, var(--accent), var(--accent-hi));
     display: grid; place-items: center; font-size: 21px;
+    color: var(--on-accent); font-weight: 800; letter-spacing: -.5px;
     box-shadow: 0 6px 14px rgba(0,0,0,.18);
   }
   .brand h1 { font-size: 16px; letter-spacing: .5px; line-height: 1.2; }
@@ -282,7 +283,7 @@ try {
   .ring-inner span { font-size: 10px; color: var(--muted); }
 
   /* stats */
-  .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .stat {
     background: var(--card); border: 1px solid var(--line);
     border-radius: var(--radius); padding: 15px 17px; box-shadow: var(--shadow);
@@ -297,6 +298,27 @@ try {
   .stat .stat-ico { display: inline-flex; align-items: center; gap: 3px; }
   .stat .stat-ico b { font-weight: 400; font-size: 13px; color: var(--muted); transition: .16s; }
   .stat[data-action]:hover .stat-ico b { color: var(--accent); transform: translateX(2px); }
+
+  /* 双数据卡：一张卡里放两组数字（学习 + 目标） */
+  .stat.dual { display: flex; flex-direction: column; }
+  .stat.dual .stat-ico { color: var(--muted); }
+  .stat.dual .dual-row { display: flex; align-items: stretch; margin: 7px 0 2px; }
+  .dual-cell {
+    flex: 1 1 0; min-width: 0; display: block; text-align: left;
+    padding: 0; border: 0; background: none; font: inherit; color: var(--text);
+    cursor: pointer; transition: opacity .15s;
+  }
+  .dual-cell + .dual-cell { border-left: 1px solid var(--line); padding-left: 12px; margin-left: 12px; }
+  .dual-cell:active { opacity: .7; }
+  .dual-cell strong {
+    display: block; font-size: 19px; font-weight: 700;
+    letter-spacing: -.4px; line-height: 1.2; white-space: nowrap;
+  }
+  .dual-cell strong i {
+    font-style: normal; font-size: 11px; font-weight: 500;
+    color: var(--muted); margin-left: 3px; letter-spacing: 0;
+  }
+  .dual-cell > span { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
 
   /* 环形图 */
   .donut-wrap { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
@@ -758,6 +780,14 @@ try {
   .fin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
   .grid-2.fin-grid { align-items: start; }
   .fin-left { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  /* 合并卡：流水 / 支出分类 用一个分段切换，卡片高度不再拉长 */
+  .fin-tabs { flex: none; }
+  .fin-tabs button { padding: 4px 11px; font-size: 12px; }
+  .fin-panel-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-bottom: 10px; min-height: 26px;
+  }
+  .fin-panel-bar .link-btn { font-size: 12px; }
   .fin-fact { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
   .fin-fact:first-of-type { border-top: 0; padding-top: 0; }
   .fin-fact strong { color: var(--text); font-variant-numeric: tabular-nums; }
@@ -802,7 +832,9 @@ try {
   .text-danger { color: var(--danger); }
 
   /* finance year view */
-  .fin-head-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .fin-head { justify-content: flex-start; }
+  .fin-head .month-nav { order: 2; }
+  .fin-head .fin-add { order: 3; margin-left: auto; }
   .seg { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line-ctl); border-radius: 10px; background: var(--bg); }
   .seg button { padding: 5px 13px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--muted); transition: .15s; }
   .seg button:hover { color: var(--text); }
@@ -839,8 +871,10 @@ try {
   .fin-table .m-bar { width: 74px; padding-right: 0; }
   .fin-table .m-bar i { display: block; height: 5px; border-radius: 99px; background: var(--danger); opacity: .7; }
   @media (max-width: 560px) {
-    .fin-head-left { gap: 10px; }
-    .fin-head-left + .btn.primary { width: 100%; }
+    /* 手机上：第一行「月度/年度 + 记一笔」，第二行整月导航，避免主按钮拉成一整条 */
+    .fin-head { flex-wrap: wrap; }
+    .fin-head .month-nav { order: 3; width: 100%; justify-content: center; }
+    .fin-head .fin-add { order: 2; }
     .fin-table { min-width: 0; }
     .fin-table th, .fin-table td { padding: 8px 4px; font-size: 11px; }
     .fin-table th:last-child, .fin-table td:last-child { display: none; }
@@ -1035,12 +1069,10 @@ try {
 
   /* responsive */
   @media (max-width: 1200px) {
-    .stats { grid-template-columns: repeat(3, 1fr); }
+    .stats { grid-template-columns: repeat(2, 1fr); }
     .fin-stats { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 1000px) {
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .stats > .stat:last-child:nth-child(odd) { grid-column: span 2; }
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .main { padding: 24px 22px 60px; }
   }
@@ -1463,16 +1495,16 @@ try {
 <body>
 <header class="mobile-header">
   <div class="brand">
-    <div class="logo">G</div>
-    <div><h1>成长日志</h1><span class="sub">Growth OS</span></div>
+    <div class="logo">S</div>
+    <div><h1>人生切片</h1><span class="sub">Slicelog</span></div>
   </div>
   <button type="button" id="mobileSettings" aria-expanded="false">设置</button>
 </header>
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="logo">🌱</div>
-      <div><h1>成长日志</h1><span class="sub">Growth OS</span></div>
+      <div class="logo">S</div>
+      <div><h1>人生切片</h1><span class="sub">Slicelog</span></div>
     </div>
     <nav class="nav" id="nav">
       <button data-action="nav" data-view="goals"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.9"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/></svg></span>目标</button>
@@ -2030,6 +2062,8 @@ let currentView = 'dashboard';
 let editingJournal = null;
 let financeMonth = todayKey().slice(0, 7);
 let financeFilter = 'all';
+/** 记账页合并卡内的分段：tx=流水 / cat=分类（只在本次运行内记忆） */
+let finTab = 'tx';
 let financeMode = 'month';
 let financeYear = Number(todayKey().slice(0, 4));
 let goalFilter = 'all';
@@ -2300,6 +2334,9 @@ function normalizeState(raw) {
   if (!s.settings.doneOpen || typeof s.settings.doneOpen !== 'object' || Array.isArray(s.settings.doneOpen)) s.settings.doneOpen = {};
   if (typeof s.settings.archOpen !== 'boolean') s.settings.archOpen = false;
   delete s.settings.goalsDoneOpen;
+  /* 2.0.A：账簿合并成一张卡，旧的「本月小结 / 支出分类」折叠态已无对应卡片 */
+  delete s.settings.cardFold['fin:summary'];
+  delete s.settings.cardFold['fin:cats'];
   s.habits.forEach(h => {
     if (!Array.isArray(s.habitLogs[h.id])) s.habitLogs[h.id] = [];
     if (!h.emoji) h.emoji = '✅';
@@ -2751,17 +2788,28 @@ function renderDashboard() {
   const todayMin = sessionsOn(tKey).reduce((a, s) => a + (Number(s.minutes) || 0), 0);
   const activeGoals = state.goals.filter(g => !g.done);
   const doneGoalCount = state.goals.length - activeGoals.length;
-  const avg = activeGoals.length ? Math.round(activeGoals.reduce((a, g) => a + goalPct(g), 0) / activeGoals.length) : 0;
   const fin = financeSummary(monthPrefix);
   const hour = new Date().getHours();
   const greet = hour < 6 ? '夜深了' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好';
 
   const stats = [
     { key: 'streak', label: '连续成长', value: `${streak} 天`, icon: ICON_LEAF, hint: streak > 0 ? '别让链条断掉' : '今天就是起点' },
-    { key: 'study', label: '本月学习', value: monthMin >= 60 ? `${(monthMin / 60).toFixed(1)} 小时` : `${monthMin} 分钟`, icon: ICON_BOOK, hint: `今日 ${fmtDuration(todayMin)}` },
-    { key: 'goals', label: '目标平均进度', value: `${avg}%`, icon: ICON_TARGET, hint: `进行中 ${activeGoals.length} 个${doneGoalCount ? ` · 已完成 ${doneGoalCount}` : ''}` },
-    { key: 'journal', label: '日记累计', value: `${state.journal.length} 篇`, icon: ICON_NOTE, hint: '记录即成长' },
-    { key: 'finance', label: '本月结余', value: fmtMoney(fin.balance), icon: ICON_WALLET, hint: `收 ${fmtMoneyShort(fin.income)} · 支 ${fmtMoneyShort(fin.expense)}` }
+    {
+      dual: true,
+      label: '学习与目标',
+      cells: [
+        { stat: 'goals', value: fmtNum(doneGoalCount), unit: '个', label: '已完成目标' },
+        {
+          stat: 'study',
+          value: monthMin >= 60 ? (monthMin / 60).toFixed(1) : fmtNum(monthMin),
+          unit: monthMin >= 60 ? '小时' : '分钟',
+          label: '本月学习'
+        }
+      ],
+      hint: `进行中 ${activeGoals.length} 个 · 今日 ${fmtDuration(todayMin)}`
+    },
+    { key: 'finance', label: '本月结余', value: fmtMoney(fin.balance), icon: ICON_WALLET, hint: `收 ${fmtMoneyShort(fin.income)} · 支 ${fmtMoneyShort(fin.expense)}` },
+    { key: 'journal', label: '日记累计', value: `${state.journal.length} 篇`, icon: ICON_NOTE, hint: '记录即成长' }
   ];
   const weekDone = habits.reduce((a, h) => a + habitWeekCount(h.id, 0), 0);
   const weekTotal = habits.length * 7;
@@ -2815,7 +2863,16 @@ function renderDashboard() {
   $('#view-dashboard').innerHTML = `
     ${state.seeded ? `<div class="demo-banner card"><span>👋 已为你准备了一份示例数据，方便快速了解功能。可以直接修改，或在「设置」中清空后从零开始。</span><button class="btn" data-action="dismiss-demo">知道了</button></div>` : ''}
     <div class="stats">
-      ${stats.map(s => `<button type="button" class="stat" data-action="open-stat" data-stat="${s.key}" title="查看${s.label}分析">
+      ${stats.map(s => s.dual ? `<div class="stat dual">
+        <div class="stat-top"><span>${s.label}</span><span class="stat-ico">${ICON_TARGET}</span></div>
+        <div class="dual-row">
+          ${s.cells.map(c => `<button type="button" class="dual-cell" data-action="open-stat" data-stat="${c.stat}" title="查看${c.label}分析">
+            <strong>${c.value}<i>${c.unit}</i></strong>
+            <span>${c.label}</span>
+          </button>`).join('')}
+        </div>
+        <div class="hint">${s.hint}</div>
+      </div>` : `<button type="button" class="stat" data-action="open-stat" data-stat="${s.key}" title="查看${s.label}分析">
         <div class="stat-top"><span>${s.label}</span><span class="stat-ico">${s.icon}<b>›</b></span></div>
         <strong>${s.value}</strong>
         <div class="hint">${s.hint}</div>
@@ -3606,26 +3663,29 @@ function renderJournal() {
     </div>`;
   }).join('');
 
+  /* 全部展开之后要能一键收回：按当前是否已全展开，按钮在「全部展开 / 全部收起」之间切换 */
+  const foldMap = (state.settings.journalFold && typeof state.settings.journalFold === 'object') ? state.settings.journalFold : {};
+  const allExpanded = entries.length > 0 && [...yearMap.entries()].every(([year, months]) =>
+    foldMap['y:' + year] === true && [...months.keys()].every(m => foldMap['m:' + m] === true));
+
   $('#view-journal').innerHTML = `
     ${journalFormHTML(editing, !!editing)}
     ${entries.length ? `<div class="card">
       <div class="card-head"><h3>日记归档 <span class="small muted">共 ${entries.length} 篇</span></h3>
-        <button class="link-btn" data-action="fold-journal-all" data-open="1">全部展开</button>
+        <button class="link-btn" data-action="fold-journal-all" data-open="${allExpanded ? 0 : 1}">${allExpanded ? '全部收起' : '全部展开'}</button>
       </div>
       ${groupsHTML}
     </div>` : `<div class="card"><div class="empty"><div class="big">✍️</div>还没有日记。每天 2 分钟，写下三件小事就够了。</div></div>`}`;
 }
 
 function financeHeader(navHTML) {
-  return `<div class="page-actions">
-    <div class="fin-head-left">
-      <div class="seg">
-        <button type="button" data-action="fin-mode" data-mode="month" class="${financeMode === 'month' ? 'active' : ''}">月度</button>
-        <button type="button" data-action="fin-mode" data-mode="year" class="${financeMode === 'year' ? 'active' : ''}">年度</button>
-      </div>
-      ${navHTML}
+  return `<div class="page-actions fin-head">
+    <div class="seg">
+      <button type="button" data-action="fin-mode" data-mode="month" class="${financeMode === 'month' ? 'active' : ''}">月度</button>
+      <button type="button" data-action="fin-mode" data-mode="year" class="${financeMode === 'year' ? 'active' : ''}">年度</button>
     </div>
-    <button class="btn primary" data-action="add-tx">+ 记一笔</button>
+    <button class="btn primary fin-add" data-action="add-tx">+ 记一笔</button>
+    ${navHTML}
   </div>`;
 }
 
@@ -3659,7 +3719,6 @@ function renderFinance() {
     ? nowDate.getDate()
     : new Date(Number(month.slice(0, 4)), Number(month.slice(5, 7)), 0).getDate();
   const dailyAvg = daysInMonth ? sum.expense / daysInMonth : 0;
-  const topCat = cats[0];
   const catHTML = cats.length ? cats.map(([name, amount]) => {
     const c = finCat('expense', name);
     const w = maxCat ? Math.max(3, amount / maxCat * 100) : 0;
@@ -3739,11 +3798,12 @@ function renderFinance() {
           <option value="income"${financeFilter === 'income' ? ' selected' : ''}>收入</option>
         </select>`;
 
-  const summaryBody = `
-      <div class="fin-fact"><span>日均支出</span><strong>${fmtMoney(dailyAvg)}</strong></div>
-      <div class="fin-fact"><span>记账笔数</span><strong>${sum.list.length} 笔</strong></div>
-      <div class="fin-fact"><span>最大支出分类</span><strong>${topCat ? `${finCat('expense', topCat[0]).svg}${esc(topCat[0])} ${fmtMoney(topCat[1])}` : '暂无'}</strong></div>
-      <div class="fin-fact"><span>结余率</span><strong>${sum.income ? Math.round(sum.balance / sum.income * 100) + '%' : '—'}</strong></div>`;
+  /* 流水 + 支出分类合在一张卡里，用内部分段切换：默认看流水，要看构成再切分类 */
+  const finTabNow = finTab === 'cat' ? 'cat' : 'tx';
+  const tabsHTML = `<div class="seg fin-tabs">
+        <button type="button" data-action="fin-tab" data-tab="tx" class="${finTabNow === 'tx' ? 'active' : ''}">流水</button>
+        <button type="button" data-action="fin-tab" data-tab="cat" class="${finTabNow === 'cat' ? 'active' : ''}">支出分类</button>
+      </div>`;
 
   const catBody = `
       ${cats.length ? `<div style="margin-bottom:14px">${donutChart(catItems, { center: fmtMoneyCompact(sum.expense), centerLabel: '本月支出' })}</div>` : ''}
@@ -3752,6 +3812,22 @@ function renderFinance() {
         <div class="progress"><i style="width:${clamp(usedPct, 0, 100)}%${over ? ';background:var(--danger)' : ''}"></i></div>
       </div>` : `<div class="small muted" style="margin-bottom:10px">还没有设置预算，设置后可以查看本月使用进度。</div>`}
       ${catHTML}`;
+
+  const txPanel = `<div class="fin-panel" data-panel="tx"${finTabNow === 'tx' ? '' : ' hidden'}>
+      <div class="fin-panel-bar">
+        <span class="small muted">${monthLabel(month)} · 共 ${filtered.length} 笔</span>
+        ${filterSelect}
+      </div>
+      ${rows || `<div class="empty">${emptyText}</div>`}
+    </div>`;
+
+  const catPanel = `<div class="fin-panel" data-panel="cat"${finTabNow === 'cat' ? '' : ' hidden'}>
+      <div class="fin-panel-bar">
+        <span class="small muted">${cats.length ? `${cats.length} 个分类 · 日均 ${fmtMoney(dailyAvg)}` : '本月还没有支出'}</span>
+        <button class="link-btn" data-action="edit-budget">${budget ? '调整预算' : '设置预算'} →</button>
+      </div>
+      ${catBody}
+    </div>`;
 
   $('#view-finance').innerHTML = `
     ${financeHeader(navHTML)}
@@ -3762,14 +3838,9 @@ function renderFinance() {
         <div class="hint">${s.hint}</div>
       </div>`).join('')}
     </div>
-    <div class="grid-2 fin-grid">
-      <div class="fin-left">
-        ${quickCard}
-        ${foldCard('fin:txs', `账单明细 <span class="small muted">· ${filtered.length} 笔</span>`, rows || `<div class="empty">${emptyText}</div>`, { extra: filterSelect })}
-        ${foldCard('fin:summary', '本月小结', summaryBody, { extra: '<span class="small muted">自动计算</span>' })}
-      </div>
-      ${foldCard('fin:cats', '支出分类', catBody, { extra: `<button class="link-btn" data-action="edit-budget">${budget ? '调整预算' : '设置预算'} →</button>` })}
-    </div>`;
+    ${quickCard}
+    ${foldCard('fin:txs', '账单', `${tabsHTML}${txPanel}${catPanel}`, { extra: `<span class="small muted">${sum.list.length} 笔</span>` })}
+  `;
 }
 
 function renderFinanceYear() {
@@ -5197,6 +5268,12 @@ document.addEventListener('click', e => {
     toast(`已切换为「${t.name}」`);
     return;
   }
+  if (action === 'fin-tab') {
+    finTab = el.dataset.tab === 'cat' ? 'cat' : 'tx';
+    $$('#view-finance .fin-tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === finTab));
+    $$('#view-finance .fin-panel').forEach(p => { p.hidden = p.dataset.panel !== finTab; });
+    return;
+  }
   if (action === 'fin-prev') { financeMonth = shiftMonth(financeMonth, -1); render(); return; }
   if (action === 'fin-next') { financeMonth = shiftMonth(financeMonth, 1); render(); return; }
   if (action === 'fin-now') { financeMonth = todayKey().slice(0, 7); render(); return; }
@@ -5256,7 +5333,7 @@ modalEl.addEventListener('click', e => { if (e.target === modalEl) closeModal();
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
 /* ==================== 备份 / 分享 / 自动存档 ==================== */
-const backupName = () => `成长日志备份-${todayKey()}.json`;
+const backupName = () => `人生切片备份-${todayKey()}.json`;
 
 function backupJSON() { return JSON.stringify(state, null, 2); }
 

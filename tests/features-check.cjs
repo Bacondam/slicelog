@@ -92,9 +92,11 @@ async function main() {
   /* ---------- 1. 概览五张卡可点击 + 饼图详情 ---------- */
   const keys = await evaluate(`(() => {
     const cards = [...document.querySelectorAll('.stats .stat')];
-    return { count: cards.length, actions: cards.map(c => c.dataset.stat), tag: cards[0] ? cards[0].tagName : '' };
+    return { count: cards.length, actions: cards.map(c => c.dataset.stat), tag: cards[0] ? cards[0].tagName : '',
+      dual: document.querySelectorAll('.stats .stat.dual .dual-cell[data-action="open-stat"]').length };
   })()`);
-  assert(keys.count === 5, `概览统计卡数量异常：${keys.count}`);
+  assert(keys.count === 4, `概览统计卡数量异常：${keys.count}`);
+  assert(keys.dual === 2, `概览「学习与目标」双数据卡异常：${keys.dual}`);
   assert(keys.tag === 'BUTTON', '概览统计卡不是可点击按钮');
   const seen = [];
   for (const key of ['streak', 'study', 'goals', 'journal', 'finance']) {
