@@ -160,7 +160,7 @@ async function main() {
     const logos = [...document.querySelectorAll('.logo')];
     return {
       n: logos.length,
-      mini: logos.every(l => l.querySelector('svg use') && l.querySelector('svg use').getAttribute('href') === '#slicelog-mark-mini'),
+      mini: logos.every(l => l.querySelector('svg use') && l.querySelector('svg use').getAttribute('href') === '#slicelog-mark-lite'),
       round: logos.every(l => getComputedStyle(l.querySelector('svg')).borderRadius === '50%'),
       sizes: logos.map(l => Math.round(l.getBoundingClientRect().width)).filter(w => w > 0),
       letter: document.querySelector('.logo').textContent.trim(),
@@ -169,18 +169,33 @@ async function main() {
     };
   })()`);
   assert(brand.n === 2, `品牌 logo 应有 2 处（顶栏 + 侧栏），实际 ${brand.n}`);
-  assert(brand.mini, '顶部 logo 应引用小尺寸标记 #slicelog-mark-mini');
+  assert(brand.mini, '顶部 logo 应引用完整构图的小尺寸标记 #slicelog-mark-lite');
   assert(brand.round, 'logo 容器没有圆形裁切');
   assert(brand.letter === '', `logo 里不该再有字母，实际「${brand.letter}」`);
   assert(brand.title === '人生切片' && brand.sub === 'Slicelog', `品牌文字不对：${JSON.stringify(brand.title)} / ${JSON.stringify(brand.sub)}`);
   pass('顶部品牌', `矢量标记 ${brand.sizes.join('/')}px，文字「${brand.title} · ${brand.sub}」`);
+
+  /* 小尺寸标记保留完整构图：圆章 + 切片 + 人 + 月牙 + 树苗，不是一根弧线 */
+  const lite = await evaluate(`(() => {
+    const sym = document.querySelector('#slicelog-mark-lite');
+    if (!sym) return null;
+    return {
+      paths: sym.querySelectorAll('path').length,
+      circles: sym.querySelectorAll('circle').length,
+      cream: [...sym.querySelectorAll('path')].filter(p => p.getAttribute('stroke') === '#F3F0E3' && p.getAttribute('fill') === 'none').length
+    };
+  })()`);
+  assert(lite, '缺少 #slicelog-mark-lite 标记');
+  assert(lite.paths >= 12, `小尺寸标记元素过少（${lite.paths} 条 path），可能是被简化回单弧线了`);
+  assert(lite.circles >= 3 && lite.cream >= 4, `小尺寸标记缺少人物构成：circle ${lite.circles} / 笔画路径 ${lite.cream}`);
+  pass('小尺寸标记', `${lite.paths} 条路径 + ${lite.circles} 个圆，完整构图`);
 
   /* 深色主题下标记不透明、文字仍可读 */
   await evaluate(`applyTheme('pine'); render()`);
   await delay(150);
   const dark = await evaluate(`(() => {
     /* 图形在 symbol 里，use 的影子树查不到，直接看 symbol 的源 */
-    const circle = document.querySelector('#slicelog-mark-mini circle');
+    const circle = document.querySelector('#slicelog-mark-lite circle');
     return { fill: circle ? circle.getAttribute('fill') : '', text: getComputedStyle(document.querySelector('.brand h1')).color };
   })()`);
   assert(dark.fill === '#3F5B49', `深色主题下徽章底色被改了：${dark.fill}`);

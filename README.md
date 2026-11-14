@@ -35,7 +35,7 @@
 
 - 一个**深绿圆章 + 米白剪影**：一个人坐在一片剪下来的弧面上，右上角一弯月，右侧一株小苗。全部是矢量路径（`<svg><symbol>` + Android `VectorDrawable`），任何尺寸都不失真
 - 配色只有两个：深绿 `#3F5B49`、米白 `#F3F0E3`；封面底色 `#F5F2E8`
-- 同一套路径三处复用：`#slicelog-mark`（启动封面，含树苗与内圈纹理）、`#slicelog-mark-mini`（顶栏 34px / 侧栏 40px，只留一道切片）、`res/drawable/ic_launcher_foreground.xml`（桌面图标）
+- 同一套路径三处复用：`#slicelog-mark`（启动封面，含内圈纹理）、`#slicelog-mark-lite`（顶栏 40px / 侧栏 44px，同一构图但去掉两条装饰细环、人形改粗笔画，小尺寸下仍能看清人和月牙）、`res/drawable/ic_launcher_foreground.xml`（桌面图标）
 - 启动封面停留 **1.5 秒**后 0.44 秒淡出，期间锁住背景滚动；带 `?nosplash=1` 可跳过（自动化测试用）
 - Android 12 的系统启动画面同步配成米白底 + 同一枚徽章，和网页封面无缝衔接
 

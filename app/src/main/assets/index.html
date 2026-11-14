@@ -189,7 +189,7 @@ try {
     position: sticky; top: 0; height: 100vh;
   }
   .brand { display: flex; gap: 10px; align-items: center; padding: 0 8px; }
-  .logo { width: 40px; height: 40px; flex: none; display: block; }
+  .logo { width: 44px; height: 44px; flex: none; display: block; }
   .logo svg { width: 100%; height: 100%; display: block; border-radius: 50%; }
   .brand h1 { font-size: 16px; letter-spacing: .5px; line-height: 1.2; }
   .brand .sub { display: block; font-size: 10px; color: var(--muted); letter-spacing: 1.6px; text-transform: uppercase; }
@@ -1013,7 +1013,7 @@ try {
       padding: 12px 14px; gap: 10px;
     }
     .brand { padding: 0 4px; }
-    .logo { width: 34px; height: 34px; font-size: 18px; border-radius: 11px; }
+    .logo { width: 36px; height: 36px; font-size: 18px; }
     .nav { flex-direction: row; overflow-x: auto; gap: 2px; padding-bottom: 2px; }
     .nav button { white-space: nowrap; padding: 7px 10px; font-size: 13px; }
     .sidebar-foot {
@@ -1054,7 +1054,7 @@ try {
       background: var(--card); border-bottom: 1px solid var(--line);
     }
     .mobile-header .brand { display: flex; padding: 0; }
-    .mobile-header .logo { width: 34px; height: 34px; font-size: 17px; border-radius: 11px; color: var(--on-accent); font-weight: 800; }
+    .mobile-header .logo { width: 40px; height: 40px; font-size: 17px; color: var(--on-accent); font-weight: 800; }
     .mobile-header h1 { font-size: 16px; }
     #mobileSettings {
       min-height: 38px; padding: 7px 13px; border-radius: 10px;
@@ -1146,7 +1146,7 @@ try {
       height: calc(48px + var(--sat));
       padding-top: calc(5px + var(--sat)); padding-bottom: 5px;
     }
-    .mobile-header .logo { width: 28px; height: 28px; font-size: 14px; border-radius: 9px; }
+    .mobile-header .logo { width: 32px; height: 32px; font-size: 14px; }
     .mobile-header h1 { font-size: 14px; }
     #mobileSettings { min-height: 32px; padding: 5px 10px; font-size: 12px; }
     .sidebar-foot { top: calc(54px + var(--sat)); }
@@ -1467,9 +1467,32 @@ try {
     <path d="M73.6 66.4 C79.6 65.2 82.2 60.2 81.4 55.6 C76.2 56.4 73.2 60.8 73.6 66.4 Z" fill="#F3F0E3"/>
     <path d="M73.6 70.6 C69.2 69.8 66.8 66 67.2 62 C71 62.8 73.4 66.2 73.6 70.6 Z" fill="#F3F0E3"/>
   </symbol>
-  <symbol id="slicelog-mark-mini" viewBox="0 0 108 108">
+  <!-- 小尺寸完整版：构图与封面徽章一致（切片 + 坐着的人 + 月亮 + 树苗），
+       去掉两条装饰细环、人形改用粗笔画，保证 30px 上下仍能看清 -->
+  <symbol id="slicelog-mark-lite" viewBox="0 0 108 108">
     <circle cx="54" cy="54" r="52" fill="#3F5B49"/>
-    <path d="M30 84 C48 79 54 68 54 58 C54 47 58 38 66 32" fill="none" stroke="#F3F0E3" stroke-width="13" stroke-linecap="round"/>
+    <path d="M27 82.5 C36 79.2 47 76.2 57 74.6" fill="none" stroke="#F3F0E3" stroke-width="10" stroke-linecap="round"/>
+    <path d="M46 70.5 C57 61 62 46 63.5 32" fill="none" stroke="#F3F0E3" stroke-width="11.6" stroke-linecap="round"/>
+    <g fill="none" stroke="#3F5B49" stroke-width="13.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M39 51.6 C38 57 39 64 43 68.6"/>
+      <path d="M43 68.6 C48 68.6 54 68 58.2 67"/>
+      <path d="M58.2 67 L58.6 76.6"/>
+      <path d="M58.6 76.6 L62.4 76.6"/>
+    </g>
+    <g fill="none" stroke="#F3F0E3" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M39 51.6 C38 57 39 64 43 68.6"/>
+      <path d="M43 68.6 C48 68.6 54 68 58.2 67"/>
+      <path d="M58.2 67 L58.6 76.6"/>
+      <path d="M58.6 76.6 L62.4 76.6"/>
+    </g>
+    <path d="M40.2 54.4 C44 58 48 62 52.4 65" fill="none" stroke="#3F5B49" stroke-width="10" stroke-linecap="round"/>
+    <path d="M40.2 54.4 C44 58 48 62 52.4 65" fill="none" stroke="#F3F0E3" stroke-width="3.8" stroke-linecap="round"/>
+    <circle cx="37.6" cy="45.2" r="9.8" fill="#3F5B49"/>
+    <circle cx="37.6" cy="45.2" r="6" fill="#F3F0E3"/>
+    <path d="M82.6 14.2 A10.6 10.6 0 1 0 92.2 28 A8.4 8.4 0 1 1 82.6 14.2 Z" fill="#F3F0E3"/>
+    <path d="M73.6 76 L73.6 61.5" fill="none" stroke="#F3F0E3" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M73.6 66.4 C79.6 65.2 82.2 60.2 81.4 55.6 C76.2 56.4 73.2 60.8 73.6 66.4 Z" fill="#F3F0E3"/>
+    <path d="M73.6 70.6 C69.2 69.8 66.8 66 67.2 62 C71 62.8 73.4 66.2 73.6 70.6 Z" fill="#F3F0E3"/>
   </symbol>
 </svg>
 <div class="splash" id="splash" aria-hidden="true">
@@ -1479,7 +1502,7 @@ try {
 </div>
 <header class="mobile-header">
   <div class="brand">
-    <div class="logo"><svg viewBox="0 0 108 108" aria-hidden="true"><use href="#slicelog-mark-mini"/></svg></div>
+    <div class="logo"><svg viewBox="0 0 108 108" aria-hidden="true"><use href="#slicelog-mark-lite"/></svg></div>
     <div><h1>人生切片</h1><span class="sub">Slicelog</span></div>
   </div>
   <button type="button" id="mobileSettings" aria-expanded="false">设置</button>
@@ -1487,7 +1510,7 @@ try {
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="logo"><svg viewBox="0 0 108 108" aria-hidden="true"><use href="#slicelog-mark-mini"/></svg></div>
+      <div class="logo"><svg viewBox="0 0 108 108" aria-hidden="true"><use href="#slicelog-mark-lite"/></svg></div>
       <div><h1>人生切片</h1><span class="sub">Slicelog</span></div>
     </div>
     <nav class="nav" id="nav">
