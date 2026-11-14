@@ -10,8 +10,8 @@ android {
         applicationId 'com.growthos.journal'
         minSdk 23
         targetSdk 35
-        versionCode 12
-        versionName '1.9.C'
+        versionCode 13
+        versionName '1.9.D'
     }
 
     buildTypes {

@@ -210,13 +210,12 @@ async function main() {
 
   /* ---------- 5. 日记：右上角折叠 ---------- */
   await evaluate(`switchView('journal')`);
-  await evaluate(`document.querySelector('[data-action="toggle-journal"]').click()`);
   const j = await evaluate(`(() => ({
     form: !!document.getElementById('journalForm'),
     entries: document.querySelectorAll('#view-journal .journal-entry').length,
     flag: state.settings.journalCollapsed
   }))()`);
-  assert(j.form === false && j.flag === true, '日记写作区未折叠');
+  assert(j.form === false && j.flag === true, '进入日记页时写作区应默认收起');
   assert(j.entries >= 1, '折叠后日记列表丢失');
   await shot('journal-collapsed-452.png');
   await evaluate(`document.querySelector('[data-action="toggle-journal"]').click()`);

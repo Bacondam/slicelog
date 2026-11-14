@@ -230,11 +230,17 @@ async function main() {
   /* ---------- 7. 日记写作区折叠仍可用 ---------- */
   await evaluate(`switchView('journal')`);
   await delay(350);
+  const jr0 = await evaluate(`({ collapsed: !!state.settings.journalCollapsed, form: !!document.getElementById('journalForm'), minus: document.querySelector('[data-action="toggle-journal"]').classList.contains('minus') })`);
+  assert(jr0.collapsed === true && jr0.form === false && jr0.minus === false, '进入日记页应默认收起：' + JSON.stringify(jr0));
   await evaluate(`document.querySelector('[data-action="toggle-journal"]').click()`);
   await delay(250);
-  const jr = await evaluate(`({ collapsed: !!state.settings.journalCollapsed, minus: document.querySelector('[data-action="toggle-journal"]').classList.contains('minus') })`);
-  assert(jr.collapsed === true && jr.minus === false, '日记写作区折叠异常：' + JSON.stringify(jr));
-  pass('日记写作区折叠', '收起后按钮回到 ⊕');
+  const jr1 = await evaluate(`({ collapsed: !!state.settings.journalCollapsed, form: !!document.getElementById('journalForm'), minus: document.querySelector('[data-action="toggle-journal"]').classList.contains('minus') })`);
+  assert(jr1.collapsed === false && jr1.form === true && jr1.minus === true, '点击箭头后应展开写作区：' + JSON.stringify(jr1));
+  await evaluate(`document.querySelector('[data-action="toggle-journal"]').click()`);
+  await delay(250);
+  const jr2 = await evaluate(`({ collapsed: !!state.settings.journalCollapsed, form: !!document.getElementById('journalForm') })`);
+  assert(jr2.collapsed === true && jr2.form === false, '再点一次应收回：' + JSON.stringify(jr2));
+  pass('日记写作区折叠', '进来自动收起，点箭头展开，再点收回');
 
   const failed = results.filter(r => !r.ok).length;
   console.log(`\n${failed === 0 ? '全部通过' : failed + ' 项失败'}：${results.length} 项`);
