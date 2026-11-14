@@ -9,6 +9,9 @@
 ![dependencies](https://img.shields.io/badge/dependencies-0-success)
 
 > **下载安装**：到 [Releases](https://github.com/Bacondam/slicelog/releases) 取最新 APK；也可以按下方「构建」一节自行编译。
+>
+> 注意：Release 里的 APK 由 GitHub Actions 用 runner 的临时调试签名编译，和自己在本机 `assembleDebug` 出来的签名不同，
+> 两者不能互相覆盖安装（换装需先卸载，数据请先导出备份）。一直用同一个来源升级则不受影响。
 
 ---
 
