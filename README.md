@@ -1,6 +1,8 @@
 # 人生切片 · Slicelog
 
 > 原名「成长日志 Growth OS」。一个完全离线的个人成长看板：习惯、目标、日记、学习、记账，装进一部手机。数据只存在本机，不联网、不注册、不上传。
+>
+> 仓库含两端：`Android 原生外壳（WebView）` 与 `iOS 可添加到主屏幕的 PWA`。二者共用同一套界面逻辑，数据格式互通。
 
 ![minSdk](https://img.shields.io/badge/minSdk-23-brightgreen)
 ![targetSdk](https://img.shields.io/badge/targetSdk-35-green)
@@ -9,6 +11,8 @@
 ![dependencies](https://img.shields.io/badge/dependencies-0-success)
 
 > **下载安装**：到 [Releases](https://github.com/Bacondam/slicelog/releases) 取最新 APK；也可以按下方「构建」一节自行编译。
+>
+> **iPhone**：把 `ios/` 部署到任意静态托管，Safari 打开后「添加到主屏幕」，全程无需上架 App Store（详见「iOS / Web 版」）。
 >
 > 注意：Release 里的 APK 由 GitHub Actions 用 runner 的临时调试签名编译，和自己在本机 `assembleDebug` 出来的签名不同，
 > 两者不能互相覆盖安装（换装需先卸载，数据请先导出备份）。一直用同一个来源升级则不受影响。
@@ -111,19 +115,55 @@ Release 包需要自备签名：
 
 ---
 
+## iOS / Web 版（PWA）
+
+`ios/` 是一份**纯静态站点**，没有构建步骤、没有依赖：`index.html` + `manifest.webmanifest` + `sw.js` + 图标。
+丢到任何静态托管（GitHub Pages、Nginx、对象存储、内网服务器）就能用；iPhone 用 Safari 打开后「添加到主屏幕」，即为全屏 App，无地址栏。
+
+```bash
+cd ios
+node tools/build-dist.cjs     # 生成 dist/
+node tools/serve.cjs          # 本地预览 http://127.0.0.1:8773/
+```
+
+添加到主屏幕：Safari 打开站点 → 底部「分享」→「添加到主屏幕」。首次打开后 `sw.js` 会缓存全部资源，断网也能用。
+
+**和 Android 版的差异**
+
+| 能力 | Android | iOS PWA |
+|---|---|---|
+| 系统通知 / 到期提醒 | ✅ AlarmManager 精确闹钟 | ❌ 只有前台应用内提醒 |
+| 安全区适配 | 原生 WindowInsets 写 CSS 变量 | ✅ `env(safe-area-inset-*)` 原生生效 |
+| 导出 / 分享备份 | ✅ 系统文件选择器 + 分享面板 | ✅ `navigator.share` |
+| 微信里点开备份直接导入 | ✅ intent-filter | ⚠️ 只能在 App 内手动选文件 |
+| 数据持久性 | 应用沙箱，卸载即删 | Safari 存储，清网站数据即删 |
+
+两边 `localStorage` 键一致（`growth-os-v1`），JSON 备份可互相导入。
+
+`ios/tools/` 里另有 `iphone-check.cjs`（iPhone 15 视口自检）与 `live-check.cjs`（线上地址自检），
+依赖 Windows + Edge 的无头模式；`icon-gen.cjs` 从 `icon-src.html` 重新渲染全套尺寸图标。
+
+---
+
 ## 目录结构
 
 ```
-GrowthOSAndroid/
-├── app/
+slicelog/
+├── app/                                # Android
 │   ├── build.gradle
 │   └── src/main/
 │       ├── AndroidManifest.xml
-│       ├── assets/index.html          # 全部界面与业务逻辑
+│       ├── assets/index.html           # 全部界面与业务逻辑
 │       ├── java/com/growthos/journal/
 │       │   ├── MainActivity.java       # WebView 外壳、安全区、桥接、备份
 │       │   └── GoalAlarmReceiver.java  # 到期提醒、开机重排
 │       └── res/                        # 主题、图标、文案
+├── ios/                                # iOS / Web（PWA，纯静态）
+│   ├── index.html                      # 同一套界面
+│   ├── manifest.webmanifest
+│   ├── sw.js                           # 离线缓存
+│   ├── icons/
+│   └── tools/                          # 打包、预览、自检、图标生成
 ├── docs/screenshots/                   # README 截图
 ├── tests/                              # CDP 自动化测试与截图脚本
 ├── gradlew / gradlew.bat

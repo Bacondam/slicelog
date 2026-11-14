@@ -28,6 +28,10 @@ tests/index-before-*.html
 .vscode/
 .navigation/
 
+# iOS / PWA 构建产物与截图
+ios/dist/
+ios/shots/
+
 # 系统
 .DS_Store
 Thumbs.db
