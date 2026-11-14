@@ -1,4 +1,4 @@
-/** v2.4 回归：品牌徽章（抠图位图）/ 中英文左缘对齐 / 启动封面停留 1.5 秒 /
+/** v2.6 回归：品牌徽章（内嵌位图）/ 中英文左缘对齐 / 启动封面停留 1.5 秒 /
     Android 图标与启动画面资源 */
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -114,7 +114,7 @@ async function main() {
       latin: el.querySelector('.splash-latin').textContent.trim(),
       markBox: mark ? [Math.round(mark.getBoundingClientRect().width), Math.round(mark.getBoundingClientRect().height)] : null,
       markTag: mark ? mark.tagName : '',
-      markFile: mark ? (mark.getAttribute('src') || '').split('/').pop() : '',
+      markFile: mark ? (mark.getAttribute('src') || '').slice(0, 30) : '',
       markLoaded: mark ? (mark.naturalWidth || 0) : 0,
       booting: document.documentElement.classList.contains('booting'),
       docOverflow: getComputedStyle(document.documentElement).overflow
@@ -126,7 +126,7 @@ async function main() {
   assert(Number(first.z) >= 9000, `封面层级不够：${first.z}`);
   assert(first.name === '人生切片' && first.latin === 'Slicelog', `封面文字不对：${first.name} / ${first.latin}`);
   assert(first.markBox && first.markBox[0] >= 200, `封面徽章太小：${first.markBox}`);
-  assert(first.markTag === 'IMG' && first.markFile === 'mark-640.png', `封面应使用抠好的徽章位图，实际 ${first.markTag} ${first.markFile}`);
+  assert(first.markTag === 'IMG' && first.markFile.startsWith('data:image/png;base64,'), `封面应内嵌徽章位图，实际 ${first.markTag} ${first.markFile}`);
   assert(first.markLoaded >= 600, '封面徽章位图没加载出来');
   assert(first.delay === '1.5s', `封面停留时长应为 1.5s，实际 ${first.delay}`);
   assert(first.dur === '0.44s', `封面淡出时长异常：${first.dur}`);
@@ -166,7 +166,8 @@ async function main() {
     const sub = document.querySelector('.brand .sub');
     return {
       n: logos.length,
-      sameSrc: imgs.every(i => i && (i.getAttribute('src') || '') === 'brand/mark-tight-128.png'),
+      sameSrc: imgs.every(i => i && (i.getAttribute('src') || '').startsWith('data:image/png;base64,')) &&
+        imgs[0].getAttribute('src') === imgs[1].getAttribute('src'),
       loaded: imgs.every(i => i && i.naturalWidth > 0),
       sizes: logos.map(l => Math.round(l.getBoundingClientRect().width)).filter(w => w > 0),
       letter: document.querySelector('.logo').textContent.trim(),
@@ -174,21 +175,21 @@ async function main() {
       title: h1.textContent.trim(),
       h1Left: h1.getBoundingClientRect().left,
       subLeft: sub.getBoundingClientRect().left,
-      indent: getComputedStyle(h1).marginLeft
+      indent: getComputedStyle(sub).marginLeft
     };
   })()`);
   assert(brand.n === 2, `品牌 logo 应有 2 处（顶栏 + 侧栏），实际 ${brand.n}`);
-  assert(brand.sameSrc, '顶栏 / 侧栏 logo 应统一引用 brand/mark-tight-128.png');
+  assert(brand.sameSrc, '顶栏 / 侧栏 logo 应统一内嵌同一张徽章位图');
   assert(brand.loaded, 'logo 位图没加载出来（naturalWidth 为 0）');
   assert(brand.letter === '', `logo 里不该再有字母，实际「${brand.letter}」`);
   assert(brand.title === '人生切片' && brand.sub === 'Slicelog', `品牌文字不对：${JSON.stringify(brand.title)} / ${JSON.stringify(brand.sub)}`);
   pass('顶部品牌', `位图徽章 ${brand.sizes.join('/')}px，文字「${brand.title} · ${brand.sub}」`);
 
-  /* 中文字身留白比拉丁字母宽，「人」的墨迹天生更靠右，用 margin 补回来 */
+  /* 中文标题保持不动，英文右移 2px，对齐两行的视觉左缘 */
   const gap = brand.h1Left - brand.subLeft;
-  assert(brand.indent === '-2px', `中文标题缺少左缘补偿，实际 margin-left:${brand.indent}`);
+  assert(brand.indent === '2px', `英文副标题缺少右移补偿，实际 margin-left:${brand.indent}`);
   assert(Math.abs(gap + 2) <= 1, `中英文左缘没对齐：盒子左缘差 ${gap.toFixed(1)}px`);
-  pass('中英文对齐', `标题左移 2px 抵掉字形留白，两行盒子左缘差 ${gap.toFixed(1)}px`);
+  pass('中英文对齐', `中文不动，英文右移 2px，两行盒子左缘差 ${gap.toFixed(1)}px`);
 
   /* 页面里不再留手绘的 SVG 徽章，避免出现两套 logo */
   const sprite = await evaluate(`(() => ({
