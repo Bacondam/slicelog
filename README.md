@@ -41,6 +41,7 @@
 - 大目标可拆多个小目标，**必须勾完全部小目标才能标记完成**，否则会提示还差几个
 - 支持分类与筛选、截止日期与截止时间
 - 完成后标题划线、整体灰显，自动落到「已完成」区，并**逐条折叠成一行**，点箭头单独展开
+- **批量整理**：已完成区右上角勾选任意几条，一键「归档」或「删除」；归档只是收起来，进「已归档」可随时「恢复」，也可整段清空
 - **到期前 1 小时提醒**：前台弹应用内提醒层，App 关闭或后台时走系统通知（精确闹钟，重启手机自动重排）
 
 **习惯**
@@ -188,6 +189,8 @@ node tests/fit.cjs            # 多尺寸布局适配
 node tests/goals-check.cjs    # 目标完成门禁与两区结构
 node tests/features-check.cjs # 概览详情、习惯周重置、折叠
 node tests/import-check.cjs   # 外部 json 直接导入（微信「用其他应用打开」）
+node tests/v19e-check.cjs     # 已完成目标批量归档 / 恢复 / 批量删除 / 持久化
+node tests/v19e-contrast.cjs  # 归档行与批量整理弹窗的跨主题对比度
 node tests/theme-audit.cjs    # 五套主题 × 全部视图/弹窗的对比度审计
 node tests/contrast.cjs       # 主题令牌 WCAG 对比度
 ```
