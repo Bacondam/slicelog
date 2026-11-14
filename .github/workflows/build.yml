@@ -50,7 +50,7 @@ jobs:
         run: |
           mkdir -p dist
           VER="${{ github.ref_type == 'tag' && github.ref_name || 'dev' }}"
-          cp app/build/outputs/apk/debug/app-debug.apk "dist/Slicelog-${VER}.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "dist/Slicelog-Android-${VER}.apk"
           ls -lh dist
 
       - name: Upload APK
