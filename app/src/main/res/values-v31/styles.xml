@@ -12,7 +12,7 @@
         <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:windowSplashScreenBackground">@color/brand_cream</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_mark</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_art</item>
         <item name="android:windowSplashScreenAnimationDuration">220</item>
     </style>
 </resources>

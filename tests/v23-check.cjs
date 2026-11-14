@@ -1,4 +1,4 @@
-/** v2.3 回归：品牌图标（矢量徽章 / 小尺寸标记）/ 启动封面停留 1.5 秒 /
+/** v2.4 回归：品牌徽章（抠图位图）/ 中英文左缘对齐 / 启动封面停留 1.5 秒 /
     Android 图标与启动画面资源 */
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -113,7 +113,9 @@ async function main() {
       name: el.querySelector('.splash-name').textContent.trim(),
       latin: el.querySelector('.splash-latin').textContent.trim(),
       markBox: mark ? [Math.round(mark.getBoundingClientRect().width), Math.round(mark.getBoundingClientRect().height)] : null,
-      useHref: mark && mark.querySelector('use') ? mark.querySelector('use').getAttribute('href') : '',
+      markTag: mark ? mark.tagName : '',
+      markFile: mark ? (mark.getAttribute('src') || '').split('/').pop() : '',
+      markLoaded: mark ? (mark.naturalWidth || 0) : 0,
       booting: document.documentElement.classList.contains('booting'),
       docOverflow: getComputedStyle(document.documentElement).overflow
     };
@@ -124,7 +126,8 @@ async function main() {
   assert(Number(first.z) >= 9000, `封面层级不够：${first.z}`);
   assert(first.name === '人生切片' && first.latin === 'Slicelog', `封面文字不对：${first.name} / ${first.latin}`);
   assert(first.markBox && first.markBox[0] >= 200, `封面徽章太小：${first.markBox}`);
-  assert(first.useHref === '#slicelog-mark', `封面应引用完整徽章，实际 ${first.useHref}`);
+  assert(first.markTag === 'IMG' && first.markFile === 'mark-640.png', `封面应使用抠好的徽章位图，实际 ${first.markTag} ${first.markFile}`);
+  assert(first.markLoaded >= 600, '封面徽章位图没加载出来');
   assert(first.delay === '1.5s', `封面停留时长应为 1.5s，实际 ${first.delay}`);
   assert(first.dur === '0.44s', `封面淡出时长异常：${first.dur}`);
   assert(first.fill === 'forwards', '封面动画没有保持结束态，JS 失效时会一直挡着');
@@ -155,84 +158,89 @@ async function main() {
   assert(!skipped.booting, '?nosplash=1 不该锁滚动');
   pass('跳过封面', '?nosplash=1 · 立刻可交互');
 
-  /* ---------- 4. 顶部品牌区：两处 logo 都是矢量小标记 ---------- */
+  /* ---------- 4. 品牌区：两处 logo 都用抠好的徽章位图 ---------- */
   const brand = await evaluate(`(() => {
     const logos = [...document.querySelectorAll('.logo')];
+    const imgs = logos.map(l => l.querySelector('img'));
+    const h1 = document.querySelector('.brand h1');
+    const sub = document.querySelector('.brand .sub');
     return {
       n: logos.length,
-      mini: logos.every(l => l.querySelector('svg use') && l.querySelector('svg use').getAttribute('href') === '#slicelog-mark-lite'),
-      round: logos.every(l => getComputedStyle(l.querySelector('svg')).borderRadius === '50%'),
+      sameSrc: imgs.every(i => i && (i.getAttribute('src') || '') === 'brand/mark-tight-128.png'),
+      loaded: imgs.every(i => i && i.naturalWidth > 0),
       sizes: logos.map(l => Math.round(l.getBoundingClientRect().width)).filter(w => w > 0),
       letter: document.querySelector('.logo').textContent.trim(),
-      sub: document.querySelector('.brand .sub').textContent.trim(),
-      title: document.querySelector('.brand h1').textContent.trim()
+      sub: sub.textContent.trim(),
+      title: h1.textContent.trim(),
+      h1Left: h1.getBoundingClientRect().left,
+      subLeft: sub.getBoundingClientRect().left,
+      indent: getComputedStyle(h1).marginLeft
     };
   })()`);
   assert(brand.n === 2, `品牌 logo 应有 2 处（顶栏 + 侧栏），实际 ${brand.n}`);
-  assert(brand.mini, '顶部 logo 应引用完整构图的小尺寸标记 #slicelog-mark-lite');
-  assert(brand.round, 'logo 容器没有圆形裁切');
+  assert(brand.sameSrc, '顶栏 / 侧栏 logo 应统一引用 brand/mark-tight-128.png');
+  assert(brand.loaded, 'logo 位图没加载出来（naturalWidth 为 0）');
   assert(brand.letter === '', `logo 里不该再有字母，实际「${brand.letter}」`);
   assert(brand.title === '人生切片' && brand.sub === 'Slicelog', `品牌文字不对：${JSON.stringify(brand.title)} / ${JSON.stringify(brand.sub)}`);
-  pass('顶部品牌', `矢量标记 ${brand.sizes.join('/')}px，文字「${brand.title} · ${brand.sub}」`);
+  pass('顶部品牌', `位图徽章 ${brand.sizes.join('/')}px，文字「${brand.title} · ${brand.sub}」`);
 
-  /* 小尺寸标记保留完整构图：圆章 + 切片 + 人 + 月牙 + 树苗，不是一根弧线 */
-  const lite = await evaluate(`(() => {
-    const sym = document.querySelector('#slicelog-mark-lite');
-    if (!sym) return null;
-    return {
-      paths: sym.querySelectorAll('path').length,
-      circles: sym.querySelectorAll('circle').length,
-      cream: [...sym.querySelectorAll('path')].filter(p => p.getAttribute('stroke') === '#F3F0E3' && p.getAttribute('fill') === 'none').length
-    };
-  })()`);
-  assert(lite, '缺少 #slicelog-mark-lite 标记');
-  assert(lite.paths >= 12, `小尺寸标记元素过少（${lite.paths} 条 path），可能是被简化回单弧线了`);
-  assert(lite.circles >= 3 && lite.cream >= 4, `小尺寸标记缺少人物构成：circle ${lite.circles} / 笔画路径 ${lite.cream}`);
-  pass('小尺寸标记', `${lite.paths} 条路径 + ${lite.circles} 个圆，完整构图`);
+  /* 中文字身留白比拉丁字母宽，「人」的墨迹天生更靠右，用 margin 补回来 */
+  const gap = brand.h1Left - brand.subLeft;
+  assert(brand.indent === '-2px', `中文标题缺少左缘补偿，实际 margin-left:${brand.indent}`);
+  assert(Math.abs(gap + 2) <= 1, `中英文左缘没对齐：盒子左缘差 ${gap.toFixed(1)}px`);
+  pass('中英文对齐', `标题左移 2px 抵掉字形留白，两行盒子左缘差 ${gap.toFixed(1)}px`);
 
-  /* 深色主题下标记不透明、文字仍可读 */
+  /* 页面里不再留手绘的 SVG 徽章，避免出现两套 logo */
+  const sprite = await evaluate(`(() => ({
+    symbol: !!document.querySelector('symbol#slicelog-mark, symbol#slicelog-mark-lite'),
+    use: document.querySelectorAll('use').length
+  }))()`);
+  assert(!sprite.symbol && sprite.use === 0, '页面上还留着 SVG 徽章 symbol');
+  pass('素材来源', '封面与两处 logo 共用一张抠图，页面里没有第二套矢量徽章');
+
+  /* 深色主题下位图照常显示 */
   await evaluate(`applyTheme('pine'); render()`);
   await delay(150);
-  const dark = await evaluate(`(() => {
-    /* 图形在 symbol 里，use 的影子树查不到，直接看 symbol 的源 */
-    const circle = document.querySelector('#slicelog-mark-lite circle');
-    return { fill: circle ? circle.getAttribute('fill') : '', text: getComputedStyle(document.querySelector('.brand h1')).color };
-  })()`);
-  assert(dark.fill === '#3F5B49', `深色主题下徽章底色被改了：${dark.fill}`);
-  pass('深色主题', `徽章固定深绿 ${dark.fill}，标题色 ${dark.text}`);
+  const dark = await evaluate(`(() => ({
+    loaded: [...document.querySelectorAll('.logo img')].every(i => i.naturalWidth > 0),
+    text: getComputedStyle(document.querySelector('.brand h1')).color
+  }))()`);
+  assert(dark.loaded, '深色主题下 logo 位图丢了');
+  pass('深色主题', `透明底 PNG 不受主题影响，标题色 ${dark.text}`);
   await evaluate(`applyTheme('oat'); render()`);
 
-  /* ---------- 5. Android 资源：图标、颜色、启动画面 ---------- */
-  const fg = readRes('drawable/ic_launcher_foreground.xml');
-  const splashMark = readRes('drawable/ic_splash_mark.xml');
-  const legacy = readRes('mipmap-anydpi/ic_launcher.xml');
+  /* ---------- 5. Android 资源：图标与启动画面都用同一张抠图 ---------- */
   const colors = readRes('values/colors.xml');
   const v31 = readRes('values-v31/styles.xml');
   const adaptive = readRes('mipmap-anydpi-v26/ic_launcher.xml');
+  const adaptiveRound = readRes('mipmap-anydpi-v26/ic_launcher_round.xml');
+  const legacy = readRes('mipmap-anydpi/ic_launcher.xml');
+  const resFile = rel => path.join(root, 'app', 'src', 'main', 'res', rel);
+  const iconPng = fs.statSync(resFile('drawable-xxxhdpi/ic_launcher_mark.png'));
+  const splashPng = fs.statSync(resFile('drawable-xxxhdpi/ic_splash_art.png'));
 
-  assert(/#3F5B49/.test(colors), '图标背景色没有改成品牌深绿');
-  assert(/name="ic_launcher_background">#3F5B49/.test(colors), 'adaptive icon 背景色不是 #3F5B49');
+  assert(/name="ic_launcher_background">#183426/.test(colors), `adaptive icon 背景色应与图片圆边同色 #183426，实际 ${colors.match(/ic_launcher_background">([^<]+)/)}`);
   assert(/name="brand_cream">#F5F2E8/.test(colors), '缺少封面米白 brand_cream');
-  assert(/#3F5B49/.test(fg) && /#F3F0E3/.test(fg), '图标前景缺少品牌配色');
-  assert(!/#2E7D5B/.test(fg + legacy + splashMark), '旧绿色 #2E7D5B 还有残留');
-  assert(/android:scaleX="0\.7[0-9]"/.test(fg), '图标前景没有缩进安全区');
-  assert(/M0,0h108v108h-108z/.test(legacy), '旧版图标缺少满底背景');
+  assert(/ic_launcher_mark/.test(adaptive) && /ic_launcher_background/.test(adaptive), '自适应图标引用异常');
+  assert(/ic_launcher_mark/.test(adaptiveRound), '圆形自适应图标引用异常');
+  assert(/<bitmap/.test(legacy) && /ic_launcher_mark/.test(legacy), '旧版（<26）图标应改为深绿底 + 居中位图');
   assert(/windowSplashScreenBackground/.test(v31) && /brand_cream/.test(v31), 'Android 12 启动画面没配底色');
-  assert(/windowSplashScreenAnimatedIcon/.test(v31) && /ic_splash_mark/.test(v31), 'Android 12 启动画面没配图标');
-  assert(/ic_launcher_foreground/.test(adaptive) && /ic_launcher_background/.test(adaptive), '自适应图标引用异常');
-  pass('Android 图标', '自适应前景 + 满底旧版 + Android 12 启动画面均指向同一套路径');
+  assert(/windowSplashScreenAnimatedIcon/.test(v31) && /ic_splash_art/.test(v31), 'Android 12 启动画面没配图标');
+  assert(iconPng.size > 20000, `桌面图标位图太小/缺失：${iconPng.size} B`);
+  assert(splashPng.size > 20000, `启动画面位图太小/缺失：${splashPng.size} B`);
+  pass('Android 图标', `自适应前景 ${Math.round(iconPng.size / 1024)}KB + 满底旧版 + 启动画面 ${Math.round(splashPng.size / 1024)}KB，三位一体`);
 
-  /* ---------- 6. 页面里没有遗留的位图图标或旧字母 logo ---------- */
+  /* ---------- 6. 页面里没有遗留的旧矢量徽章或字母 logo ---------- */
   const leftovers = await evaluate(`(() => {
     const html = document.documentElement.outerHTML;
     return {
-      png: /mipmap-.*\\.png|logo\\.png/.test(html),
+      oldHref: html.includes('#slicelog-mark'),
       countS: (html.match(/>S<\\/div>/g) || []).length
     };
   })()`);
-  assert(!leftovers.png, '页面里还引用着位图图标');
+  assert(!leftovers.oldHref, '页面里还引用着旧的 #slicelog-mark 矢量徽章');
   assert(leftovers.countS === 0, '还残留纯字母 S 的 logo');
-  pass('无遗留', '没有位图图标，也没有字母 S 占位');
+  pass('无遗留', '封面、顶栏、侧栏、桌面图标全部走同一张抠图');
 
   console.log(`\n全部通过：${results.length} 项`);
   ws.close();
