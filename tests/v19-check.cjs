@@ -325,6 +325,40 @@ async function main() {
   assert(icons.nav === 6, '底栏图标不是 6 个 SVG：' + icons.nav);
   pass('图标统一', `习惯 ${icons.habits.badge} 个徽标 / 学习 ${icons.learning.chip} 个分类 / 底栏 6 个，全部线性 SVG`);
 
+  /* ---------- 9. 五套新配色接入主题系统 ---------- */
+  const themes = await evaluate(`(() => {
+    const before = document.documentElement.dataset.theme;
+    const list = THEMES.map(t => t.id);
+    const out = [];
+    for (const id of ['oat', 'mist', 'clay', 'graphite', 'pine']) {
+      const t = applyTheme(id);
+      const cs = getComputedStyle(document.documentElement);
+      out.push({
+        id,
+        applied: document.documentElement.dataset.theme,
+        mode: document.documentElement.dataset.mode,
+        accent: cs.getPropertyValue('--accent').trim().toUpperCase(),
+        bg: cs.getPropertyValue('--bg').trim().toUpperCase(),
+        expectAccent: t.accent.toUpperCase(),
+        expectBg: t.bg.toUpperCase(),
+        onAccent: cs.getPropertyValue('--on-accent').trim()
+      });
+    }
+    applyTheme(before);
+    return { list, out, groups: THEMES.filter(t => t.group === 'new').length };
+  })()`);
+  assert(themes.groups === 5, `新版配色应为 5 套，实际 ${themes.groups}`);
+  assert(['oat', 'mist', 'clay', 'graphite', 'pine'].every(id => themes.list.includes(id)), '缺少新版配色：' + themes.list.join(','));
+  for (const t of themes.out) {
+    assert(t.applied === t.id, `${t.id} 没生效`);
+    assert(t.accent === t.expectAccent, `${t.id} 强调色不符：${t.accent} ≠ ${t.expectAccent}`);
+    assert(t.bg === t.expectBg, `${t.id} 底色不符：${t.bg} ≠ ${t.expectBg}`);
+    assert(t.onAccent, `${t.id} 缺少 on-accent`);
+  }
+  assert(themes.out.find(t => t.id === 'pine').mode === 'dark', '松烟·夜应为 dark 模式');
+  assert(themes.out.filter(t => t.mode === 'dark').length === 1, '新版里只有松烟·夜是暗色');
+  pass('配色接入', `12 套主题（新版 5 + 原有 7），5 套色值与设计稿一致，松烟·夜走 dark 模式`);
+
   console.log(`\n全部通过：${results.length} 项`);
   ws.close();
 }

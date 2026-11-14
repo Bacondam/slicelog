@@ -10,11 +10,12 @@ try {
   var _s = JSON.parse(localStorage.getItem('growth-os-v1'));
   var _t = _s && _s.settings && _s.settings.theme;
   var _map = { light: 'forest', dark: 'midnight' };
-  var _themes = ['forest', 'midnight', 'ocean', 'sunset', 'sakura', 'mono', 'ink'];
+  var _dark = ['midnight', 'ink', 'pine'];
+  var _themes = ['oat', 'mist', 'clay', 'graphite', 'pine', 'forest', 'midnight', 'ocean', 'sunset', 'sakura', 'mono', 'ink'];
   _t = _map[_t] || _t;
   if (_themes.indexOf(_t) >= 0) {
     document.documentElement.dataset.theme = _t;
-    if (_t === 'midnight' || _t === 'ink') document.documentElement.dataset.mode = 'dark';
+    if (_dark.indexOf(_t) >= 0) document.documentElement.dataset.mode = 'dark';
   }
 } catch (e) {}
 </script>
@@ -154,6 +155,82 @@ try {
     --danger: #f0776f;
     --shadow: 0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.35);
   }
+  /* ===== 1.9.B 新版配色：一套 = 1 个强调色 + 3 级中性色，五行内不出现第五种色 ===== */
+  [data-theme="oat"] {
+    --bg: #F5F1E8;
+    --card: #FFFDF7;
+    --text: #2B2A23;
+    --muted: #857F71;
+    --line: #E8E1D3;
+    --accent: #5F7A5A;
+    --accent-ink: #4C6448;
+    --accent-soft: #E8EFE1;
+    --accent-2: #B57A34;
+    --accent-hi: #8AA684;
+    --on-accent: #FFFDF7;
+    --danger: #A9473C;
+    --shadow: 0 1px 2px rgba(74,64,44,.05), 0 8px 24px rgba(74,64,44,.05);
+  }
+  [data-theme="mist"] {
+    --bg: #EFF3F5;
+    --card: #FFFFFF;
+    --text: #1B2A33;
+    --muted: #6E818C;
+    --line: #E0E8EC;
+    --accent: #3E7089;
+    --accent-ink: #345F75;
+    --accent-soft: #E2EEF3;
+    --accent-2: #B0703C;
+    --accent-hi: #629BB4;
+    --on-accent: #FFFFFF;
+    --danger: #B14A3F;
+    --shadow: 0 1px 2px rgba(30,60,80,.05), 0 8px 24px rgba(30,60,80,.06);
+  }
+  [data-theme="clay"] {
+    --bg: #F6F0E8;
+    --card: #FFFCF6;
+    --text: #2E241D;
+    --muted: #8A7666;
+    --line: #ECE0D3;
+    --accent: #A5604A;
+    --accent-ink: #8A4E3C;
+    --accent-soft: #F6E6DD;
+    --accent-2: #8C7530;
+    --accent-hi: #C88A74;
+    --on-accent: #FFFCF6;
+    --danger: #96322B;
+    --shadow: 0 1px 2px rgba(90,66,48,.06), 0 8px 24px rgba(90,66,48,.06);
+  }
+  [data-theme="graphite"] {
+    --bg: #FAFAF8;
+    --card: #FFFFFF;
+    --text: #191A17;
+    --muted: #7A7D75;
+    --line: #E9E9E4;
+    --accent: #3A4E42;
+    --accent-ink: #2F4036;
+    --accent-soft: #EAEEE9;
+    --accent-2: #9A7B36;
+    --accent-hi: #6A8175;
+    --on-accent: #FFFFFF;
+    --danger: #A33B33;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+  }
+  [data-theme="pine"] {
+    --bg: #121614;
+    --card: #1A1F1C;
+    --text: #E9EEE8;
+    --muted: #8A968C;
+    --line: #282F2A;
+    --accent: #79B695;
+    --accent-ink: #A8E0C0;
+    --accent-soft: rgba(121,182,149,.14);
+    --accent-2: #D69A5C;
+    --accent-hi: #9ED8B8;
+    --on-accent: #10201A;
+    --danger: #E07B6F;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.32);
+  }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
@@ -203,7 +280,10 @@ try {
   .sidebar-foot button {
     padding: 8px 12px; border-radius: 8px; color: var(--muted);
     text-align: left; font-size: 12.5px; transition: .15s;
+    display: flex; align-items: center; gap: 8px;
   }
+  .sidebar-foot button .bi { width: 15px; height: 15px; flex: none; display: grid; place-items: center; opacity: .9; }
+  .sidebar-foot button .bi svg { width: 15px; height: 15px; display: block; }
   .sidebar-foot button:hover { background: var(--bg); color: var(--text); }
   .sidebar-foot .danger { color: var(--danger); }
   .foot-hint { font-size: 10.5px; line-height: 1.7; color: var(--muted); padding: 6px 4px 2px; }
@@ -563,7 +643,7 @@ try {
   .demo-banner {
     display: flex; align-items: center; justify-content: space-between; gap: 14px;
     flex-wrap: wrap; padding: 11px 16px; font-size: 12.5px;
-    background: var(--accent-soft); border-color: transparent; box-shadow: none; color: var(--accent);
+    background: var(--accent-soft); border-color: transparent; box-shadow: none; color: var(--accent-ink, var(--accent));
   }
   .demo-banner .btn { padding: 5px 12px; font-size: 12px; background: var(--card); color: var(--accent); border: 1px solid var(--line); }
   .stepper { display: flex; gap: 4px; }
@@ -581,16 +661,10 @@ try {
     border-radius: 999px; background: var(--accent-soft); color: var(--accent);
     font-size: 11px; font-weight: 600;
   }
-  .chip.cat-1 { background: rgba(59,130,246,.12); color: #2563eb; }
-  .chip.cat-2 { background: rgba(217,119,6,.13); color: #b45309; }
-  .chip.cat-3 { background: rgba(139,92,246,.13); color: #7c3aed; }
-  .chip.cat-4 { background: rgba(236,72,153,.12); color: #db2777; }
-  .chip.cat-5 { background: rgba(107,114,128,.14); color: #4b5563; }
-  [data-mode="dark"] .chip.cat-1 { color: #82b1ff; }
-  [data-mode="dark"] .chip.cat-2 { color: #f0a24b; }
-  [data-mode="dark"] .chip.cat-3 { color: #b79cff; }
-  [data-mode="dark"] .chip.cat-4 { color: #f77bb5; }
-  [data-mode="dark"] .chip.cat-5 { color: #aeb8b2; }
+  /* 分类标签统一到强调色系：靠文字区分类别，不再用 5 种彩色（会和主题配色打架） */
+  .chip.cat-1, .chip.cat-2, .chip.cat-3, .chip.cat-4, .chip.cat-5 {
+    background: var(--accent-soft); color: var(--accent-ink, var(--accent));
+  }
 
   /* habits page */
   .habit-item {
@@ -761,6 +835,13 @@ try {
   .modal .close:hover { background: var(--bg); }
 
   /* theme picker */
+  .theme-group {
+    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+    font-size: 12px; font-weight: 700; letter-spacing: .4px; color: var(--muted);
+    margin: 4px 0 9px;
+  }
+  .theme-group:not(:first-of-type) { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .theme-group em { font-style: normal; font-weight: 500; font-size: 11.5px; opacity: .8; letter-spacing: 0; }
   .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .theme-card {
     position: relative; display: flex; flex-direction: column; gap: 6px; align-items: stretch;
@@ -785,11 +866,12 @@ try {
   .theme-check {
     position: absolute; right: 4px; top: 4px; width: 16px; height: 16px; border-radius: 50%;
     display: none; place-items: center; font-size: 10px; font-weight: 700;
-    background: var(--p-accent); color: #fff; font-style: normal;
+    background: var(--p-accent); color: var(--on-accent, #fff); font-style: normal;
   }
   .theme-card.active .theme-check { display: grid; }
+  .theme-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
   .theme-name { font-size: 12.5px; font-weight: 600; }
-  .theme-desc { font-size: 10.5px; color: var(--muted); margin-top: -4px; }
+  .theme-desc { font-size: 10.5px; color: var(--muted); }
   @media (max-width: 1120px) {
     .year-top { grid-template-columns: 1fr; }
   }
@@ -798,6 +880,11 @@ try {
   }
   @media (max-width: 560px) {
     .theme-grid { grid-template-columns: repeat(2, 1fr); }
+    /* 单数张时最后一张跨满两列并横排，避免右侧留白 */
+    .theme-grid > .theme-card:last-child:nth-child(odd) {
+      grid-column: span 2; flex-direction: row; align-items: center; gap: 13px;
+    }
+    .theme-grid > .theme-card:last-child:nth-child(odd) .theme-preview { width: 48%; flex: none; }
   }
   .toast {
     position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 16px);
@@ -1255,12 +1342,12 @@ try {
       <button data-action="nav" data-view="finance"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10.2h18"/><circle cx="16.6" cy="14.6" r="1.1" fill="currentColor" stroke="none"/></svg></span>记账</button>
     </nav>
     <div class="sidebar-foot">
-      <button id="shareBtn">📤 分享备份到微信</button>
-      <button id="exportBtn">⬇️ 导出备份</button>
-      <button id="importBtn">⬆️ 导入备份</button>
-      <button id="restoreBtn">♻️ 恢复自动存档</button>
-      <button id="themeBtn">🎨 主题 · 森林绿</button>
-      <button id="resetBtn" class="danger">🗑️ 清空数据</button>
+      <button id="shareBtn" data-ico="share">分享备份到微信</button>
+      <button id="exportBtn" data-ico="export">导出备份</button>
+      <button id="importBtn" data-ico="import">导入备份</button>
+      <button id="restoreBtn" data-ico="restore">恢复自动存档</button>
+      <button id="themeBtn" data-ico="theme">主题 · 森林绿</button>
+      <button id="resetBtn" class="danger" data-ico="reset">清空数据</button>
       <div class="foot-hint">每次改动都会自动存档一份到应用内，最多保留 8 份；换手机或清理数据前，先「分享备份到微信」发给自己留一份。</div>
       <input type="file" id="importFile" accept=".json,application/json" hidden>
     </div>
@@ -1716,13 +1803,18 @@ const FIN_CATS = {
 };
 const FIN_COLORS = ['#2e7d5b', '#3b82f6', '#d97706', '#8b5cf6', '#ec4899', '#0ea5e9', '#84cc16', '#f97316', '#6b7280'];
 const THEMES = [
-  { id: 'forest', name: '森林绿', desc: '清新自然', dark: false, bg: '#f4f7f5', card: '#ffffff', line: '#e2e9e5', accent: '#2e7d5b' },
-  { id: 'ocean', name: '海盐蓝', desc: '干净专注', dark: false, bg: '#eef4fb', card: '#ffffff', line: '#dbe7f3', accent: '#1f6feb' },
-  { id: 'sunset', name: '暖阳橙', desc: '温暖柔和', dark: false, bg: '#fbf4ea', card: '#fffaf3', line: '#efe1d0', accent: '#c2571a' },
-  { id: 'sakura', name: '樱花粉', desc: '轻盈柔和', dark: false, bg: '#fdf2f6', card: '#fffafc', line: '#f3dee5', accent: '#c2477c' },
-  { id: 'mono', name: '极简白', desc: '黑白纯粹', dark: false, bg: '#f5f5f4', card: '#ffffff', line: '#e4e4e2', accent: '#1f1f1f' },
-  { id: 'midnight', name: '暗夜绿', desc: '低光护眼', dark: true, bg: '#0e1411', card: '#151d19', line: '#26332c', accent: '#5ec99a' },
-  { id: 'ink', name: '墨金夜色', desc: '沉稳质感', dark: true, bg: '#0f1013', card: '#18191e', line: '#2a2b31', accent: '#e0b062' }
+  { id: 'oat', name: '燕麦 · 苔绿', desc: '暖白纸感', group: 'new', dark: false, bg: '#F5F1E8', card: '#FFFDF7', line: '#E8E1D3', accent: '#5F7A5A' },
+  { id: 'mist', name: '雾霭 · 石青', desc: '冷调干净', group: 'new', dark: false, bg: '#EFF3F5', card: '#ffffff', line: '#E0E8EC', accent: '#3E7089' },
+  { id: 'clay', name: '陶土 · 亚麻', desc: '暖而不燥', group: 'new', dark: false, bg: '#F6F0E8', card: '#FFFCF6', line: '#ECE0D3', accent: '#A5604A' },
+  { id: 'graphite', name: '素纸 · 墨绿', desc: '最安静', group: 'new', dark: false, bg: '#FAFAF8', card: '#ffffff', line: '#E9E9E4', accent: '#3A4E42' },
+  { id: 'pine', name: '松烟 · 夜', desc: '夜间不刺眼', group: 'new', dark: true, bg: '#121614', card: '#1A1F1C', line: '#282F2A', accent: '#79B695' },
+  { id: 'forest', name: '森林绿', desc: '清新自然', group: 'classic', dark: false, bg: '#f4f7f5', card: '#ffffff', line: '#e2e9e5', accent: '#2e7d5b' },
+  { id: 'ocean', name: '海盐蓝', desc: '干净专注', group: 'classic', dark: false, bg: '#eef4fb', card: '#ffffff', line: '#dbe7f3', accent: '#1f6feb' },
+  { id: 'sunset', name: '暖阳橙', desc: '温暖柔和', group: 'classic', dark: false, bg: '#fbf4ea', card: '#fffaf3', line: '#efe1d0', accent: '#c2571a' },
+  { id: 'sakura', name: '樱花粉', desc: '轻盈柔和', group: 'classic', dark: false, bg: '#fdf2f6', card: '#fffafc', line: '#f3dee5', accent: '#c2477c' },
+  { id: 'mono', name: '极简白', desc: '黑白纯粹', group: 'classic', dark: false, bg: '#f5f5f4', card: '#ffffff', line: '#e4e4e2', accent: '#1f1f1f' },
+  { id: 'midnight', name: '暗夜绿', desc: '低光护眼', group: 'classic', dark: true, bg: '#0e1411', card: '#151d19', line: '#26332c', accent: '#5ec99a' },
+  { id: 'ink', name: '墨金夜色', desc: '沉稳质感', group: 'classic', dark: true, bg: '#0f1013', card: '#18191e', line: '#2a2b31', accent: '#e0b062' }
 ];
 const themeMeta = id => THEMES.find(t => t.id === id) || THEMES[0];
 const normalizeTheme = id => {
@@ -1736,7 +1828,7 @@ function applyTheme(id) {
   document.documentElement.dataset.theme = t.id;
   document.documentElement.dataset.mode = t.dark ? 'dark' : 'light';
   const btn = $('#themeBtn');
-  if (btn) btn.textContent = `🎨 主题 · ${t.name}`;
+  if (btn) btn.innerHTML = `<span class="bi">${ICON_PALETTE}</span>主题 · ${t.name}`;
   const themeColor = document.querySelector('meta[name="theme-color"]');
   if (themeColor) themeColor.content = t.bg;
   if (window.AndroidBridge && typeof window.AndroidBridge.setSystemBars === 'function') {
@@ -2185,7 +2277,7 @@ const VIEW_META = {
 function render() {
   const activeTheme = applyTheme(state.settings.theme);
   const themeBtn = $('#themeBtn');
-  if (themeBtn) themeBtn.textContent = `🎨 主题 · ${activeTheme.name}`;
+  if (themeBtn) themeBtn.innerHTML = `<span class="bi">${ICON_PALETTE}</span>主题 · ${activeTheme.name}`;
   const navActive = currentView === 'detail' ? 'dashboard' : currentView;
   $$('#nav button').forEach(b => b.classList.toggle('active', b.dataset.view === navActive));
   const meta = VIEW_META[currentView];
@@ -2608,6 +2700,11 @@ function goalSubStats(g) {
 
 const ICON_PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5 17.5 10.5"/></svg>';
 const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7"/><path d="M6.6 7l.8 11.6A2 2 0 0 0 9.4 20.5h5.2a2 2 0 0 0 2-1.9L17.4 7"/><path d="M10.5 11v6M13.5 11v6"/></svg>';
+const ICON_SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5.6" r="2.3"/><circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="18.4" r="2.3"/><path d="M8.1 10.9 15.9 6.7M8.1 13.1l7.8 4.2"/></svg>';
+const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8v10.6"/><path d="M8.2 10.6 12 14.4l3.8-3.8"/><path d="M5.4 13.4v4.8a1.8 1.8 0 0 0 1.8 1.8h9.6a1.8 1.8 0 0 0 1.8-1.8v-4.8"/></svg>';
+const ICON_UPLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14.6V4"/><path d="M8.2 7.8 12 4l3.8 3.8"/><path d="M5.4 13.4v4.8a1.8 1.8 0 0 0 1.8 1.8h9.6a1.8 1.8 0 0 0 1.8-1.8v-4.8"/></svg>';
+const ICON_RESTORE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.1 12a8.1 8.1 0 1 1-2.6-5.9"/><path d="M20.4 4v5h-5"/></svg>';
+const ICON_PALETTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.7c-4.6 0-8.3 3.4-8.3 7.6 0 2.4 1.6 4.2 3.7 4.2h1.5c1 0 1.7.8 1.7 1.8 0 .7-.3 1.3-.6 1.9-.2.4-.3.8-.3 1.1 0 1 .8 1.6 1.8 1.6 4.6 0 8.7-3.7 8.7-9.1 0-4.9-3.6-9.1-8.2-9.1z"/><circle cx="8.4" cy="9.6" r=".9" fill="currentColor" stroke="none"/><circle cx="12" cy="7.9" r=".9" fill="currentColor" stroke="none"/><circle cx="15.5" cy="9.8" r=".9" fill="currentColor" stroke="none"/></svg>';
 
 /* ---- 统一线性图标：24×24、1.8 描边、currentColor（随主题变色） ---- */
 const ICON_BOOK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 8 4.3 5 4.3v13.9c3 0 5.4.8 7 2.3 1.6-1.5 4-2.3 7-2.3V4.3c-3 0-5.4.8-7 2.3z"/><path d="M12 6.6v13.9"/></svg>';
@@ -2701,7 +2798,7 @@ function goalCardHTML(g, collapsible) {
       </div>
       <div class="sub-wrap"${open ? '' : ' hidden'}>
         ${st.total ? `<ul class="sub-list">${subs}</ul>` : `<div class="sub-empty">${g.done ? '没有小目标' : '把它拆小一点，更容易开始'}</div>`}
-        ${blocked ? `<div class="sub-note">⏳ 还有 ${st.left} 个小目标没完成，全部勾完才能结束这个目标</div>` : ''}
+        ${blocked ? `<div class="sub-note">还有 ${st.left} 个小目标没完成，全部勾完才能结束这个目标</div>` : ''}
         ${g.done ? '' : `<form class="sub-add" data-form="sub" data-id="${g.id}"><input name="title" maxlength="80" placeholder="+ 添加小目标，回车保存" autocomplete="off"></form>`}
       </div>
     </article>`;
@@ -3656,21 +3753,31 @@ function openBudgetModal() {
 
 function openThemeModal() {
   const current = normalizeTheme(state.settings.theme);
-  openModal(`
-    <div class="modal-head"><h3>选择主题</h3><button class="close" data-action="close-modal">✕</button></div>
-    <p class="small muted" style="margin:-8px 0 16px">挑一个喜欢的风格，立即生效并自动记住。</p>
-    <div class="theme-grid">
-      ${THEMES.map(t => `<button type="button" class="theme-card${t.id === current ? ' active' : ''}" data-action="set-theme" data-theme="${t.id}"
+  const cardOf = t => `<button type="button" class="theme-card${t.id === current ? ' active' : ''}" data-action="set-theme" data-theme="${t.id}"
         style="--p-bg:${t.bg};--p-card:${t.card};--p-line:${t.line};--p-accent:${t.accent}">
         <span class="theme-preview">
           <i class="tp-side"></i>
           <span class="tp-main"><i></i><i></i><i></i></span>
           <i class="theme-check">✓</i>
         </span>
-        <span class="theme-name">${t.name}</span>
-        <span class="theme-desc">${t.desc}</span>
-      </button>`).join('')}
-    </div>`);
+        <span class="theme-meta">
+          <span class="theme-name">${t.name}</span>
+          <span class="theme-desc">${t.desc}</span>
+        </span>
+      </button>`;
+  const groups = [
+    { key: 'new', title: '新版配色', note: '每套只有 1 个强调色 + 3 级中性色' },
+    { key: 'classic', title: '原有配色', note: '' }
+  ];
+  openModal(`
+    <div class="modal-head"><h3>选择主题</h3><button class="close" data-action="close-modal">✕</button></div>
+    <p class="small muted" style="margin:-8px 0 14px">挑一个喜欢的风格，立即生效并自动记住。</p>
+    ${groups.map(g => {
+    const list = THEMES.filter(t => (t.group || 'classic') === g.key);
+    if (!list.length) return '';
+    return `<div class="theme-group">${g.title}${g.note ? `<em>${g.note}</em>` : ''}</div>
+      <div class="theme-grid">${list.map(cardOf).join('')}</div>`;
+  }).join('')}`);
 }
 
 /* ==================== 表单提交 ==================== */
@@ -4426,6 +4533,15 @@ function androidHandleBack() {
 
 /* ==================== 启动 ==================== */
 state = loadState();
+/* 侧栏按钮统一用线性图标（主题按钮由 applyTheme 负责） */
+(function paintSidebarIcons() {
+  const map = { share: ICON_SHARE, export: ICON_DOWNLOAD, import: ICON_UPLOAD, restore: ICON_RESTORE, reset: ICON_TRASH };
+  document.querySelectorAll('.sidebar-foot button[data-ico]').forEach(b => {
+    const svg = map[b.dataset.ico];
+    if (!svg || b.querySelector('.bi')) return;
+    b.insertAdjacentHTML('afterbegin', `<span class="bi">${svg}</span>`);
+  });
+})();
 applyTheme(state.settings.theme);
 const initialView = (location.hash || '').replace('#', '');
 switchView(VIEW_META[initialView] ? initialView : 'dashboard');
