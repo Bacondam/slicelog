@@ -31,6 +31,16 @@
 
 ---
 
+## 品牌标识
+
+- 一个**深绿圆章 + 米白剪影**：一个人坐在一片剪下来的弧面上，右上角一弯月，右侧一株小苗。全部是矢量路径（`<svg><symbol>` + Android `VectorDrawable`），任何尺寸都不失真
+- 配色只有两个：深绿 `#3F5B49`、米白 `#F3F0E3`；封面底色 `#F5F2E8`
+- 同一套路径三处复用：`#slicelog-mark`（启动封面，含树苗与内圈纹理）、`#slicelog-mark-mini`（顶栏 34px / 侧栏 40px，只留一道切片）、`res/drawable/ic_launcher_foreground.xml`（桌面图标）
+- 启动封面停留 **1.5 秒**后 0.44 秒淡出，期间锁住背景滚动；带 `?nosplash=1` 可跳过（自动化测试用）
+- Android 12 的系统启动画面同步配成米白底 + 同一枚徽章，和网页封面无缝衔接
+
+---
+
 ## 功能
 
 **导航与手势**
@@ -200,6 +210,7 @@ node tests/features-check.cjs # 概览详情、习惯周重置、折叠
 node tests/import-check.cjs   # 外部 json 直接导入（微信「用其他应用打开」）
 node tests/v19e-check.cjs     # 已完成目标批量归档 / 恢复 / 批量删除 / 持久化
 node tests/v19e-contrast.cjs  # 归档行与批量整理弹窗的跨主题对比度
+node tests/v23-check.cjs      # 矢量徽章 / 顶部小标记 / 启动封面 1.5 秒 / Android 图标资源
 node tests/v22-check.cjs      # 导航换位 / 单一目标入口 / 学习下线 / 两种推进方式
 node tests/v22-contrast.cjs   # 目标卡「更新进度」行与推进方式分段的跨主题对比度
 node tests/v20a-check.cjs     # 品牌更名 / 概览双数据卡 / 记账合并卡 / 日记全部收起

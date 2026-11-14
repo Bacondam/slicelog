@@ -107,7 +107,8 @@ async function main() {
     source: `window.AndroidBridge = { getSafeInsets(){return '32,0,24,0';}, getScreenInfo(){return 'test';}, exportBackup(){}, setSystemBars(){}, openAppSettings(){} };`
   });
   let loaded = waitEvent('Page.loadEventFired');
-  await send('Page.navigate', { url: pathToFileURL(path.join(root, 'app', 'src', 'main', 'assets', 'index.html')).href });
+  /* 跳过 1.5 秒启动封面，否则触摸事件会被封面层吃掉 */
+  await send('Page.navigate', { url: pathToFileURL(path.join(root, 'app', 'src', 'main', 'assets', 'index.html')).href + '?nosplash=1' });
   await loaded;
   await evaluate('document.fonts.ready');
 

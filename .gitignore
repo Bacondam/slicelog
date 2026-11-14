@@ -39,5 +39,6 @@ ios/shots/
 Thumbs.db
 desktop.ini
 
-# 开发期临时截图
+# 开发期临时截图与检查脚本
 mobile-preview.png
+.tmpcheck/
