@@ -218,18 +218,19 @@ async function main() {
   const legacy = readRes('mipmap-anydpi/ic_launcher.xml');
   const resFile = rel => path.join(root, 'app', 'src', 'main', 'res', rel);
   const iconPng = fs.statSync(resFile('drawable-xxxhdpi/ic_launcher_mark.png'));
-  const splashPng = fs.statSync(resFile('drawable-xxxhdpi/ic_splash_art.png'));
+  const transparentSplash = readRes('drawable/ic_splash_transparent.xml');
 
   assert(/name="ic_launcher_background">#183426/.test(colors), `adaptive icon 背景色应与图片圆边同色 #183426，实际 ${colors.match(/ic_launcher_background">([^<]+)/)}`);
   assert(/name="brand_cream">#F5F2E8/.test(colors), '缺少封面米白 brand_cream');
   assert(/ic_launcher_mark/.test(adaptive) && /ic_launcher_background/.test(adaptive), '自适应图标引用异常');
   assert(/ic_launcher_mark/.test(adaptiveRound), '圆形自适应图标引用异常');
   assert(/<bitmap/.test(legacy) && /ic_launcher_mark/.test(legacy), '旧版（<26）图标应改为深绿底 + 居中位图');
-  assert(/windowSplashScreenBackground/.test(v31) && /brand_cream/.test(v31), 'Android 12 启动画面没配底色');
-  assert(/windowSplashScreenAnimatedIcon/.test(v31) && /ic_splash_art/.test(v31), 'Android 12 启动画面没配图标');
+  assert(/windowSplashScreenBackground/.test(v31) && /brand_cream/.test(v31), 'Android 12 启动画面没配与网页一致的底色');
+  assert(/windowSplashScreenAnimatedIcon/.test(v31) && /ic_splash_transparent/.test(v31), 'Android 12 系统启动图标应隐藏，避免与网页封面重复');
+  assert(/windowSplashScreenAnimationDuration">0</.test(v31), '系统启动画面的退出动画应设为 0');
+  assert(/@android:color\/transparent/.test(transparentSplash), '系统启动图标不是全透明');
   assert(iconPng.size > 20000, `桌面图标位图太小/缺失：${iconPng.size} B`);
-  assert(splashPng.size > 20000, `启动画面位图太小/缺失：${splashPng.size} B`);
-  pass('Android 图标', `自适应前景 ${Math.round(iconPng.size / 1024)}KB + 满底旧版 + 启动画面 ${Math.round(splashPng.size / 1024)}KB，三位一体`);
+  pass('Android 启动', `桌面图标 ${Math.round(iconPng.size / 1024)}KB；系统 SplashScreen 已隐藏，只显示网页封面`);
 
   /* ---------- 6. 页面里没有遗留的旧矢量徽章或字母 logo ---------- */
   const leftovers = await evaluate(`(() => {

@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Android 12+ 系统启动画面：米白底 + 深绿徽章，紧接着网页里的 1.5 秒封面 -->
+    <!-- Android 12+ 系统 SplashScreen 无法彻底关闭：图标设为全透明、退出动画为 0，
+         底色与网页封面一致，视觉上只保留「人生切片 / SLICELOG」这一段。 -->
     <style name="Theme.GrowthOS" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
-        <item name="android:windowBackground">@color/growth_background</item>
-        <item name="android:statusBarColor">@color/growth_background</item>
-        <item name="android:navigationBarColor">@color/growth_background</item>
+        <item name="android:windowBackground">@color/brand_cream</item>
+        <item name="android:statusBarColor">@color/brand_cream</item>
+        <item name="android:navigationBarColor">@color/brand_cream</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowActionModeOverlay">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         <item name="android:windowSplashScreenBackground">@color/brand_cream</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_art</item>
-        <item name="android:windowSplashScreenAnimationDuration">220</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/brand_cream</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_transparent</item>
+        <item name="android:windowSplashScreenAnimationDuration">0</item>
     </style>
 </resources>
