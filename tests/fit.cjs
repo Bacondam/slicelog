@@ -170,7 +170,7 @@ async function main() {
     assert(m.settingsBtn.right <= m.vw - 0.5, `${cfg.name}: 设置按钮被右侧裁切`);
     // 底栏贴底且内容在手势条上方
     assert(Math.abs(m.nav.bottom - m.vh) < 1.5, `${cfg.name}: 底栏未贴底 ${m.nav.bottom} / ${m.vh}`);
-    assert(m.navItems.length === 6, `${cfg.name}: 底部导航项数 ${m.navItems.length}`);
+    assert(m.navItems.length === 5, `${cfg.name}: 底部导航项数 ${m.navItems.length}`);
     assert(m.navItems.every(i => i.left >= -0.5 && i.right <= m.vw + 0.5), `${cfg.name}: 导航项越界`);
     assert(m.navItems.every(i => i.width >= 40), `${cfg.name}: 导航项过窄 ${m.navItems.map(i => Math.round(i.width))}`);
     assert(m.navItems.every(i => i.bottom <= m.vh - cfg.sab + 1.5), `${cfg.name}: 导航文字压到手势条`);

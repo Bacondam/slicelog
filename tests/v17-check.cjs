@@ -92,6 +92,8 @@ async function main() {
 
   // 造 4 个已完成目标
   await evaluate(`
+    /* 学习目标单独一套卡片，这里只看普通目标的折叠行为 */
+    state.goals = state.goals.filter(g => !isLearnGoal(g));
     state.goals.forEach(g => { g.done = true; g.doneAt = Date.now(); });
     state.settings.doneOpen = {};
     switchView('goals');

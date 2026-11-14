@@ -230,6 +230,24 @@ try {
   .view.active { display: block; }
   .view.active > * + * { margin-top: 16px; }
 
+  /* ---- 视图左右滑动：跟手 + 切页滑入 ---- */
+  .main { overflow-x: clip; }
+  .view.swiping { transition: none; }
+  .view.swipe-return { transition: transform .22s cubic-bezier(.22,.61,.36,1); }
+  @keyframes viewInFromRight {
+    from { opacity: .4; transform: translate3d(28px, 0, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes viewInFromLeft {
+    from { opacity: .4; transform: translate3d(-28px, 0, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  .view.anim-from-right { animation: viewInFromRight .26s cubic-bezier(.22,.61,.36,1); }
+  .view.anim-from-left { animation: viewInFromLeft .26s cubic-bezier(.22,.61,.36,1); }
+  @media (prefers-reduced-motion: reduce) {
+    .view.anim-from-right, .view.anim-from-left { animation: none; }
+  }
+
   /* cards */
   .card {
     background: var(--card); border: 1px solid var(--line);
@@ -492,6 +510,22 @@ try {
   .goal-mini .row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
   .goal-mini .row strong { font-size: 13.5px; font-weight: 600; }
   .goal-mini .row span { font-size: 12px; color: var(--muted); }
+  /* 概览「目标与学习」：条目上的类型标记 + 卡片底部的学习投入 */
+  .goal-mini .row .mini-kind {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; color: var(--text);
+    background: var(--accent-soft); border-radius: 6px;
+    padding: 1px 6px; margin-right: 6px; vertical-align: 1px;
+  }
+  .goal-mini .row .mini-kind svg { width: 11px; height: 11px; color: var(--accent); }
+  .goal-mini .row .link-btn { font-size: 11.5px; }
+  .mini-learn {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line);
+    font-size: 11.5px; color: var(--muted);
+  }
+  .mini-learn span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mini-learn .link-btn { flex: none; }
 
   /* heatmap */
   .hm-wrap { overflow-x: auto; padding-bottom: 2px; }
@@ -822,6 +856,7 @@ try {
   textarea { resize: vertical; min-height: 44px; line-height: 1.6; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-row.three { grid-template-columns: 1.2fr 1fr 1fr; }
+  .form-row.three.compact { grid-template-columns: 1.2fr 1fr 0.8fr; }
 
   /* ===== 自绘下拉：原生 select 在 WebView 里弹的是系统列表，
      深色主题下会变成白底 + 页面浅色文字，完全看不清。这里统一换成主题化面板 ===== */
@@ -1034,6 +1069,8 @@ try {
     .stats { gap: 10px; }
     .card { padding: 16px; }
     .form-row, .form-row.three { grid-template-columns: 1fr; gap: 0; }
+    /* 学习目标的「进度 / 总量 / 单位」三项矮，手机上并成一行更省高度 */
+    .form-row.three.compact { grid-template-columns: 1fr 1fr 76px; gap: 8px; }
     .habit-item { gap: 12px; }
     .week { width: 100%; }
     .day { flex: 1; width: auto; }
@@ -1072,7 +1109,7 @@ try {
     }
     .sidebar > .brand { display: none; }
     .nav {
-      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+      display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 0; overflow: visible;
       padding: 5px calc(4px + var(--sar)) calc(5px + var(--sab)) calc(4px + var(--sal));
     }
@@ -1300,6 +1337,38 @@ try {
   .goal-card .sub-wrap > .sub-head { display: none; }
   .goal-card .sub-list { margin-top: 2px; padding: 0; list-style: none; }
 
+  /* ---- 学习型目标（原「学习」版块并入目标） ---- */
+  .chip.kind { padding-left: 7px; }
+  .chip.kind svg { width: 12px; height: 12px; }
+  .goal-card.is-learn .goal-title { margin-top: 9px; }
+  .goal-card .learn-line {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; margin-top: 11px; padding-top: 9px;
+    border-top: 1px dashed var(--line);
+    font-size: 11.5px; color: var(--muted);
+  }
+  .goal-card .learn-line .ll-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
+  .goal-card .learn-line .ll-left svg { width: 13px; height: 13px; flex: none; opacity: .8; }
+  .goal-card .learn-line .ll-left span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .goal-card .stars.mini { margin: 9px 0 0; gap: 1px; }
+  .goal-card .stars.mini button { width: 26px; height: 26px; }
+  .goal-card .stars.mini button svg { width: 15px; height: 15px; }
+  .goal-card .stars.mini .star-static {
+    width: 26px; height: 26px; display: grid; place-items: center; color: var(--line);
+  }
+  .goal-card .stars.mini .star-static svg { width: 15px; height: 15px; display: block; }
+  .goal-card .stars.mini .star-static.on { color: var(--accent-2); }
+  .goal-prog .stars.mini { flex: none; margin: 0; }
+  .goal-prog .stars.mini + .cnt { margin-left: auto; }
+  /* 学习筛选：类型 chip 与分类 chip 同一行视觉 */
+  .goal-filters .filter-chip.learn { display: inline-flex; align-items: center; gap: 5px; }
+  .goal-filters .filter-chip.learn svg { width: 13px; height: 13px; flex: none; }
+  /* 目标页顶部「学习投入」条 */
+  .learn-strip { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .learn-strip .ls-item { font-size: 12px; color: var(--muted); }
+  .learn-strip .ls-item b { font-size: 15px; color: var(--text); font-weight: 650; margin-right: 3px; }
+  .learn-strip .ls-sep { width: 1px; height: 14px; background: var(--line); }
+
   /* 折叠按钮全局同规格：30×30、圆角 10、可交互描边；展开态才用强调色 */
   .collapse-btn.pm {
     width: 30px; height: 30px; border-radius: 10px;
@@ -1406,12 +1475,11 @@ try {
       <div><h1>成长日志</h1><span class="sub">Growth OS</span></div>
     </div>
     <nav class="nav" id="nav">
-      <button data-action="nav" data-view="dashboard" class="active"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 20v-9M12 20V4.5M19 20v-6"/></svg></span>概览</button>
       <button data-action="nav" data-view="goals"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="3.9"/><circle cx="12" cy="12" r=".9" fill="currentColor" stroke="none"/></svg></span>目标</button>
       <button data-action="nav" data-view="habits"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5A3.5 3.5 0 0 1 7.5 6H19"/><path d="M16 3l3.2 3L16 9"/><path d="M20 14.5A3.5 3.5 0 0 1 16.5 18H5"/><path d="M8 15l-3.2 3L8 21"/></svg></span>习惯</button>
-      <button data-action="nav" data-view="journal"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h8l5 5v10a1.6 1.6 0 0 1-1.6 1.6H5.5A1.6 1.6 0 0 1 3.9 19.5v-13A1.6 1.6 0 0 1 5.5 4.5z"/><path d="M13.5 4.5v5h5"/><path d="M8 13.5h7M8 17h4.5"/></svg></span>日记</button>
-      <button data-action="nav" data-view="learning"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.6C10.4 5.1 8 4.3 5 4.3v13.9c3 0 5.4.8 7 2.3 1.6-1.5 4-2.3 7-2.3V4.3c-3 0-5.4.8-7 2.3z"/><path d="M12 6.6v13.9"/></svg></span>学习</button>
+      <button data-action="nav" data-view="dashboard" class="active"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M5 20v-9M12 20V4.5M19 20v-6"/></svg></span>概览</button>
       <button data-action="nav" data-view="finance"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10.2h18"/><circle cx="16.6" cy="14.6" r="1.1" fill="currentColor" stroke="none"/></svg></span>记账</button>
+      <button data-action="nav" data-view="journal"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h8l5 5v10a1.6 1.6 0 0 1-1.6 1.6H5.5A1.6 1.6 0 0 1 3.9 19.5v-13A1.6 1.6 0 0 1 5.5 4.5z"/><path d="M13.5 4.5v5h5"/><path d="M8 13.5h7M8 17h4.5"/></svg></span>日记</button>
     </nav>
     <div class="sidebar-foot">
       <button id="shareBtn" data-ico="share">分享备份到微信</button>
@@ -1436,7 +1504,6 @@ try {
     <section class="view" id="view-goals"></section>
     <section class="view" id="view-habits"></section>
     <section class="view" id="view-journal"></section>
-    <section class="view" id="view-learning"></section>
     <section class="view" id="view-finance"></section>
     <section class="view" id="view-detail"></section>
   </main>
@@ -2074,6 +2141,22 @@ function seedState() {
           { id: 'g4s1', title: '完成 12 周训练计划', done: true, doneAt: now - day * 16 },
           { id: 'g4s2', title: '赛前一周减量', done: true, doneAt: now - day * 20 }
         ]
+      },
+      /* 学习目标：和目标同构，只是多了「阅读 / 课程 / 技能」的标记方式 */
+      {
+        id: 'l1', title: '《原则》', category: '学习', kind: 'book',
+        current: 180, target: 400, unit: '页', level: 0,
+        deadline: '', note: '', createdAt: now - day * 30, done: false, doneAt: null, subtasks: []
+      },
+      {
+        id: 'l2', title: '英语口语', category: '学习', kind: 'skill',
+        current: 0, target: 5, unit: '', level: 3,
+        deadline: '', note: '', createdAt: now - day * 25, done: false, doneAt: null, subtasks: []
+      },
+      {
+        id: 'l3', title: 'TypeScript 进阶课', category: '学习', kind: 'course',
+        current: 12, target: 24, unit: '讲', level: 0,
+        deadline: '', note: '', createdAt: now - day * 20, done: false, doneAt: null, subtasks: []
       }
     ],
     habits,
@@ -2095,11 +2178,8 @@ function seedState() {
       }
     ],
     learning: {
-      items: [
-        { id: 'l1', title: '《原则》', type: 'book', current: 180, total: 400, unit: '页', level: 0, createdAt: now - day * 30 },
-        { id: 'l2', title: '英语口语', type: 'skill', current: 0, total: 0, unit: '', level: 3, createdAt: now - day * 25 },
-        { id: 'l3', title: 'TypeScript 进阶课', type: 'course', current: 12, total: 24, unit: '节', level: 0, createdAt: now - day * 20 }
-      ],
+      /* v2.1 起学习项目并进 goals，这里只保留学习记录（itemId 指向目标 id） */
+      items: [],
       sessions
     },
     finance,
@@ -2108,14 +2188,38 @@ function seedState() {
   };
 }
 
+/** 学习型目标的三种标记：阅读记页码、课程记讲数、技能记熟练度
+    图标延迟到 learnIcon() 取，避免常量定义顺序问题 */
+const LEARN_KINDS = {
+  book: { name: '阅读', unit: '页', verb: '读到第几', noteHint: '选填，比如：第 3 章读完，记一句感受' },
+  course: { name: '课程', unit: '讲', verb: '完成到第几', noteHint: '选填，比如：这一节讲了什么' },
+  skill: { name: '技能', unit: '', verb: '练到', noteHint: '选填，比如：跟读 3 段对话，卡在连读' }
+};
+function learnIcon(kind) {
+  return kind === 'course' ? ICON_CAP : kind === 'skill' ? ICON_BOLT : ICON_BOOK;
+}
+const isLearnGoal = g => !!(g && LEARN_KINDS[g.kind]);
+function learnGoals() { return state.goals.filter(isLearnGoal); }
+function findLearn(id) { return state.goals.find(g => g.id === id && isLearnGoal(g)); }
+/** 学习型目标的进度：技能看熟练度，其余看「当前 / 总量」 */
+function learnPct(g) {
+  if (g.kind === 'skill') return clamp(Math.round(clamp(g.level || 1, 1, 5) / 5 * 100), 0, 100);
+  const total = Number(g.target) || 0;
+  if (!total) return 0;
+  return clamp(Math.round((Number(g.current) || 0) / total * 1000) / 10, 0, 100);
+}
+
 /** 单个目标的清洗：新建 / 导入 / 归档恢复都走这里 */
 function normGoal(g) {
   if (!g || typeof g !== 'object') return null;
   if (!g.id) g.id = uid();
   g.title = String(g.title || '未命名目标');
   g.category = String(g.category || '其他');
+  g.kind = LEARN_KINDS[g.kind] ? g.kind : '';
   g.current = Math.max(0, Number(g.current) || 0);
   g.target = Math.max(0.01, Number(g.target) || 1);
+  g.unit = String(g.unit || (g.kind ? LEARN_KINDS[g.kind].unit : '')).slice(0, 8);
+  g.level = g.kind === 'skill' ? clamp(Number(g.level) || 1, 1, 5) : 0;
   g.done = !!g.done;
   g.dueTime = /^([01]\d|2[0-3]):[0-5]\d$/.test(String(g.dueTime || '')) ? g.dueTime : '';
   g.remindedFor = g.remindedFor ? String(g.remindedFor) : null;
@@ -2129,6 +2233,43 @@ function normGoal(g) {
     doneAt: t.done ? (t.doneAt || null) : null
   }));
   return g;
+}
+
+/** v2.1：把旧「学习项目」并进目标，学习记录仍挂在 sessions（itemId 即目标 id）
+    合并后 learning.items 清空，天然幂等，不会重复迁移 */
+function migrateLearningToGoals(s) {
+  const L = s.learning;
+  const items = Array.isArray(L.items) ? L.items : [];
+  if (!items.length) return;
+  const used = new Set(s.goals.map(g => g.id));
+  items.forEach(it => {
+    if (!it || typeof it !== 'object') return;
+    const kind = LEARN_KINDS[it.type] ? it.type : 'book';
+    const total = Math.max(0, Number(it.total) || 0);
+    const cur = Math.max(0, Number(it.current) || 0);
+    const done = kind === 'skill' ? false : (total > 0 && cur >= total);
+    const id = (it.id && !used.has(it.id)) ? it.id : uid();
+    used.add(id);
+    if (id !== it.id) s.learning.sessions.forEach(x => { if (x.itemId === it.id) x.itemId = id; });
+    s.goals.push(normGoal({
+      id,
+      title: it.title || '未命名学习',
+      category: '学习',
+      kind,
+      current: cur,
+      target: total > 0 ? total : (kind === 'skill' ? 5 : 1),
+      unit: it.unit || LEARN_KINDS[kind].unit,
+      level: kind === 'skill' ? clamp(it.level || 1, 1, 5) : 0,
+      deadline: '',
+      note: '',
+      createdAt: it.createdAt || Date.now(),
+      done,
+      doneAt: done ? Date.now() : null,
+      subtasks: []
+    }));
+  });
+  L.items = [];
+  s.settings.learningMerged = true;
 }
 
 function normalizeState(raw) {
@@ -2168,6 +2309,8 @@ function normalizeState(raw) {
     j.energy = clamp(j.energy || 3, 1, 5);
   });
   s.goals = s.goals.map(normGoal).filter(Boolean);
+  /* v2.1 起「学习」并入目标：老数据在读取时一次性迁移 */
+  migrateLearningToGoals(s);
   return s;
 }
 
@@ -2176,7 +2319,8 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return normalizeState(JSON.parse(raw));
   } catch (e) { console.warn('读取本地数据失败：', e); }
-  const fresh = seedState();
+  /* 示例数据也要过一遍清洗，学习项目才会并进目标 */
+  const fresh = normalizeState(seedState());
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh)); } catch (e) {}
   return fresh;
 }
@@ -2190,6 +2334,8 @@ function saveState() {
 
 /* ==================== 统计辅助 ==================== */
 function goalPct(g) {
+  // 学习型目标：技能看熟练度，阅读/课程看「当前 / 总量」
+  if (isLearnGoal(g)) return learnPct(g);
   // 有小目标时用「已完成小目标 / 全部小目标」，没有才回退到数值进度
   const st = goalSubStats(g);
   if (st.total) return clamp(Math.round(st.done / st.total * 100), 0, 100);
@@ -2368,13 +2514,14 @@ function syncGoalAlarms(force) {
 /* ==================== 渲染入口 ==================== */
 const VIEW_META = {
   dashboard: { title: '概览', sub: '看看今天的进展，把注意力放在最重要的事上。' },
-  goals: { title: '目标', sub: '把大目标切成可执行的小步，持续靠近。' },
+  goals: { title: '目标与学习', sub: '把想做成的事拆小，学习就是一步一步靠近。' },
   habits: { title: '习惯', sub: '每天一点点，时间会放大你的坚持。' },
   journal: { title: '日记与复盘', sub: '记录下来，才能看见自己如何成长。' },
-  learning: { title: '学习与技能', sub: '输入、练习、沉淀，让每一小时都有去处。' },
   finance: { title: '记账', sub: '记下每一笔，钱才花得明白。' },
   detail: { title: '数据详情', sub: '用图表看清这段时间的投入与变化。' }
 };
+/* 底部标签顺序 = 左右滑动的顺序：目标 → 习惯 → 概览 → 记账 → 日记 */
+const VIEW_ORDER = ['goals', 'habits', 'dashboard', 'finance', 'journal'];
 
 function render() {
   const activeTheme = applyTheme(state.settings.theme);
@@ -2401,23 +2548,127 @@ function render() {
     sub.hidden = false;
   }
   $('#todayChip').textContent = `${new Date().getFullYear()}年${new Date().getMonth() + 1}月${new Date().getDate()}日 周${WEEK[new Date().getDay()]}`;
-  const renderers = { dashboard: renderDashboard, goals: renderGoals, habits: renderHabits, journal: renderJournal, learning: renderLearning, finance: renderFinance, detail: renderDetail };
+  const renderers = { dashboard: renderDashboard, goals: renderGoals, habits: renderHabits, journal: renderJournal, finance: renderFinance, detail: renderDetail };
   renderers[currentView]();
   enhanceSelects($('#view-' + currentView));
 }
 
+let viewAnimTimer = 0;
 function switchView(view, opts) {
   if (!VIEW_META[view]) return;
   /* 每次进入日记页都把写作区收起，先让人看见自己的日记；要写再点箭头 */
   if (view === 'journal' && !(opts && opts.openJournal)) state.settings.journalCollapsed = true;
+  const from = currentView;
   currentView = view;
-  $$('.view').forEach(el => el.classList.toggle('active', el.id === 'view-' + view));
+  const dir = opts && opts.dir ? opts.dir : 0;
+  $$('.view').forEach(el => {
+    const on = el.id === 'view-' + view;
+    el.classList.toggle('active', on);
+    el.classList.remove('anim-from-right', 'anim-from-left', 'swiping', 'swipe-return');
+    el.style.transform = '';
+    if (on && dir && from !== view) {
+      void el.offsetWidth;
+      el.classList.add(dir > 0 ? 'anim-from-right' : 'anim-from-left');
+    }
+  });
+  clearTimeout(viewAnimTimer);
+  viewAnimTimer = setTimeout(() => {
+    $$('.view').forEach(el => el.classList.remove('anim-from-right', 'anim-from-left'));
+  }, 320);
   try {
     if (location.hash !== '#' + view) history.replaceState(null, '', '#' + view);
   } catch (e) {}
   render();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: dir ? 'auto' : 'smooth' });
 }
+
+/* ==================== 左右滑动切页 ==================== */
+/* 底部标签顺序即滑动顺序：手指向左拨 → 下一个标签；向右拨 → 上一个 */
+const SWIPE_BLOCK_SEL = 'input, textarea, select, .hm-wrap, .chart, .donut-wrap, .goal-filters, .sess-pick, .seg, .month-nav, .week-nav, .cselect-btn';
+let swipe = null;
+let suppressTap = false;
+
+function swipeAllowed(target) {
+  if (currentView === 'detail') return false;
+  if (VIEW_ORDER.indexOf(currentView) < 0) return false;
+  if (!modalEl.classList.contains('hidden')) return false;
+  if (!confirmEl.classList.contains('hidden')) return false;
+  const remind = document.getElementById('remind');
+  if (remind && remind.classList.contains('show')) return false;
+  if (!target || !target.closest) return false;
+  if (target.closest(SWIPE_BLOCK_SEL)) return false;
+  /* 容器本身可横向滚动（比如筛选条、柱状图）时不劫持手势 */
+  let el = target;
+  while (el && el !== document.body) {
+    const st = getComputedStyle(el);
+    if ((st.overflowX === 'auto' || st.overflowX === 'scroll') && el.scrollWidth > el.clientWidth + 6) return false;
+    el = el.parentElement;
+  }
+  return true;
+}
+
+function initSwipe(el) {
+  el.addEventListener('touchstart', e => {
+    swipe = null;
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    if (!swipeAllowed(e.target)) return;
+    swipe = {
+      x: t.clientX, y: t.clientY, dx: 0, dy: 0, lock: 0,
+      at: Date.now(),
+      viewEl: document.getElementById('view-' + currentView)
+    };
+  }, { passive: true });
+
+  el.addEventListener('touchmove', e => {
+    if (!swipe || e.touches.length !== 1) return;
+    const t = e.touches[0];
+    swipe.dx = t.clientX - swipe.x;
+    swipe.dy = t.clientY - swipe.y;
+    if (!swipe.lock) {
+      if (Math.abs(swipe.dx) < 10 && Math.abs(swipe.dy) < 10) return;
+      /* 横着拨才接管，竖着拨留给页面滚动 */
+      swipe.lock = Math.abs(swipe.dx) > Math.abs(swipe.dy) * 1.3 ? 1 : -1;
+      if (swipe.lock === 1 && swipe.viewEl) swipe.viewEl.classList.add('swiping');
+    }
+    if (swipe.lock === 1 && swipe.viewEl) {
+      if (e.cancelable) e.preventDefault();
+      swipe.viewEl.style.transform = `translate3d(${(swipe.dx * 0.42).toFixed(1)}px, 0, 0)`;
+    }
+  }, { passive: false });
+
+  const finish = () => {
+    const s = swipe;
+    swipe = null;
+    if (!s || s.lock !== 1 || !s.viewEl) return;
+    const idx = VIEW_ORDER.indexOf(currentView);
+    const far = Math.abs(s.dx) > Math.min(88, window.innerWidth * 0.22)
+      || (Math.abs(s.dx) > 42 && Date.now() - s.at < 260);
+    const to = s.dx < 0 ? idx + 1 : idx - 1;
+    s.viewEl.classList.remove('swiping');
+    if (far && to >= 0 && to < VIEW_ORDER.length) {
+      s.viewEl.style.transform = '';
+      /* 滑动结束后别把这次手势当成点击（避免误触卡片按钮） */
+      suppressTap = true;
+      setTimeout(() => { suppressTap = false; }, 360);
+      switchView(VIEW_ORDER[to], { dir: s.dx < 0 ? 1 : -1 });
+    } else {
+      s.viewEl.classList.add('swipe-return');
+      requestAnimationFrame(() => { s.viewEl.style.transform = ''; });
+      setTimeout(() => s.viewEl.classList.remove('swipe-return'), 260);
+    }
+  };
+  el.addEventListener('touchend', finish, { passive: true });
+  el.addEventListener('touchcancel', finish, { passive: true });
+}
+
+/* 手势后的那一次 click 直接掐掉 */
+document.addEventListener('click', e => {
+  if (!suppressTap) return;
+  suppressTap = false;
+  e.stopPropagation();
+  e.preventDefault();
+}, true);
 
 /* ==================== 概览页 ==================== */
 function heatmapHTML() {
@@ -2527,16 +2778,30 @@ function renderDashboard() {
     </button>`;
   }).join('') : `<div class="empty"><div class="big">🌱</div>还没有习惯，先创建一个吧。<div style="margin-top:10px"><button class="btn primary" data-action="add-habit">+ 新建习惯</button></div></div>`;
 
-  const goalMinis = activeGoals.length ? activeGoals.slice(0, 3).map(g => {
+  /* 目标与学习合成一张卡：学习目标就是目标，额外带「记录」入口 */
+  const goalMinis = activeGoals.length ? activeGoals.slice(0, 4).map(g => {
     const p = goalPct(g);
     const dl = goalDeadline(g);
     const st = goalSubStats(g);
+    const learn = isLearnGoal(g);
+    const kind = learn ? LEARN_KINDS[g.kind] : null;
+    const sub = learn
+      ? (g.kind === 'skill' ? `熟练度 ${clamp(g.level || 1, 1, 5)}/5` : `${fmtNum(g.current)} / ${fmtNum(g.target)} ${esc(g.unit || kind.unit)}`)
+      : (st.total ? `小目标 ${st.done}/${st.total}` : `${fmtNum(g.current)} / ${fmtNum(g.target)} ${esc(g.unit)}`);
     return `<div class="goal-mini">
-      <div class="row"><strong>${esc(g.title)}</strong><span>${p}%</span></div>
+      <div class="row"><strong>${learn ? `<span class="mini-kind">${learnIcon(g.kind)}${kind.name}</span>` : ''}${esc(g.title)}</strong><span>${p}%</span></div>
       <div class="progress slim"><i style="width:${p}%"></i></div>
-      <div class="row"><span>${st.total ? `小目标 ${st.done}/${st.total}` : `${fmtNum(g.current)} / ${fmtNum(g.target)} ${esc(g.unit)}`}</span><span>${dl.text}</span></div>
+      <div class="row"><span>${sub}</span>${learn && !g.done
+        ? `<button class="link-btn" data-action="log-session" data-id="${g.id}">记录</button>`
+        : `<span>${dl.text}</span>`}</div>
     </div>`;
   }).join('') : `<div class="empty"><div class="big">🎯</div>${state.goals.length ? '目标都完成了，开一个新的吧。' : '还没有目标。'}<div style="margin-top:10px"><button class="btn primary" data-action="add-goal">+ 新建目标</button></div></div>`;
+
+  const weekMin = habitWeekDays(0).reduce((a, d) => a + sessionsOn(toKey(d)).reduce((x, s) => x + (Number(s.minutes) || 0), 0), 0);
+  const learnFoot = `<div class="mini-learn">
+      <span>本周投入 ${fmtDuration(weekMin)} · 今日 ${fmtDuration(todayMin)}${learnGoals().length ? ` · ${learnGoals().length} 个学习目标` : ''}</span>
+      <button class="link-btn" data-action="add-item">+ 学习</button>
+    </div>`;
 
   const recent = [...state.journal].sort((a, b) => String(b.date).localeCompare(String(a.date)) || (b.createdAt || 0) - (a.createdAt || 0)).slice(0, 3);
   const recentHTML = recent.length ? recent.map(j => {
@@ -2562,8 +2827,9 @@ function renderDashboard() {
         ${todayHabits}
       </div>
       <div class="card">
-        <div class="card-head"><h3>目标进度</h3><button class="link-btn" data-action="nav" data-view="goals">查看全部 →</button></div>
+        <div class="card-head"><h3>目标与学习 <span class="small muted">进行中 ${activeGoals.length}</span></h3><button class="link-btn" data-action="nav" data-view="goals">查看全部 →</button></div>
         ${goalMinis}
+        ${learnFoot}
       </div>
     </div>
     <div class="grid-2">
@@ -2613,8 +2879,8 @@ function detailStudy() {
   const byItem = {};
   list.forEach(s => { byItem[s.itemId] = (byItem[s.itemId] || 0) + (Number(s.minutes) || 0); });
   const items = Object.entries(byItem).map(([id, min], i) => {
-    const it = state.learning.items.find(x => x.id === id);
-    return { label: it ? it.title : '已删除项目', value: min, color: FIN_COLORS[i % FIN_COLORS.length], valueText: fmtDuration(min) };
+    const it = findLearn(id);
+    return { label: it ? it.title : '已删除目标', value: min, color: FIN_COLORS[i % FIN_COLORS.length], valueText: fmtDuration(min) };
   }).sort((a, b) => b.value - a.value);
   const weekMin = habitWeekDays(0).reduce((a, d) => a + sessionsOn(toKey(d)).reduce((x, s) => x + (Number(s.minutes) || 0), 0), 0);
   const todayMin = sessionsOn(todayKey()).reduce((a, s) => a + (Number(s.minutes) || 0), 0);
@@ -2634,7 +2900,7 @@ function detailStudy() {
       ['记录次数', `${list.length} 次`],
       ['平均每次', fmtDuration(avg)]
     ],
-    goView: 'learning', goText: '去学习页记录'
+    goView: 'goals', goText: '去目标页记录学习'
   };
 }
 
@@ -2863,6 +3129,8 @@ function subOpenOf(g) {
   const m = (state.settings.subOpen && typeof state.settings.subOpen === 'object' && !Array.isArray(state.settings.subOpen))
     ? state.settings.subOpen : {};
   if (Object.prototype.hasOwnProperty.call(m, g.id)) return !!m[g.id];
+  /* 学习型卡片默认把「小目标」收起来，先让进度和记录一眼可见 */
+  if (isLearnGoal(g)) return false;
   return !g.done;
 }
 
@@ -2870,6 +3138,8 @@ function goalCardHTML(g, collapsible) {
   const p = goalPct(g);
   const dl = goalDeadline(g);
   const st = goalSubStats(g);
+  const learn = isLearnGoal(g);
+  const kind = learn ? LEARN_KINDS[g.kind] : null;
   const open = g.done ? true : subOpenOf(g);
   const foldAction = g.done ? 'toggle-done-one' : 'toggle-subfold';
   const foldTitle = g.done ? '收起这条已完成目标' : (open ? '收起小目标' : '展开小目标');
@@ -2887,6 +3157,53 @@ function goalCardHTML(g, collapsible) {
     ? (g.doneAt ? `完成于 ${fmtDate(toKey(new Date(g.doneAt)))}` : '已完成')
     : dl.text;
   const dueCls = g.done ? 'is-done-due' : (dl.cls || '');
+
+  /* 学习型目标：进度由「学习标记」驱动，分类固定是学习，chip 换成类型 */
+  if (learn) {
+    const unit = g.unit || kind.unit;
+    const stars = `<div class="stars mini">${[1, 2, 3, 4, 5].map(i => {
+      const on = i <= clamp(g.level || 1, 1, 5);
+      return g.done
+        ? `<span class="star-static${on ? ' on' : ''}">${on ? ICON_STAR_ON : ICON_STAR_OFF}</span>`
+        : `<button type="button" class="${on ? 'on' : ''}" data-action="set-level" data-id="${g.id}" data-level="${i}" title="设为 ${i} 级" aria-label="设为 ${i} 级">${on ? ICON_STAR_ON : ICON_STAR_OFF}</button>`;
+    }).join('')}</div>`;
+    const prog = g.kind === 'skill'
+      ? `<div class="goal-prog">${stars}<span class="cnt">熟练度 ${clamp(g.level || 1, 1, 5)}/5</span></div>`
+      : `<div class="goal-prog">
+           <div class="progress"><i style="width:${p}%"></i></div>
+           <span class="cnt">${fmtNum(g.current)}/${fmtNum(g.target)} ${esc(unit)}</span>
+         </div>`;
+    const mins = itemMinutes(g.id);
+    const weekN = state.learning.sessions.filter(s => s.itemId === g.id && habitWeekDays(0).some(d => toKey(d) === s.date)).length;
+    return `<article class="goal-card card is-learn${g.done ? ' is-done' : ''}">
+      <div class="goal-top">
+        <button class="goal-check${g.done ? ' on' : ''}${blocked ? ' locked' : ''}" data-action="toggle-goal" data-id="${g.id}" title="${g.done ? '恢复为进行中' : blocked ? `还有 ${st.left} 个小目标没完成` : '标记为已完成'}">${blocked ? '!' : '✓'}</button>
+        <span class="chip kind">${learnIcon(g.kind)}${kind.name}</span>
+        <div class="goal-acts">
+          <button class="icon-btn" data-action="edit-item" data-id="${g.id}" title="编辑" aria-label="编辑">${ICON_PENCIL}</button>
+          <button class="icon-btn danger" data-action="del-goal" data-id="${g.id}" title="删除" aria-label="删除">${ICON_TRASH}</button>
+          <button class="collapse-btn pm${open ? ' minus' : ''}" data-action="${foldAction}" data-id="${g.id}" title="${foldTitle}" aria-label="${foldTitle}">${pmIcon()}</button>
+        </div>
+      </div>
+      <div class="goal-line">
+        <h3 class="goal-title">${esc(g.title)}</h3>
+        <span class="goal-due ${dueCls}">${dueText}</span>
+      </div>
+      ${prog}
+      <div class="learn-line">
+        <span class="ll-left">${ICON_ACTIVITY}<span>累计 ${mins >= 60 ? fmtDuration(mins) : (mins ? mins + ' 分钟' : '还没记录')}${weekN ? ` · 本周 ${weekN} 次` : ''}</span></span>
+        ${g.done ? '' : `<button class="link-btn" data-action="log-session" data-id="${g.id}">记录 →</button>`}
+      </div>
+      ${(g.subtasks || []).length ? `<div class="sub-wrap"${open ? '' : ' hidden'}>
+        <ul class="sub-list">${subs}</ul>
+        ${blocked ? `<div class="sub-note">还有 ${st.left} 个小目标没完成，全部勾完才能结束这个目标</div>` : ''}
+        ${g.done ? '' : `<form class="sub-add" data-form="sub" data-id="${g.id}"><input name="title" maxlength="80" placeholder="+ 添加小目标，回车保存" autocomplete="off"></form>`}
+      </div>` : (g.done ? '' : `<div class="sub-wrap"${open ? '' : ' hidden'}>
+        <form class="sub-add" data-form="sub" data-id="${g.id}"><input name="title" maxlength="80" placeholder="+ 添加小目标，回车保存" autocomplete="off"></form>
+      </div>`)}
+    </article>`;
+  }
+
   const legacyTarget = Number(g.target) > 1 ? `${fmtNum(g.current)}/${fmtNum(g.target)}${g.unit ? ' ' + esc(g.unit) : ''}` : '';
   const countText = st.total ? `${st.done}/${st.total}` : legacyTarget;
 
@@ -2923,6 +3240,39 @@ function ensureDoneOpenMap() {
   return s.doneOpen;
 }
 
+/** 学习连续天数：连续有记录的天数（今天没记就从昨天算起） */
+function learnStreak() {
+  const set = new Set(state.learning.sessions.map(s => s.date));
+  let d = new Date();
+  if (!set.has(toKey(d))) d = addDays(d, -1);
+  let n = 0;
+  while (set.has(toKey(d)) && n < 3660) { n++; d = addDays(d, -1); }
+  return n;
+}
+
+/** 一条学习记录的渲染（目标页 / 概览共用） */
+function sessionRowHTML(s) {
+  const it = findLearn(s.itemId);
+  const kind = it ? LEARN_KINDS[it.kind] : null;
+  const unit = (it && it.unit) || (kind ? kind.unit : '页');
+  const tag = s.progress != null
+    ? `<span class="stag">${it && it.kind === 'course' ? '讲到' : '读到'} ${fmtNum(s.progress)} ${esc(unit)}</span>`
+    : (s.level ? `<span class="stag">熟练度 ${clamp(s.level, 1, 5)} 级</span>` : '');
+  return `<div class="session-row">
+      <span class="sdate">${String(s.date).slice(5).replace('-', '/')}</span>
+      <span class="stitle">${esc(it ? it.title : '已删除的学习目标')}${tag}${s.note ? ` <span class="muted small">· ${esc(truncate(s.note, 20))}</span>` : ''}</span>
+      <span class="smin">${fmtDuration(s.minutes)}</span>
+      <button class="icon-btn danger" data-action="del-session" data-id="${s.id}" title="删除记录" aria-label="删除记录">${ICON_TRASH}</button>
+    </div>`;
+}
+
+function sessionRowsHTML(limit) {
+  return [...state.learning.sessions]
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)) || (b.createdAt || 0) - (a.createdAt || 0))
+    .slice(0, limit || 12)
+    .map(sessionRowHTML).join('');
+}
+
 function renderGoals() {
   const all = state.goals;
   const active = all.filter(g => !g.done).sort((a, b) => {
@@ -2934,10 +3284,22 @@ function renderGoals() {
 
   const counts = {};
   all.forEach(g => { const k = g.category || '其他'; counts[k] = (counts[k] || 0) + 1; });
-  const cats = CATS.map(c => c[0]).filter(name => counts[name] > 0);
-  if (goalFilter !== 'all' && !cats.includes(goalFilter)) goalFilter = 'all';
+  const kindCounts = { book: 0, course: 0, skill: 0 };
+  all.forEach(g => { if (isLearnGoal(g)) kindCounts[g.kind]++; });
+  const cats = CATS.map(c => c[0]).filter(name => counts[name] > 0 && name !== '学习');
+  const plainStudy = all.filter(g => !isLearnGoal(g) && (g.category || '其他') === '学习').length;
+  const filterOk = f => f === 'all'
+    || (f.startsWith('kind:') && kindCounts[f.slice(5)] > 0)
+    || cats.includes(f)
+    || (f === '学习' && plainStudy > 0);
+  if (!filterOk(goalFilter)) goalFilter = 'all';
 
-  const match = g => goalFilter === 'all' || (g.category || '其他') === goalFilter;
+  const match = g => {
+    if (goalFilter === 'all') return true;
+    if (goalFilter.startsWith('kind:')) return g.kind === goalFilter.slice(5);
+    if (goalFilter === '学习') return !isLearnGoal(g) && (g.category || '其他') === '学习';
+    return !isLearnGoal(g) && (g.category || '其他') === goalFilter;
+  };
   const activeShown = active.filter(match);
   const doneShown = finished.filter(match);
 
@@ -2957,11 +3319,16 @@ function renderGoals() {
   const head = `
     <div class="page-actions">
       <h2>进行中 ${active.length} 个${finished.length ? ` · 已完成 ${finished.length} 个` : ''}</h2>
-      <button class="btn primary" data-action="add-goal">+ 新建目标</button>
+      <div class="chips">
+        <button class="btn ghost" data-action="add-item">+ 学习</button>
+        <button class="btn primary" data-action="add-goal">+ 目标</button>
+      </div>
     </div>
     ${all.length ? `<div class="goal-filters">
       <button class="filter-chip${goalFilter === 'all' ? ' on' : ''}" data-action="goal-filter" data-cat="all">全部 ${all.length}</button>
+      ${['book', 'course', 'skill'].filter(k => kindCounts[k]).map(k => `<button class="filter-chip learn${goalFilter === 'kind:' + k ? ' on' : ''}" data-action="goal-filter" data-cat="kind:${k}">${learnIcon(k)}${LEARN_KINDS[k].name} ${kindCounts[k]}</button>`).join('')}
       ${cats.map(n => `<button class="filter-chip${goalFilter === n ? ' on' : ''}" data-action="goal-filter" data-cat="${esc(n)}">${esc(n)} ${counts[n]}</button>`).join('')}
+      ${plainStudy ? `<button class="filter-chip${goalFilter === '学习' ? ' on' : ''}" data-action="goal-filter" data-cat="学习">学习 ${plainStudy}</button>` : ''}
     </div>` : ''}`;
 
   const doneMap = (state.settings.doneOpen && typeof state.settings.doneOpen === 'object') ? state.settings.doneOpen : {};
@@ -3018,8 +3385,33 @@ function renderGoals() {
       ${doneSection}
     </section>` : '';
 
+  /* 学习投入：原来「学习」页的统计搬到这里，跟目标放在同一屏 */
+  const learnCount = learnGoals().length;
+  const sessions = state.learning.sessions;
+  const monthMin = sessions.filter(s => String(s.date).slice(0, 7) === todayKey().slice(0, 7))
+    .reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+  const todayMin = sessionsOn(todayKey()).reduce((a, s) => a + (Number(s.minutes) || 0), 0);
+  const learnOverview = (learnCount || sessions.length) ? foldCard('goals:learn', '学习投入', `
+      <div class="learn-strip">
+        <div class="ls-item"><b>${monthMin >= 60 ? (monthMin / 60).toFixed(1) + ' 小时' : monthMin + ' 分钟'}</b>本月</div>
+        <div class="ls-sep"></div>
+        <div class="ls-item"><b>${fmtDuration(todayMin)}</b>今日</div>
+        <div class="ls-sep"></div>
+        <div class="ls-item"><b>${learnStreak()}</b>天连续</div>
+        <div class="ls-sep"></div>
+        <div class="ls-item"><b>${learnCount}</b>个学习目标</div>
+      </div>
+      <div style="margin-top:12px">${studyChartHTML()}</div>`,
+    { extra: '<span class="small muted">近 14 天</span>' }) : '';
+
+  const learnRecent = sessions.length
+    ? foldCard('goals:sessions', '最近学习记录', sessionRowsHTML(12), { extra: '<span class="small muted">最近 12 条</span>', defaultOpen: false })
+    : '';
+
   $('#view-goals').innerHTML = `${head}
-    ${mainSections || `<div class="card"><div class="empty"><div class="big">🎯</div>还没有目标。把想做成的事写下来，再拆成几个小目标。<div style="margin-top:12px"><button class="btn primary" data-action="add-goal">+ 新建第一个目标</button></div></div></div>`}
+    ${learnOverview}
+    ${mainSections || `<div class="card"><div class="empty"><div class="big">🎯</div>还没有目标。把想做成的事写下来，再拆成几个小目标。<div style="margin-top:14px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button class="btn primary" data-action="add-goal">+ 新建第一个目标</button><button class="btn" data-action="add-item">+ 加个学习目标</button></div></div></div>`}
+    ${learnRecent}
     ${archSection}`;
 }
 
@@ -3153,7 +3545,8 @@ function foldCard(key, titleHTML, bodyHTML, opts) {
   const o = opts || {};
   const open = cardOpen(key, o.defaultOpen !== false);
   const extra = o.extra || '';
-  return `<section class="card fold-card${open ? '' : ' is-closed'}"${o.id ? ` id="${o.id}"` : ''}>
+  /* 用 div 而不是 section：避免打乱目标页里 .goal-section:nth-of-type 的计数 */
+  return `<div class="card fold-card${open ? '' : ' is-closed'}"${o.id ? ` id="${o.id}"` : ''}>
     <div class="card-head"${open ? '' : ' style="margin-bottom:0"'}>
       <h3>${titleHTML}</h3>
       <div class="chips">${extra}
@@ -3161,7 +3554,7 @@ function foldCard(key, titleHTML, bodyHTML, opts) {
       </div>
     </div>
     ${open ? `<div class="card-body">${bodyHTML}</div>` : ''}
-  </section>`;
+  </div>`;
 }
 
 function renderJournal() {
@@ -3221,64 +3614,6 @@ function renderJournal() {
       </div>
       ${groupsHTML}
     </div>` : `<div class="card"><div class="empty"><div class="big">✍️</div>还没有日记。每天 2 分钟，写下三件小事就够了。</div></div>`}`;
-}
-
-/* ==================== 学习页 ==================== */
-const LEARN_TYPES = {
-  book: { name: '阅读', icon: ICON_BOOK },
-  course: { name: '课程', icon: ICON_CAP },
-  skill: { name: '技能', icon: ICON_BOLT }
-};
-
-function renderLearning() {
-  const items = state.learning.items;
-  const totalMinutes = state.learning.sessions.reduce((a, s) => a + (Number(s.minutes) || 0), 0);
-  const cards = items.map(it => {
-    const p = itemPct(it);
-    const type = LEARN_TYPES[it.type] || LEARN_TYPES.book;
-    const stars = `<div class="stars">${[1, 2, 3, 4, 5].map(i => `<button class="${i <= (it.level || 0) ? 'on' : ''}" data-action="set-level" data-id="${it.id}" data-level="${i}" title="设为 ${i} 级" aria-label="设为 ${i} 级">${i <= (it.level || 0) ? ICON_STAR_ON : ICON_STAR_OFF}</button>`).join('')}</div>
-      <div class="small muted">技能等级 ${clamp(it.level || 1, 1, 5)} / 5</div>`;
-    const bar = `<div class="progress" style="margin-top:10px"><i style="width:${p}%"></i></div>
-      <div class="goal-meta"><strong>${fmtNum(it.current)} / ${fmtNum(it.total)} ${esc(it.unit || '')}</strong><span>${p}%</span></div>`;
-    return `<article class="learn-card card">
-      <div class="learn-top">
-        <span class="chip">${type.icon} ${type.name}</span>
-        <div class="chips">
-          <button class="icon-btn" data-action="edit-item" data-id="${it.id}" title="编辑">${ICON_PENCIL}</button>
-          <button class="icon-btn danger" data-action="del-item" data-id="${it.id}" title="删除">${ICON_TRASH}</button>
-        </div>
-      </div>
-      <h3>${esc(it.title)}</h3>
-      ${it.type === 'skill' ? stars : bar}
-      <div class="learn-foot">
-        <span>累计 ${fmtDuration(itemMinutes(it.id))}</span>
-        <button class="link-btn" data-action="log-session" data-id="${it.id}">记录学习 →</button>
-      </div>
-    </article>`;
-  }).join('');
-
-  const sorted = [...state.learning.sessions].sort((a, b) => String(b.date).localeCompare(String(a.date)) || (b.createdAt || 0) - (a.createdAt || 0));
-  const sessionRows = sorted.slice(0, 12).map(s => {
-    const it = items.find(i => i.id === s.itemId);
-    const unit = (it && it.unit) || (it && SESS_META[it.type] ? SESS_META[it.type].unit : '页');
-    const tag = s.progress != null
-      ? `<span class="stag">${it && it.type === 'course' ? `讲到 ${fmtNum(s.progress)} ${esc(unit)}` : `读到 ${fmtNum(s.progress)} ${esc(unit)}`}</span>`
-      : (s.level ? `<span class="stag">熟练度 ${clamp(s.level, 1, 5)} 级</span>` : '');
-    return `<div class="session-row">
-      <span class="sdate">${String(s.date).slice(5).replace('-', '/')}</span>
-      <span class="stitle">${esc(it ? it.title : '已删除的项目')}${tag}${s.note ? ` <span class="muted small">· ${esc(truncate(s.note, 20))}</span>` : ''}</span>
-      <span class="smin">${fmtDuration(s.minutes)}</span>
-      <button class="icon-btn danger" data-action="del-session" data-id="${s.id}" title="删除记录" aria-label="删除记录">${ICON_TRASH}</button>
-    </div>`;
-  }).join('');
-
-  $('#view-learning').innerHTML = `
-    <div class="page-actions">
-      <h2>${items.length ? `${items.length} 个学习项目 · 累计投入 ${fmtDuration(totalMinutes)}` : '还没有学习项目'}</h2>
-      <button class="btn primary" data-action="add-item">+ 添加项目</button>
-    </div>
-    ${items.length ? `<div class="learn-grid">${cards}</div>` : `<div class="card"><div class="empty"><div class="big">📚</div>把正在读的书、在学的课程、想练的技能加进来，记录每一次投入。<div style="margin-top:12px"><button class="btn primary" data-action="add-item">+ 添加第一个项目</button></div></div></div>`}
-    ${foldCard('learn:recent', '最近记录', sessionRows || `<div class="empty">还没有学习记录。点卡片右下角的「记录学习」就能加一条。</div>`, { extra: '<span class="small muted">最近 12 条</span>' })}`;
 }
 
 function financeHeader(navHTML) {
@@ -4015,24 +4350,19 @@ function openHabitModal() {
     </form>`);
 }
 
-/* 三种学习类型：字段不一样才算「记得对」
-   阅读 → 读到第几页；课程 → 讲到第几讲；技能 → 时长 + 熟练度 */
-const SESS_META = {
-  book: { unit: '页', prefix: '读到第几', noteHint: '选填，比如：第 3 章读完，记一句感受' },
-  course: { unit: '讲', prefix: '完成到第几', noteHint: '选填，比如：这一节讲了什么' },
-  skill: { unit: '', prefix: '', noteHint: '选填，比如：跟读 3 段对话，卡在连读' }
-};
+/* 三种学习标记：字段不一样才算「记得对」
+   阅读 → 读到第几页；课程 → 完成到第几讲；技能 → 时长 + 熟练度 */
 let sessState = null;
 
 function openSessionModal(itemId) {
-  const items = state.learning.items;
-  if (!items.length) { toast('先添加一个学习项目'); return; }
+  const items = learnGoals().filter(g => !g.done);
+  if (!items.length) { toast('先加一个学习目标'); return; }
   const sel = (itemId && items.some(i => i.id === itemId)) ? itemId : items[0].id;
   const it = items.find(i => i.id === sel) || items[0];
   sessState = {
     itemId: it.id,
     date: todayKey(),
-    minutes: it.type === 'course' ? 45 : 30,
+    minutes: it.kind === 'course' ? 45 : 30,
     note: '',
     level: Number(it.level) || 0
   };
@@ -4049,11 +4379,11 @@ function sessReadFields() {
 }
 
 function sessProgressHTML(it, type) {
-  const meta = SESS_META[type] || SESS_META.book;
-  const total = Number(it.total) || 0;
+  const meta = LEARN_KINDS[type] || LEARN_KINDS.book;
+  const total = Number(it.target) || 0;
   const cur = Number(it.current) || 0;
   const unit = String(it.unit || meta.unit || '').trim();
-  const verb = `${meta.prefix}${unit}`;
+  const verb = `${meta.verb}${unit}`;
   if (!total) {
     return `<div class="sess-block">
       <div class="sp-head"><span>${verb}</span><em>还没设总量</em></div>
@@ -4084,14 +4414,13 @@ function sessSkillHTML(it) {
 }
 
 function drawSessionModal() {
-  const items = state.learning.items;
+  const items = learnGoals().filter(g => !g.done);
   if (!items.length) { closeModal(); return; }
   const it = items.find(i => i.id === sessState.itemId) || items[0];
-  const type = SESS_META[it.type] ? it.type : 'book';
-  const meta = SESS_META[type];
+  const type = LEARN_KINDS[it.kind] ? it.kind : 'book';
+  const meta = LEARN_KINDS[type];
   const pills = items.map(x => {
-    const t = LEARN_TYPES[x.type] || LEARN_TYPES.book;
-    return `<button type="button" class="sess-opt${x.id === it.id ? ' on' : ''}" data-action="pick-sess-item" data-id="${x.id}">${t.icon}<span>${esc(x.title)}</span></button>`;
+    return `<button type="button" class="sess-opt${x.id === it.id ? ' on' : ''}" data-action="pick-sess-item" data-id="${x.id}">${learnIcon(x.kind)}<span>${esc(x.title)}</span></button>`;
   }).join('');
 
   openModal(`
@@ -4134,25 +4463,27 @@ function drawSessionModal() {
 }
 
 function openItemModal(id) {
-  const it = id ? state.learning.items.find(x => x.id === id) : null;
-  const type = it ? it.type : 'book';
-  const typeOptions = Object.entries(LEARN_TYPES).map(([key, v]) =>
+  const it = id ? findLearn(id) : null;
+  const type = it ? it.kind : 'book';
+  const typeOptions = Object.entries(LEARN_KINDS).map(([key, v]) =>
     `<option value="${key}"${type === key ? ' selected' : ''}>${v.name}</option>`).join('');
+  const unitVal = it ? (it.unit || '') : LEARN_KINDS.book.unit;
   openModal(`
-    <div class="modal-head"><h3>${it ? '编辑学习项目' : '添加学习项目'}</h3><button class="close" data-action="close-modal">✕</button></div>
+    <div class="modal-head"><h3>${it ? '编辑学习目标' : '添加学习目标'}</h3><button class="close" data-action="close-modal">✕</button></div>
     <form data-form="item" data-id="${it ? it.id : ''}">
       <label>名称<input name="title" required maxlength="60" value="${esc(it ? it.title : '')}" placeholder="例如：《原则》 / 英语口语"></label>
       <label>类型<select name="type" data-level-toggle>${typeOptions}</select></label>
       <div data-progress-field style="${type === 'skill' ? 'display:none' : ''}">
-        <div class="form-row three">
+        <div class="form-row three compact">
           <label>当前进度<input type="number" name="current" step="any" min="0" value="${it ? it.current : 0}"></label>
-          <label>总量<input type="number" name="total" step="any" min="0" value="${it ? it.total : 0}"></label>
-          <label>单位<input name="unit" maxlength="8" value="${esc(it ? it.unit : '页')}" placeholder="页 / 节"></label>
+          <label>总量<input type="number" name="total" step="any" min="0" value="${it ? it.target : 0}"></label>
+          <label>单位<input name="unit" maxlength="8" value="${esc(unitVal)}" placeholder="页 / 讲"></label>
         </div>
       </div>
       <div data-level-field style="${type === 'skill' ? '' : 'display:none'}">
         <label>当前等级（1-5）<input type="number" name="level" min="1" max="5" step="1" value="${clamp(it ? it.level || 1 : 1, 1, 5)}"></label>
       </div>
+      <div class="small muted" style="margin:-2px 0 14px">学习目标和普通目标放在同一个列表里，卡片上的「记录」可以随手加一次投入。</div>
       <div class="form-actions">
         <button type="button" class="btn ghost" data-action="close-modal">取消</button>
         <button class="btn primary" type="submit">保存</button>
@@ -4334,24 +4665,29 @@ document.addEventListener('submit', e => {
 
   if (kind === 'item') {
     const title = String(fd.get('title') || '').trim();
-    if (!title) { toast('请填写项目名称'); return; }
-    const type = String(fd.get('type') || 'book');
+    if (!title) { toast('请填写名称'); return; }
+    const rawType = String(fd.get('type') || 'book');
+    const kindVal = LEARN_KINDS[rawType] ? rawType : 'book';
+    const id = form.dataset.id;
+    const old = id ? findLearn(id) : null;
+    const total = Math.max(0, Number(fd.get('total')) || 0);
     const data = {
       title,
-      type,
+      kind: kindVal,
       current: Math.max(0, Number(fd.get('current')) || 0),
-      total: Math.max(0, Number(fd.get('total')) || 0),
-      unit: String(fd.get('unit') || '').trim(),
-      level: type === 'skill' ? clamp(fd.get('level') || 1, 1, 5) : 0
+      target: total > 0 ? total : (kindVal === 'skill' ? 5 : 1),
+      unit: kindVal === 'skill' ? '' : (String(fd.get('unit') || '').trim().slice(0, 8) || LEARN_KINDS[kindVal].unit),
+      level: kindVal === 'skill' ? clamp(fd.get('level') || 1, 1, 5) : 0
     };
-    const id = form.dataset.id;
-    if (id) {
-      const it = state.learning.items.find(x => x.id === id);
-      if (it) Object.assign(it, data);
-      toast('项目已更新');
+    if (old) {
+      Object.assign(old, data);
+      toast('学习目标已更新');
     } else {
-      state.learning.items.push(Object.assign({ id: uid(), createdAt: Date.now() }, data));
-      toast('学习项目已添加');
+      state.goals.push(normGoal(Object.assign({
+        id: uid(), category: '学习', deadline: '', note: '',
+        createdAt: Date.now(), done: false, doneAt: null, subtasks: []
+      }, data)));
+      toast('学习目标已添加');
     }
     closeModal();
     saveState();
@@ -4361,32 +4697,34 @@ document.addEventListener('submit', e => {
 
   if (kind === 'session') {
     const itemId = (sessState && sessState.itemId) || String(fd.get('itemId') || '');
-    const item = state.learning.items.find(x => x.id === itemId);
-    if (!item) { toast('先选一个学习项目'); return; }
+    const item = findLearn(itemId);
+    if (!item) { toast('先选一个学习目标'); return; }
     const minutes = clamp(fd.get('minutes') || 30, 1, 1440);
     const date = String(fd.get('date') || '').trim() || todayKey();
     const note = String(fd.get('note') || '').trim();
     const sess = { id: uid(), itemId, date, minutes, note, createdAt: Date.now() };
     let tip = '';
-    if (item.type === 'skill') {
+    if (item.kind === 'skill') {
       const lv = clamp(fd.get('level') || 0, 0, 5);
       if (lv) { sess.level = lv; item.level = lv; tip = ` · 熟练度 ${lv} 级`; }
     } else {
-      const total = Number(item.total) || 0;
+      const total = Number(item.target) || 0;
       const base = Number(item.current) || 0;
       const to = Number(fd.get('progress'));
       if (total > 0 && !isNaN(to) && to >= 0) {
         const v = clamp(to, 0, total);
         sess.progress = v;
         if (v !== base) item.current = v;
-        if (v > base) tip = ` · +${v - base} ${item.unit || SESS_META[item.type].unit}`;
+        if (v > base) tip = ` · +${v - base} ${item.unit || LEARN_KINDS[item.kind].unit}`;
       }
     }
     state.learning.sessions.push(sess);
+    const reached = item.kind !== 'skill' && Number(item.target) > 0 && Number(item.current) >= Number(item.target) && !item.done;
     closeModal();
     saveState();
     render();
     toast(`已记录 ${minutes} 分钟${tip} 🎉`);
+    if (reached) setTimeout(() => toast('已经到目标了，去把这条勾完成吧'), 1600);
     return;
   }
 
@@ -4606,7 +4944,9 @@ document.addEventListener('click', e => {
       const set = new Set(ids);
       const map = ensureDoneOpenMap();
       ids.forEach(i => delete map[i]);
+      const learnIds = new Set(state.goals.filter(g => set.has(g.id) && isLearnGoal(g)).map(g => g.id));
       state.goals = state.goals.filter(g => !set.has(g.id));
+      if (learnIds.size) state.learning.sessions = state.learning.sessions.filter(s => !learnIds.has(s.itemId));
       closeModal();
       saveState(); render();
       toast(`已删除 ${ids.length} 个目标`);
@@ -4628,6 +4968,7 @@ document.addEventListener('click', e => {
       okText: '删除'
     }, () => {
       state.archivedGoals = archList().filter(x => x.id !== id);
+      if (isLearnGoal(g)) state.learning.sessions = state.learning.sessions.filter(s => s.itemId !== id);
       saveState(); render(); toast('已删除');
     });
     return;
@@ -4640,7 +4981,9 @@ document.addEventListener('click', e => {
       message: `归档里的 ${n} 个目标会全部彻底删除，无法恢复。只想留个回顾的话，建议先导出一份备份。`,
       okText: `清空 ${n} 个`
     }, () => {
+      const learnIds = new Set(archList().filter(isLearnGoal).map(g => g.id));
       state.archivedGoals = [];
+      if (learnIds.size) state.learning.sessions = state.learning.sessions.filter(s => !learnIds.has(s.itemId));
       saveState(); render(); toast('归档已清空');
     });
     return;
@@ -4712,13 +5055,17 @@ document.addEventListener('click', e => {
   if (action === 'del-goal') {
     const g = state.goals.find(x => x.id === id);
     if (!g) return;
+    const learn = isLearnGoal(g);
     askConfirm({
-      title: '删除目标',
-      message: `「${g.title}」的进度记录会一起删除，无法恢复。`,
+      title: learn ? '删除学习目标' : '删除目标',
+      message: learn
+        ? `「${g.title}」的学习记录会一起删除，无法恢复。`
+        : `「${g.title}」的进度记录会一起删除，无法恢复。`,
       okText: '删除'
     }, () => {
       state.goals = state.goals.filter(x => x.id !== id);
-      saveState(); render(); toast('目标已删除');
+      if (learn) state.learning.sessions = state.learning.sessions.filter(s => s.itemId !== id);
+      saveState(); render(); toast(learn ? '学习目标已删除' : '目标已删除');
     });
     return;
   }
@@ -4775,20 +5122,6 @@ document.addEventListener('click', e => {
 
   if (action === 'add-item') { openItemModal(); return; }
   if (action === 'edit-item') { openItemModal(id); return; }
-  if (action === 'del-item') {
-    const it = state.learning.items.find(x => x.id === id);
-    if (!it) return;
-    askConfirm({
-      title: '删除学习项目',
-      message: `「${it.title}」的学习记录会一起删除，无法恢复。`,
-      okText: '删除'
-    }, () => {
-      state.learning.items = state.learning.items.filter(x => x.id !== id);
-      state.learning.sessions = state.learning.sessions.filter(s => s.itemId !== id);
-      saveState(); render(); toast('学习项目已删除');
-    });
-    return;
-  }
   if (action === 'del-session') {
     const s = state.learning.sessions.find(x => x.id === id);
     if (!s) return;
@@ -4803,7 +5136,7 @@ document.addEventListener('click', e => {
     return;
   }
   if (action === 'set-level') {
-    const it = state.learning.items.find(x => x.id === id);
+    const it = findLearn(id);
     if (!it) return;
     it.level = clamp(el.dataset.level, 1, 5);
     saveState(); render();
@@ -4817,7 +5150,7 @@ document.addEventListener('click', e => {
     if (!sessState) return;
     sessReadFields();
     sessState.itemId = id;
-    const it = state.learning.items.find(x => x.id === id);
+    const it = findLearn(id);
     sessState.level = it ? (Number(it.level) || 0) : 0;
     drawSessionModal();
     return;
@@ -5121,11 +5454,16 @@ state = loadState();
   });
 })();
 applyTheme(state.settings.theme);
-const initialView = (location.hash || '').replace('#', '');
+/* 左右滑动切页（按底部标签顺序） */
+initSwipe(document.querySelector('.main'));
+const initialRaw = (location.hash || '').replace('#', '');
+/* 老链接里的 #learning 已经并进目标页 */
+const initialView = initialRaw === 'learning' ? 'goals' : initialRaw;
 switchView(VIEW_META[initialView] ? initialView : 'dashboard');
 window.addEventListener('hashchange', () => {
   const v = (location.hash || '').replace('#', '');
-  if (VIEW_META[v] && v !== currentView) switchView(v);
+  const view = v === 'learning' ? 'goals' : v;
+  if (VIEW_META[view] && view !== currentView) switchView(view);
 });
 
 /* 目标到期提醒：启动 / 回到前台 / 每分钟 各检查一次 */

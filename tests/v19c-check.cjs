@@ -147,7 +147,7 @@ async function main() {
     const p = document.querySelector('#sessProg');
     return { has: !!p, max: p && p.max, hint: (document.querySelector('.sp-head span') || {}).textContent }; })()`);
   assert(course.has && course.max === '24', '课程记录缺少讲数进度输入');
-  assert(/完成到第几节/.test(course.hint || ''), '课程记录文案不对：' + course.hint);
+  assert(/完成到第几讲/.test(course.hint || ''), '课程记录文案不对：' + course.hint);
 
   const skill = await evaluate(`(() => { openSessionModal('l2');
     return { prog: !!document.querySelector('#sessProg'), stars: document.querySelectorAll('[data-sess-level] button').length,
@@ -163,13 +163,13 @@ async function main() {
     form.elements.minutes.value = '40';
     document.querySelector('#sessProg').value = '260';
     form.requestSubmit();
-    const it = state.learning.items.find(x => x.id === 'l1');
+    const it = findLearn('l1');
     const last = state.learning.sessions[state.learning.sessions.length - 1];
     openSessionModal('l2');
     const f2 = document.querySelector('form[data-form="session"]');
     document.querySelector('[data-action="sess-level"][data-level="4"]').click();
     f2.requestSubmit();
-    const sk = state.learning.items.find(x => x.id === 'l2');
+    const sk = findLearn('l2');
     return { cur: it.current, sp: last.progress, min: last.minutes, lv: sk.level, closed: document.getElementById('modal').classList.contains('hidden') };
   })()`);
   assert(submit.cur === 260, `阅读进度没有写回：${submit.cur}`);

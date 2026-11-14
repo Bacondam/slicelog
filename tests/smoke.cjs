@@ -111,7 +111,7 @@ async function main() {
   assert(layout.width === 390, `手机视口宽度异常：${layout.width}`);
   assert(layout.scrollWidth <= 390, `页面存在横向溢出：${layout.scrollWidth}`);
   assert(layout.settings.left >= 0 && layout.settings.right <= 390, '设置按钮被裁切');
-  assert(layout.nav.length === 6, '底部导航不是六项');
+  assert(layout.nav.length === 5, '底部导航不是五项');
   assert(layout.nav.every(item => item.left >= 0 && item.right <= 390), '底部导航被裁切');
 
   const screenshot = await send('Page.captureScreenshot', {

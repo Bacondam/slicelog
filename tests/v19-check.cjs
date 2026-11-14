@@ -301,13 +301,13 @@ async function main() {
     const q = (sel) => document.querySelectorAll(sel).length;
     switchView('habits');
     const habits = { items: q('#view-habits .habit-item'), badge: q('#view-habits .ico-badge svg'), del: q('#view-habits .habit-item > .icon-btn svg') };
-    switchView('learning');
+    switchView('goals');
     const learning = {
-      cards: q('#view-learning .learn-card'),
-      chip: q('#view-learning .learn-card .chip svg'),
-      acts: q('#view-learning .learn-card .icon-btn svg'),
-      stars: q('#view-learning .stars svg'),
-      inlineForm: q('#view-learning form[data-form="session"]')
+      cards: q('#view-goals .goal-card.is-learn'),
+      chip: q('#view-goals .goal-card.is-learn .chip svg'),
+      acts: q('#view-goals .goal-card.is-learn .icon-btn svg'),
+      stars: q('#view-goals .goal-card.is-learn .stars svg'),
+      inlineForm: q('#view-goals .goal-card.is-learn form[data-form="session"]')
     };
     switchView('journal');
     const journal = { entries: q('#view-journal .journal-entry'), acts: q('#view-journal .journal-entry .icon-btn svg') };
@@ -322,7 +322,7 @@ async function main() {
   assert(icons.learning.stars >= 5, '星级没换成 SVG：' + JSON.stringify(icons.learning));
   assert(icons.learning.inlineForm === 0, '学习页的内联「记录学习」表单应已移除');
   assert(icons.journal.acts === icons.journal.entries * 2, '日记按钮不全是线性的：' + JSON.stringify(icons.journal));
-  assert(icons.nav === 6, '底栏图标不是 6 个 SVG：' + icons.nav);
+  assert(icons.nav === 5, '底栏图标不是 5 个 SVG：' + icons.nav);
   pass('图标统一', `习惯 ${icons.habits.badge} 个徽标 / 学习 ${icons.learning.chip} 个分类 / 底栏 6 个，全部线性 SVG`);
 
   /* ---------- 9. 五套新配色接入主题系统 ---------- */
