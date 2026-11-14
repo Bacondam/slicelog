@@ -1,0 +1,37 @@
+# 构建产物
+.gradle/
+build/
+app/build/
+captures/
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# 签名与本地配置
+local.properties
+*.jks
+*.keystore
+keystore.properties
+
+# 测试与截图临时产物
+tests/*.png
+tests/_app.js
+tests/_dbg.cjs
+tests/index-before-*.html
+.edge-*-profile/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.navigation/
+
+# 系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 开发期临时截图
+mobile-preview.png

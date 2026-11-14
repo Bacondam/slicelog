@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>成长日志 · 手机预览</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: #14161a;
+    color: #e8ecef;
+    display: flex;
+    overflow: hidden;
+  }
+  /* ---------- 左侧控制面板 ---------- */
+  .panel {
+    width: 232px; flex: 0 0 232px; height: 100%;
+    background: #191c21; border-right: 1px solid #262b32;
+    padding: 16px 14px; overflow-y: auto;
+  }
+  .panel h1 { font-size: 14px; margin: 0 0 2px; letter-spacing: .2px; }
+  .panel .sub { font-size: 11px; color: #7f8a96; margin-bottom: 16px; }
+  .group { margin-bottom: 16px; }
+  .group > label {
+    display: block; font-size: 10.5px; letter-spacing: .6px;
+    text-transform: uppercase; color: #6d7883; margin-bottom: 7px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    border: 1px solid #2d343d; background: #1f242b; color: #c6cfd8;
+    font-size: 11.5px; padding: 6px 9px; border-radius: 8px; cursor: pointer;
+    font-family: inherit; transition: .15s;
+  }
+  .chip:hover { border-color: #3d4753; color: #fff; }
+  .chip.on { background: #2f6b52; border-color: #3f8c6b; color: #fff; }
+  .row { display: flex; gap: 6px; }
+  .row .chip { flex: 1; text-align: center; }
+  .hint { font-size: 11px; line-height: 1.65; color: #7f8a96; }
+  .hint b { color: #b9c4cf; font-weight: 600; }
+  .meta { margin-top: 14px; padding-top: 12px; border-top: 1px solid #262b32; font-size: 11px; color: #6d7883; line-height: 1.8; }
+  .meta span { color: #a9b5c1; }
+
+  /* ---------- 舞台 ---------- */
+  .stage {
+    flex: 1; min-width: 0; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 0%, #1e242b 0%, #14161a 55%);
+  }
+  .stage-tip {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    font-size: 11px; color: #6d7883; white-space: nowrap;
+  }
+  .device-wrap { transform-origin: center center; }
+  .device {
+    padding: 11px; border-radius: 54px;
+    background: linear-gradient(160deg, #3a4048, #1b1e23 45%, #2c3138);
+    box-shadow: 0 30px 70px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.07);
+    position: relative;
+  }
+  .screen {
+    position: relative; overflow: hidden; border-radius: 44px;
+    background: var(--bar-color, #f4f7f5);
+    isolation: isolate;
+  }
+  iframe { display: block; width: 100%; height: 100%; border: 0; background: transparent; }
+
+  /* 状态栏（盖在网页之上，模拟系统栏） */
+  .status {
+    position: absolute; left: 0; right: 0; top: 0;
+    height: var(--sat, 32px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; pointer-events: none; z-index: 3;
+    color: var(--bar-fg, #17231d);
+    font-size: 12.5px; font-weight: 600; letter-spacing: .2px;
+  }
+  .status .right { display: flex; align-items: center; gap: 5px; }
+  .status svg { display: block; }
+  .punch {
+    position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+    width: 11px; height: 11px; border-radius: 50%;
+    background: #05070a; box-shadow: inset 0 0 2px rgba(120,160,190,.55);
+    z-index: 4; pointer-events: none;
+  }
+  .gesture {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    bottom: 7px; width: 108px; height: 4px; border-radius: 99px;
+    background: var(--bar-fg, #17231d); opacity: .38;
+    z-index: 3; pointer-events: none;
+  }
+  .keys {
+    position: absolute; left: 0; right: 0; bottom: 0; height: var(--sab, 24px);
+    display: flex; align-items: center; justify-content: center; gap: 54px;
+    z-index: 3; pointer-events: none;
+  }
+  .keys i {
+    width: 14px; height: 14px; display: block; opacity: .55;
+    border: 1.6px solid var(--bar-fg, #17231d);
+  }
+  .keys i:nth-child(1) { border-width: 0 0 1.6px 1.6px; transform: rotate(45deg); width: 11px; height: 11px; }
+  .keys i:nth-child(2) { border-radius: 50%; }
+  .keys i:nth-child(3) { border-radius: 3px; }
+  .hidden { display: none !important; }
+
+  .toast {
+    position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%);
+    background: rgba(20,24,28,.9); color: #fff; font-size: 11.5px;
+    padding: 7px 12px; border-radius: 8px; opacity: 0; transition: .25s;
+    pointer-events: none; z-index: 5; white-space: nowrap; max-width: 90%;
+  }
+  .toast.on { opacity: 1; }
+
+  /* 窄面板：控制项改为顶部紧凑条，把高度让给手机 */
+  @media (max-width: 760px) {
+    body { flex-direction: column; }
+    .panel {
+      width: 100%; flex: 0 0 auto; height: auto; max-height: 42%;
+      border-right: 0; border-bottom: 1px solid #262b32; padding: 10px 12px 8px;
+    }
+    .panel h1 { font-size: 12.5px; }
+    .panel .sub { display: none; }
+    .group { margin-bottom: 8px; }
+    .group > label { margin-bottom: 4px; font-size: 10px; }
+    .chips { gap: 5px; }
+    .chip { padding: 5px 8px; font-size: 11px; }
+    .hint, .meta { display: none; }
+    .row { max-width: 300px; }
+    .stage { flex: 1 1 auto; min-height: 0; }
+    .stage-tip { font-size: 10px; top: 6px; }
+  }
+</style>
+</head>
+<body>
+  <aside class="panel">
+    <h1>成长日志 · 手机预览</h1>
+    <div class="sub">真实 App 运行在虚拟设备里</div>
+
+    <div class="group">
+      <label>屏幕尺寸</label>
+      <div class="chips" id="presets"></div>
+    </div>
+
+    <div class="group">
+      <label>导航方式</label>
+      <div class="row" id="navMode">
+        <button class="chip on" data-sab="24" data-keys="0">手势条</button>
+        <button class="chip" data-sab="48" data-keys="1">虚拟按键</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>主题</label>
+      <div class="chips" id="themes">
+        <button class="chip on" data-theme="forest">森林</button>
+        <button class="chip" data-theme="midnight">午夜</button>
+        <button class="chip" data-theme="ocean">海洋</button>
+        <button class="chip" data-theme="ink">墨黑</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>操作</label>
+      <div class="chips">
+        <button class="chip" id="reload">重新加载</button>
+        <button class="chip" id="openApp">新窗口打开</button>
+        <button class="chip" id="reseed">重置示例数据</button>
+      </div>
+    </div>
+
+    <div class="hint">
+      可以直接在手机屏幕里点击、输入、滑动。<br>
+      数据保存在浏览器本地，<b>不影响手机上的数据</b>。
+    </div>
+
+    <div class="meta">
+      视口 <span id="mSize">452 × 994</span><br>
+      状态栏 <span id="mSat">32</span>px · 底部 <span id="mSab">24</span>px<br>
+      密度 <span id="mDpr">3.19</span>×
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-tip">模拟 Find X8 Ultra 安全区：顶栏与底栏会避开状态栏和手势条</div>
+    <div class="device-wrap" id="wrap">
+      <div class="device" id="device">
+        <div class="screen" id="screen">
+          <iframe id="app" title="成长日志"></iframe>
+          <div class="status">
+            <span id="clock">15:28</span>
+            <span class="right">
+              <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><rect x="0" y="7" width="2.6" height="4" rx="1"/><rect x="4" y="5" width="2.6" height="6" rx="1"/><rect x="8" y="2.6" width="2.6" height="8.4" rx="1"/><rect x="12" y="0" width="2.6" height="11" rx="1" opacity=".35"/></svg>
+              <svg width="14" height="11" viewBox="0 0 14 11" fill="currentColor"><path d="M7 10.2 4.7 7.7a3.3 3.3 0 0 1 4.6 0L7 10.2Z"/><path d="M2.3 5.2 4 7a4.3 4.3 0 0 1 6 0l1.7-1.8a6.6 6.6 0 0 0-9.4 0Z" opacity=".75"/><path d="M.4 3.2a9 9 0 0 1 13.2 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".55"/></svg>
+              <svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".6" y=".6" width="18" height="9.8" rx="3" stroke="currentColor" stroke-opacity=".5"/><rect x="2.2" y="2.2" width="13" height="6.6" rx="1.8" fill="currentColor"/><path d="M20.4 4v3a2 2 0 0 0 0-3Z" fill="currentColor" opacity=".6"/></svg>
+            </span>
+          </div>
+          <div class="punch"></div>
+          <div class="gesture" id="gesture"></div>
+          <div class="keys hidden" id="keys"><i></i><i></i><i></i></div>
+          <div class="toast" id="toast"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+(function () {
+  var PRESETS = [
+    { id: 'x8u', name: 'X8 Ultra', w: 452, h: 994, sat: 32, dpr: 3.19, on: true },
+    { id: 'x8u-zoom', name: '放大显示', w: 412, h: 915, sat: 30, dpr: 3.5 },
+    { id: 'land', name: '横屏', w: 994, h: 452, sat: 24, dpr: 3.19 },
+    { id: 'small', name: '小屏', w: 360, h: 780, sat: 24, dpr: 3.0 }
+  ];
+  var state = { preset: PRESETS[0], sab: 24, keys: 0, theme: 'forest' };
+
+  var elApp = document.getElementById('app');
+  var elWrap = document.getElementById('wrap');
+  var elScreen = document.getElementById('screen');
+  var elGesture = document.getElementById('gesture');
+  var elKeys = document.getElementById('keys');
+  var elToast = document.getElementById('toast');
+
+  function toast(text) {
+    elToast.textContent = text;
+    elToast.classList.add('on');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { elToast.classList.remove('on'); }, 1800);
+  }
+
+  function loadApp() {
+    var p = state.preset;
+    // 通过真实 URL 加载，由预览服务注入桥接；localStorage 才能正常读写
+    elApp.src = '/app?sat=' + p.sat + '&sab=' + state.sab + '&r=' + Date.now();
+  }
+
+  function syncThemeChips(theme) {
+    document.querySelectorAll('#themes .chip').forEach(function (x) {
+      x.classList.toggle('on', x.dataset.theme === theme);
+    });
+    state.theme = theme;
+  }
+
+  function applySize() {
+    var p = state.preset;
+    elScreen.style.width = p.w + 'px';
+    elScreen.style.height = p.h + 'px';
+    elScreen.style.setProperty('--sat', p.sat + 'px');
+    elScreen.style.setProperty('--sab', state.sab + 'px');
+    elGesture.classList.toggle('hidden', state.keys === 1);
+    elKeys.classList.toggle('hidden', state.keys !== 1);
+    document.getElementById('mSize').textContent = p.w + ' × ' + p.h;
+    document.getElementById('mSat').textContent = p.sat;
+    document.getElementById('mSab').textContent = state.sab;
+    document.getElementById('mDpr').textContent = p.dpr;
+    fit();
+  }
+
+  function fit() {
+    var stage = document.querySelector('.stage');
+    var narrow = window.innerWidth <= 760;
+    var availW = stage.clientWidth - (narrow ? 20 : 40);
+    var availH = stage.clientHeight - (narrow ? 34 : 68);
+    var frameW = state.preset.w + 22;
+    var frameH = state.preset.h + 22;
+    var scale = Math.min(1, availW / frameW, availH / frameH);
+    elWrap.style.transform = 'scale(' + Math.max(0.2, scale) + ')';
+  }
+
+  function renderPresets() {
+    var box = document.getElementById('presets');
+    box.innerHTML = '';
+    PRESETS.forEach(function (p) {
+      var b = document.createElement('button');
+      b.className = 'chip' + (p.id === state.preset.id ? ' on' : '');
+      b.textContent = p.name + ' ' + p.w + '×' + p.h;
+      b.onclick = function () {
+        state.preset = p;
+        renderPresets();
+        applySize();
+        loadApp();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  document.querySelectorAll('#navMode .chip').forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll('#navMode .chip').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      state.sab = parseInt(b.dataset.sab, 10);
+      state.keys = parseInt(b.dataset.keys, 10);
+      applySize();
+      loadApp();
+    };
+  });
+
+  document.querySelectorAll('#themes .chip').forEach(function (b) {
+    b.onclick = function () {
+      var theme = b.dataset.theme;
+      var win = elApp.contentWindow;
+      try {
+        win.applyTheme(theme);
+        if (win.saveState) win.saveState();   // 应用内切换主题时由按钮负责保存，这里补上
+        syncThemeChips(theme);
+      } catch (e) {
+        syncThemeChips(theme);
+        loadApp();
+      }
+    };
+  });
+
+  document.getElementById('reload').onclick = loadApp;
+  document.getElementById('openApp').onclick = function () { window.open('/app', '_blank'); };
+  document.getElementById('reseed').onclick = function () {
+    try {
+      elApp.contentWindow.localStorage.removeItem('growth-os-v1');
+    } catch (e) {}
+    loadApp();
+    toast('已重置为示例数据');
+  };
+
+  elApp.addEventListener('load', function () {
+    try {
+      var t = elApp.contentDocument.documentElement.dataset.theme;
+      if (t) syncThemeChips(t);
+    } catch (e) {}
+  });
+
+  window.addEventListener('message', function (e) {
+    var d = e.data || {};
+    if (d.t === 'bars') {
+      elScreen.style.setProperty('--bar-color', d.color);
+      elScreen.style.setProperty('--bar-fg', d.dark ? '#e9f1ec' : '#17231d');
+    } else if (d.t === 'backup') {
+      toast('已触发导出：' + (d.name || 'backup.json'));
+    } else if (d.t === 'share') {
+      toast('预览环境：真机会弹出分享面板，选微信即可发送 ' + (d.name || ''));
+    } else if (d.t === 'notify') {
+      toast('系统通知：' + (d.title || ''));
+    } else if (d.t === 'settings') {
+      toast('预览环境没有系统设置页');
+    }
+  });
+
+  window.addEventListener('resize', fit);
+
+  function tick() {
+    var d = new Date();
+    var hh = String(d.getHours()).padStart(2, '0');
+    var mm = String(d.getMinutes()).padStart(2, '0');
+    document.getElementById('clock').textContent = hh + ':' + mm;
+  }
+  tick();
+  setInterval(tick, 20000);
+
+  renderPresets();
+  applySize();
+  loadApp();
+})();
+</script>
+</body>
+</html>
