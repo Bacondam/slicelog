@@ -84,7 +84,7 @@ async function main() {
     source: `window.AndroidBridge = { getSafeInsets(){return '32,0,24,0';}, getScreenInfo(){return 'test';}, exportBackup(){}, setSystemBars(){}, openAppSettings(){} };`
   });
   const loaded = waitEvent('Page.loadEventFired');
-  await send('Page.navigate', { url: pathToFileURL(path.join(root, 'app', 'src', 'main', 'assets', 'index.html')).href });
+  await send('Page.navigate', { url: pathToFileURL(path.join(root, 'app', 'src', 'main', 'assets', 'index.html')).href + '?nosplash=1' });
   await loaded;
   await evaluate('document.fonts.ready');
   await evaluate(`state = seedState(); saveState(); render();`);

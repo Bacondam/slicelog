@@ -115,7 +115,8 @@ async function main() {
   const dash = await evaluate(`(() => {
     const cards = [...document.querySelectorAll('#view-dashboard .stats .stat')];
     const active = state.goals.filter(g => !g.done).length;
-    const doneGoals = state.goals.filter(g => g.done).length;
+    const monthPrefix = todayKey().slice(0, 7);
+    const monthDone = state.goals.filter(g => g.done && g.doneAt && toKey(new Date(g.doneAt)).slice(0, 7) === monthPrefix).length;
     const dual = document.querySelector('#view-dashboard .stats .stat.dual');
     const cells = dual ? [...dual.querySelectorAll('.dual-cell')] : [];
     return {
@@ -127,7 +128,8 @@ async function main() {
         label: c.querySelector('span').textContent.trim()
       })),
       expectActive: active + '个',
-      expectDone: doneGoals + '个',
+      expectMonthDone: monthDone + '个',
+      hintText: dual ? (dual.querySelector('.hint') ? dual.querySelector('.hint').textContent.trim() : '') : '',
       financeIndex: cards.findIndex(c => c.textContent.includes('本月结余')),
       journalIndex: cards.findIndex(c => c.textContent.includes('日记累计')),
       width: document.documentElement.scrollWidth
@@ -137,7 +139,8 @@ async function main() {
   assert(dash.labels.join(',') === '连续成长,目标,本月结余,日记累计', '统计卡顺序不对：' + dash.labels);
   assert(dash.dualCells.length === 2, '「目标」不是双数据卡');
   assert(dash.dualCells[0].label === '进行中' && dash.dualCells[0].value === dash.expectActive, `进行中目标数不对：${dash.dualCells[0].value} ≠ ${dash.expectActive}`);
-  assert(dash.dualCells[1].stat === 'goals' && dash.dualCells[1].value === dash.expectDone, `已完成目标数不对：${dash.dualCells[1].value} ≠ ${dash.expectDone}`);
+  assert(dash.dualCells[1].stat === 'goals' && dash.dualCells[1].label === '本月完成' && dash.dualCells[1].value === dash.expectMonthDone, `本月完成目标数不对：${dash.dualCells[1].value} ≠ ${dash.expectMonthDone}`);
+  assert(dash.hintText === '', `目标双数据卡不该再显示摘要行，实际「${dash.hintText}」`);
   assert(dash.financeIndex === 2 && dash.journalIndex === 3, '账单卡没有上移到第二行');
   assert(dash.width <= 452, `概览横向溢出 ${dash.width}`);
 
@@ -149,7 +152,7 @@ async function main() {
     assert(info.view === 'detail' && info.detail === key, `${key}: 双数据卡点击未进入对应详情`);
     jump.push(info.title);
   }
-  pass('概览双数据卡', `${dash.dualCells[0].value} 进行中 · ${dash.dualCells[1].value} 已完成，进入「${jump[0]}」`);
+  pass('概览双数据卡', `${dash.dualCells[0].value} 进行中 · ${dash.dualCells[1].value} 本月完成，进入「${jump[0]}」`);
   await evaluate(`switchView('dashboard')`);
   await delay(120);
   await shot('v20a-dashboard.png');

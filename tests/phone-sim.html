@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>手机模拟测试</title>
+<style>
+  :root { --frame: #1b1b1f; --bg: #e8e6df; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg);
+    display: flex; flex-direction: column; align-items: center; gap: 14px;
+    padding: 22px 12px; font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  h1 { font-size: 15px; color: #444; margin: 0; font-weight: 600; }
+  .hint { font-size: 12px; color: #888; margin: 0 0 4px; }
+  .phone {
+    width: 414px; height: 866px; background: var(--frame);
+    border-radius: 44px; padding: 12px; position: relative;
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  }
+  .notch {
+    position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+    width: 150px; height: 24px; background: #000; border-radius: 0 0 16px 16px; z-index: 3;
+  }
+  .screen {
+    width: 100%; height: 100%; border-radius: 34px; overflow: hidden; background: #fff;
+    position: relative;
+  }
+  iframe { width: 100%; height: 100%; border: 0; display: block; background: #F5F2E8; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  button {
+    border: 1px solid #c9c5ba; background: #fff; color: #333; font-size: 13px;
+    padding: 8px 14px; border-radius: 8px; cursor: pointer; font-family: inherit;
+  }
+  button:hover { background: #f3f1ea; }
+  .foot { font-size: 11px; color: #999; }
+</style>
+</head>
+<body>
+  <h1>Slicelog 手机模拟测试</h1>
+  <p class="hint">尺寸 414×866（内含灵动岛），对应 452×994 真机竖屏</p>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <iframe id="app" src="http://127.0.0.1:8099/index.html?nosplash=1" allow="clipboard-read; clipboard-write"></iframe>
+    </div>
+  </div>
+  <div class="bar">
+    <button onclick="jump('dashboard')">概览</button>
+    <button onclick="jump('goals')">目标</button>
+    <button onclick="jump('habits')">习惯</button>
+    <button onclick="jump('finance')">记账</button>
+    <button onclick="jump('journal')">日记</button>
+    <button onclick="reload()">重新加载</button>
+  </div>
+  <p class="foot">底部按钮切换页面 · 重新加载会重新触发启动封面</p>
+  <script>
+    const app = document.getElementById('app');
+    function jump(v) {
+      app.contentWindow.postMessage({ type: 'switch', view: v }, '*');
+      // 兜底：直接改 hash
+      try { app.contentWindow.location.hash = '#' + v; } catch (e) {}
+    }
+    function reload() { app.src = 'http://127.0.0.1:8099/index.html'; }
+  </script>
+</body>
+</html>

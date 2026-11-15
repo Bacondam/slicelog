@@ -277,7 +277,7 @@ async function main() {
   assert(subFlow.skip || (subFlow.left > 0 ? subFlow.locked : true), `没勾完小目标却可以完成：${JSON.stringify(subFlow)}`);
   pass('完成校验', subFlow.skip ? '暂无样例，跳过' : `「${subFlow.title}」还剩 ${subFlow.left} 步，完成键锁住`);
 
-  /* ---------- 10. 概览：双数据卡是「进行中 / 已完成」 ---------- */
+  /* ---------- 10. 概览：双数据卡是「进行中 / 本月完成」 ---------- */
   await evaluate(`switchView('dashboard')`);
   const dash = await evaluate(`(() => {
     const labels = [...document.querySelectorAll('#view-dashboard .stats .stat')].map(s => {
@@ -289,15 +289,18 @@ async function main() {
       value: c.querySelector('strong').textContent.trim(),
       label: c.querySelector('span').textContent.trim()
     }));
+    const dual = document.querySelector('#view-dashboard .stat.dual');
     const text = document.getElementById('view-dashboard').textContent;
-    return { labels, cells, study: text.includes('本月学习'), miniKind: document.querySelectorAll('#view-dashboard .mini-kind').length };
+    return { labels, cells, study: text.includes('本月学习'), miniKind: document.querySelectorAll('#view-dashboard .mini-kind').length,
+      hint: dual && dual.querySelector('.hint') ? dual.querySelector('.hint').textContent.trim() : '' };
   })()`);
   assert(dash.labels.join(',') === '连续成长,目标,本月结余,日记累计', '统计卡顺序不对：' + dash.labels);
   assert(dash.cells.length === 2 && dash.cells.every(c => c.stat === 'goals'), '双数据卡不是两个目标数字：' + JSON.stringify(dash.cells));
-  assert(dash.cells[0].label === '进行中' && dash.cells[1].label === '已完成', '双数据卡标签不对：' + JSON.stringify(dash.cells));
+  assert(dash.cells[0].label === '进行中' && dash.cells[1].label === '本月完成', '双数据卡标签不对：' + JSON.stringify(dash.cells));
+  assert(dash.hint === '', `目标双数据卡不该再显示摘要行，实际「${dash.hint}」`);
   assert(!dash.study, '概览还有「本月学习」');
   assert(dash.miniKind === 0, '概览目标卡还有学习类型标签');
-  pass('概览双数据卡', `${dash.cells[0].value} 进行中 · ${dash.cells[1].value} 已完成`);
+  pass('概览双数据卡', `${dash.cells[0].value} 进行中 · ${dash.cells[1].value} 本月完成`);
   await shot('v22-dash.png');
 
   /* ---------- 11. 左右滑动：习惯 ← 目标 ← 概览 → 记账 ---------- */

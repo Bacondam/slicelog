@@ -977,9 +977,10 @@ try {
   @keyframes fadeIn { from { opacity: 0; } }
   .confirm-backdrop.hidden { display: none; }
   .confirm-card {
-    width: min(350px, 100%); background: var(--card); border: 1px solid var(--line);
+    width: min(350px, 100%); max-width: 100%; background: var(--card); border: 1px solid var(--line);
     border-radius: 18px; padding: 20px 18px 15px; text-align: center;
     box-shadow: 0 24px 60px rgba(0,0,0,.3); animation: pop .16s ease;
+    overflow-wrap: anywhere; word-break: break-word;
   }
   .confirm-icon {
     width: 46px; height: 46px; margin: 0 auto 10px; border-radius: 50%;
@@ -987,7 +988,7 @@ try {
     background: rgba(194,65,58,.1);
   }
   .confirm-card h3 { font-size: 16.5px; margin-bottom: 6px; }
-  .confirm-msg { font-size: 13px; color: var(--muted); line-height: 1.65; }
+  .confirm-msg { font-size: 13px; color: var(--muted); line-height: 1.65; white-space: pre-line; overflow-wrap: anywhere; word-break: break-word; }
   .confirm-actions { display: flex; gap: 10px; margin-top: 18px; }
   .confirm-actions .btn { flex: 1; min-height: 44px; font-size: 14px; }
   .btn.solid-danger { background: var(--danger); color: #fff; box-shadow: 0 4px 14px rgba(194,65,58,.26); }
@@ -1405,6 +1406,8 @@ try {
     align-items: center; justify-content: center;
     gap: 26px;
     background: #F5F2E8;
+    /* 淡出走 GPU 合成层，避免主线程重绘导致封面退场掉帧 */
+    will-change: opacity, transform; transform: translateZ(0);
     /* JS 被挡住时也能自己退场 */
     animation: splashHide .44s ease 1.5s forwards;
   }
@@ -2704,9 +2707,7 @@ function renderDashboard() {
   const streak = globalStreak();
   const monthPrefix = tKey.slice(0, 7);
   const activeGoals = state.goals.filter(g => !g.done);
-  const doneGoalCount = state.goals.length - activeGoals.length;
   const monthDone = state.goals.filter(g => g.done && g.doneAt && toKey(new Date(g.doneAt)).slice(0, 7) === monthPrefix).length;
-  const avgPct = activeGoals.length ? Math.round(activeGoals.reduce((a, g) => a + goalPct(g), 0) / activeGoals.length) : 0;
   const fin = financeSummary(monthPrefix);
   const hour = new Date().getHours();
   const greet = hour < 6 ? '夜深了' : hour < 11 ? '早上好' : hour < 14 ? '中午好' : hour < 18 ? '下午好' : '晚上好';
@@ -2718,9 +2719,9 @@ function renderDashboard() {
       label: '目标',
       cells: [
         { stat: 'goals', value: fmtNum(activeGoals.length), unit: '个', label: '进行中' },
-        { stat: 'goals', value: fmtNum(doneGoalCount), unit: '个', label: '已完成' }
+        { stat: 'goals', value: fmtNum(monthDone), unit: '个', label: '本月完成' }
       ],
-      hint: `本月完成 ${monthDone} 个 · 平均进度 ${avgPct}%`
+      hint: ''
     },
     { key: 'finance', label: '本月结余', value: fmtMoney(fin.balance), icon: ICON_WALLET, hint: `收 ${fmtMoneyShort(fin.income)} · 支 ${fmtMoneyShort(fin.expense)}` },
     { key: 'journal', label: '日记累计', value: `${state.journal.length} 篇`, icon: ICON_NOTE, hint: '记录即成长' }
@@ -2775,7 +2776,7 @@ function renderDashboard() {
             <span>${c.label}</span>
           </button>`).join('')}
         </div>
-        <div class="hint">${s.hint}</div>
+        ${s.hint ? `<div class="hint">${s.hint}</div>` : ''}
       </div>` : `<button type="button" class="stat" data-action="open-stat" data-stat="${s.key}" title="查看${s.label}分析">
         <div class="stat-top"><span>${s.label}</span><span class="stat-ico">${s.icon}<b>›</b></span></div>
         <strong>${s.value}</strong>
@@ -5014,10 +5015,11 @@ window.receiveImportFile = function (text, name) {
     return;
   }
   const cnt = k => (Array.isArray(data[k]) ? data[k].length : 0);
-  const src = name ? `「${name}」` : '这份备份';
+  const shortName = name && name.length > 40 ? name.slice(0, 20) + '…' + name.slice(-12) : name;
+  const src = shortName ? `「${shortName}」` : '这份备份';
   askConfirm({
     title: '导入备份',
-    message: `${src}：目标 ${cnt('goals')} 个、日记 ${cnt('journal')} 篇、账单 ${cnt('finance')} 笔、习惯 ${cnt('habits')} 个。导入会覆盖当前所有数据。`,
+    message: `${src}\n目标 ${cnt('goals')} 个、日记 ${cnt('journal')} 篇、账单 ${cnt('finance')} 笔、习惯 ${cnt('habits')} 个。\n导入会覆盖当前所有数据。`,
     icon: '📥', okText: '覆盖导入', accent: true
   }, () => {
     state = normalizeState(data);
@@ -5099,16 +5101,21 @@ initSwipe(document.querySelector('.main'));
 const initialRaw = (location.hash || '').replace('#', '');
 /* 老链接里的 #learning 已经并进目标页 */
 const initialView = initialRaw === 'learning' ? 'goals' : initialRaw;
-switchView(VIEW_META[initialView] ? initialView : 'dashboard');
-/* 启动封面：1.5 秒后开始淡出（CSS），动画走完就把节点摘掉，别留在 DOM 里 */
-(function dismissSplash() {
+/* 启动封面：1.5 秒后开始淡出（CSS 合成层动画），动画走完再渲染首屏，
+   避免首屏 render 的重活和淡出动画抢主线程导致卡顿 */
+(function boot() {
   const el = document.getElementById('splash');
-  if (!el) return;
-  if (document.documentElement.classList.contains('no-splash')) { el.remove(); return; }
+  if (!el || document.documentElement.classList.contains('no-splash')) {
+    if (el) el.remove();
+    switchView(VIEW_META[initialView] ? initialView : 'dashboard');
+    return;
+  }
   document.documentElement.classList.add('booting');
   setTimeout(() => {
     if (el.parentNode) el.remove();
     document.documentElement.classList.remove('booting');
+    /* 封面退场后再渲染首屏 + 同步系统闹钟，主线程此刻是干净的 */
+    switchView(VIEW_META[initialView] ? initialView : 'dashboard');
   }, 2020);
 })();
 window.addEventListener('hashchange', () => {
@@ -5117,8 +5124,9 @@ window.addEventListener('hashchange', () => {
   if (VIEW_META[view] && view !== currentView) switchView(view);
 });
 
-/* 目标到期提醒：启动 / 回到前台 / 每分钟 各检查一次 */
-setTimeout(() => { syncGoalAlarms(true); checkGoalReminders(); }, 1600);
+/* 目标到期提醒：启动 / 回到前台 / 每分钟 各检查一次。
+   启动时等封面退场后再检查，避免和淡出动画抢主线程 */
+setTimeout(() => { syncGoalAlarms(true); checkGoalReminders(); }, 2400);
 setInterval(() => { if (!document.hidden) checkGoalReminders(); }, 60000);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) { checkGoalReminders(); syncGoalAlarms(true); refreshQuote(); }
