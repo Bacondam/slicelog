@@ -12,7 +12,7 @@
 
 > **下载安装**：到 [Releases](https://github.com/Bacondam/slicelog/releases) 取最新 APK；也可以按下方「构建」一节自行编译。
 >
-> 当前版本 **V1.0**（应用内「设置」面板底部显示同一个版本号）。
+> 当前版本 **V1.0**：设置面板底部与安卓安装包的 `versionName` 都是 `1.0`。
 >
 > **iPhone**：把 `ios/` 部署到任意静态托管，Safari 打开后「添加到主屏幕」，全程无需上架 App Store（详见「iOS / Web 版」）。
 >
