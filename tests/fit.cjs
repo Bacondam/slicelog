@@ -221,14 +221,14 @@ async function main() {
     return {
       columns: total ? [...total.children].filter(td => getComputedStyle(td).display !== 'none').length : 0,
       rows: document.querySelectorAll('.fin-table tbody tr').length,
-      bars: document.querySelectorAll('.y-chart .y-col').length,
+      bars: document.querySelectorAll('.year-donut .donut-legend li').length,
       pageW: document.documentElement.scrollWidth,
       wrapClient: wrap ? wrap.clientWidth : 0,
       wrapScroll: wrap ? wrap.scrollWidth : 0
     };
   })()`);
   assert(annual.columns === 4, `年度总表列数 ${annual.columns}`);
-  assert(annual.rows === 13 && annual.bars === 12, '年度明细或柱形图数量异常');
+  assert(annual.rows === 13 && annual.bars >= 1, '年度明细或支出构成环形图数量异常');
   assert(annual.pageW <= main.width + 1, '年度页横向溢出');
   assert(annual.wrapScroll <= annual.wrapClient + 1, '年度总表在卡片内溢出');
   passed.push('年度总表四列完整');

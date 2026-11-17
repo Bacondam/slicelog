@@ -1,14 +1,10 @@
 package com.growthos.journal;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Insets;
 import android.net.Uri;
@@ -53,7 +49,6 @@ public class MainActivity extends Activity {
     private static final String TAG = "GrowthOS";
     private static final int REQUEST_IMPORT = 4101;
     private static final int REQUEST_EXPORT = 4102;
-    private static final int REQUEST_NOTIFY = 4103;
 
     private FrameLayout root;
     private WebView webView;
@@ -61,7 +56,6 @@ public class MainActivity extends Activity {
     private String pendingBackup;
     private String pendingBackupName;
     private long lastBackPressedAt;
-    private boolean isForeground = true;
 
     // 从外部打开/分享进来的备份文件（如微信里「用其他应用打开」）
     private String pendingImportText;
@@ -97,9 +91,6 @@ public class MainActivity extends Activity {
 
         // 桥接必须在 loadUrl 之前注入，页面 <head> 里的脚本可同步取到安全区
         webView.addJavascriptInterface(new AndroidBridge(), "AndroidBridge");
-
-        ensureNotificationChannel();
-        requestNotificationPermission();
 
         if (savedInstanceState == null || webView.restoreState(savedInstanceState) == null) {
             webView.loadUrl("file:///android_asset/index.html");
@@ -216,26 +207,7 @@ public class MainActivity extends Activity {
                 + JSONObject.quote(msg) + ");}", null);
     }
 
-    /* ---------- 通知 ---------- */
-
-    private void ensureNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
-        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (nm == null) return;
-        NotificationChannel channel = new NotificationChannel(
-                GoalAlarmReceiver.CHANNEL_ID, "目标到期提醒", NotificationManager.IMPORTANCE_HIGH);
-        channel.setDescription("目标结束前 1 小时提醒");
-        channel.enableVibration(true);
-        nm.createNotificationChannel(channel);
-    }
-
-    private void requestNotificationPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return;
-        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return;
-        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, REQUEST_NOTIFY);
-    }
-
-    /** 全面屏：内容铺满整块屏幕，由页面按真实安全区自行留白。 */
+    /* ---------- 全面屏 ---------- */
     private void goEdgeToEdge() {
         Window window = getWindow();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -571,13 +543,11 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        isForeground = true;
         if (webView != null) webView.onResume();
     }
 
     @Override
     protected void onPause() {
-        isForeground = false;
         if (webView != null) webView.onPause();
         super.onPause();
     }
@@ -656,24 +626,6 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void setSystemBars(String color, boolean dark) {
             runOnUiThread(() -> applySystemBars(color, dark));
-        }
-
-        /** 目标提醒：前台由页面弹窗负责，这里只在后台补一条系统通知 */
-        @JavascriptInterface
-        public void notifyGoal(String title, String message) {
-            if (isForeground) return;
-            runOnUiThread(() -> GoalAlarmReceiver.postNow(MainActivity.this,
-                    "goal-now", String.valueOf(title), String.valueOf(message)));
-        }
-
-        /** 页面把「未完成目标 + 提醒时刻」同步过来，交给系统闹钟，App 关掉也能收到 */
-        @JavascriptInterface
-        public void setGoalReminders(String json) {
-            try {
-                GoalAlarmReceiver.scheduleAll(MainActivity.this, json == null ? "[]" : json);
-            } catch (Exception e) {
-                Log.w(TAG, "设置提醒失败", e);
-            }
         }
 
         /** 生成备份文件并拉起系统分享面板（可选微信） */

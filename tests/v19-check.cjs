@@ -134,21 +134,25 @@ async function main() {
       inputRadius: [...f.querySelectorAll('input:not([type=hidden]), textarea')].map(e => getComputedStyle(e).borderTopLeftRadius)
     };
   })()`);
-  /* v2.2：进度字段只在「按数量」面板里出现，跟着推进方式走 */
-  const expectNames = ['title', 'category', 'track', 'current', 'total', 'unit', 'deadline', 'dueTime', 'subtasks'];
+  /* 2.10 起只有「目标 + 小目标」，按数量的字段整组下线 */
+  const expectNames = ['title', 'category', 'deadline', 'dueTime', 'subtasks'];
   assert(JSON.stringify(fields.names) === JSON.stringify(expectNames), '表单字段异常：' + JSON.stringify(fields.names));
   assert(!fields.names.includes('note'), 'note 不该出现在表单里');
   assert(fields.hasSelect === false, '表单里还有原生下拉框');
   const trackPanel = await evaluate(`(() => {
     const f = document.querySelector('form[data-form="goal"]');
-    const panes = [...f.querySelectorAll('[data-track-panel="count"]')];
-    return { allHidden: panes.every(p => p.hidden), segs: [...f.querySelectorAll('.track-seg button')].map(b => b.textContent.trim()) };
+    return {
+      seg: f.querySelectorAll('.track-seg button').length,
+      countPanes: f.querySelectorAll('[data-track-panel="count"]').length,
+      trackField: !!f.querySelector('[name="track"]')
+    };
   })()`);
-  assert(trackPanel.allHidden && trackPanel.segs.join('/') === '拆小目标/按数量', '推进方式默认应是「拆小目标」且数量面板收起：' + JSON.stringify(trackPanel));
+  assert(trackPanel.seg === 0 && trackPanel.countPanes === 0 && !trackPanel.trackField,
+    '表单里还留着按数量的控件：' + JSON.stringify(trackPanel));
   assert(fields.chips === 6 && fields.chipOn === '学习', '分类胶囊异常：' + fields.chips + ' / ' + fields.chipOn);
   assert(new Set(fields.inputBgs).size === 1, '输入框底色不统一：' + JSON.stringify(fields.inputBgs));
   assert(new Set(fields.inputRadius).size === 1, '输入框圆角不统一：' + JSON.stringify(fields.inputRadius));
-  pass('目标表单精简', `字段 ${fields.names.join('/')}，分类 6 个胶囊 + 两种推进方式，控件底色圆角一致`);
+  pass('目标表单精简', `字段 ${fields.names.join('/')}，分类 6 个胶囊 + 只走小目标，控件底色圆角一致`);
 
   /* ---------- 3. 分类胶囊点击写回隐藏字段 ---------- */
   await evaluate(`[...document.querySelectorAll('.cat-opt')].find(b => b.textContent === '财务').click()`);
@@ -314,6 +318,7 @@ async function main() {
       cards: q('#view-goals .goal-card'),
       chip: q('#view-goals .goal-card .chip'),
       acts: q('#view-goals .goal-card .icon-btn svg'),
+      subEdit: q('#view-goals .goal-card [data-action="edit-sub"]'),
       update: q('#view-goals .goal-card [data-action="edit-progress"]')
     };
     switchView('journal');
@@ -326,7 +331,8 @@ async function main() {
   assert(icons.habits.del === icons.habits.items, '习惯删除按钮不是线性图标：' + JSON.stringify(icons.habits));
   assert(icons.goals.chip === icons.goals.cards, '目标分类标签数量不对：' + JSON.stringify(icons.goals));
   assert(icons.goals.acts === icons.goals.cards * 2, '目标卡片按钮不全是线性的：' + JSON.stringify(icons.goals));
-  assert(icons.goals.update > 0, '按数量推进的卡片缺少「更新进度」入口');
+  assert(icons.goals.update === 0, '按数量已下线，不该再有「更新进度」入口');
+  assert(icons.goals.subEdit > 0, '小目标文字应能点开编辑');
   assert(icons.journal.acts === icons.journal.entries * 2, '日记按钮不全是线性的：' + JSON.stringify(icons.journal));
   assert(icons.nav === 5, '底栏图标不是 5 个 SVG：' + icons.nav);
   pass('图标统一', `习惯 ${icons.habits.badge} 个徽标 / 目标 ${icons.goals.cards} 张卡 / 底栏 5 个，全部线性 SVG`);

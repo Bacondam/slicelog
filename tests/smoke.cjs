@@ -165,7 +165,7 @@ async function main() {
       mode: financeMode,
       year: financeYear,
       stats: document.querySelectorAll('.fin-stats .stat').length,
-      bars: document.querySelectorAll('.y-chart .y-col').length,
+      bars: document.querySelectorAll('.year-donut .donut-legend li').length,
       rows: document.querySelectorAll('.fin-table tbody tr').length,
       total: total ? total.innerText : '',
       income: fmtMoney(sum.income),
@@ -179,7 +179,7 @@ async function main() {
   })()`);
   assert(annual.mode === 'year', '未切换到年度账单');
   assert(annual.stats === 4, `年度汇总卡片不是四项：${annual.stats}`);
-  assert(annual.bars === 12, `月度柱形图不是十二个月：${annual.bars}`);
+  assert(annual.bars >= 1, `年度支出构成环形图缺少分类图例：${annual.bars}`);
   assert(annual.rows === 13, `月度明细表行数异常：${annual.rows}`);
   assert(annual.total.includes(annual.income), '年度总表缺少正确的收入合计');
   assert(annual.total.includes(annual.expense), '年度总表缺少正确的支出合计');
@@ -187,7 +187,7 @@ async function main() {
   assert(annual.pageWidth <= 390, `年度页存在横向溢出：${annual.pageWidth}`);
   assert(annual.columns === 4, `手机年度总表未完整显示四列：${annual.columns}`);
   assert(annual.wrapScrollWidth <= annual.wrapClientWidth + 1, '手机年度总表仍在页面内横向溢出');
-  results.push('年度汇总卡片与全年总表');
+  results.push('年度汇总卡片与支出构成环形图');
 
   const monthJump = await evaluate(`(() => {
     const row = [...document.querySelectorAll('.fin-table tbody tr')].find(tr => !tr.classList.contains('zero'));

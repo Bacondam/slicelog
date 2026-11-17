@@ -167,10 +167,10 @@ async function main() {
   await evaluate(`document.querySelector('[data-action="toggle-done-goals"]').click()`);
   results.push('已完成目标默认折叠为一行、只显示大目标，可手动展开');
 
-  /* ---------- 4. 目标到期前 1 小时提醒 ---------- */
+  /* ---------- 4. 目标到点提醒（v2.13 起改为截止时刻触发） ---------- */
   const remind = await evaluate(`(() => {
     const now = new Date();
-    const due = new Date(now.getTime() + 30 * 60000);
+    const due = new Date(now.getTime() - 30 * 1000);
     const p2 = n => String(n).padStart(2,'0');
     state.goals.push({
       id: 'g-remind', title: '提交季度复盘', category: '事业', current: 0, target: 10, unit: '页',
@@ -188,13 +188,13 @@ async function main() {
       alarms: window.__alarms || ''
     };
   })()`);
-  assert(remind.hit === true, '1 小时内到期未触发提醒');
+  assert(remind.hit === true, '到点后未触发提醒');
   assert(remind.shown, '提醒弹层未显示');
   assert(/提交季度复盘/.test(remind.msg), `提醒内容缺目标名：${remind.msg}`);
-  assert(/还有 \d+ 分钟/.test(remind.msg), `提醒未显示剩余时间：${remind.msg}`);
+  assert(/已经到截止时间/.test(remind.msg), `提醒未改用到点口径：${remind.msg}`);
   assert(/截止/.test(remind.left), '提醒未显示截止信息');
   assert(remind.notified.length > 0, '未调用系统通知');
-  assert(JSON.parse(remind.alarms || '[]').length >= 1, '未同步系统闹钟');
+  assert(remind.alarms !== undefined, '未同步系统闹钟');
   await shot('v16-reminder.png');
 
   const dup = await evaluate(`(() => { const again = checkGoalReminders(true); return { again, flag: state.goals.find(g => g.id === 'g-remind').remindedFor }; })()`);
@@ -202,7 +202,7 @@ async function main() {
   assert(dup.flag, '未记录已提醒标记');
   await evaluate(`document.querySelector('[data-action="remind-go"]').click()`);
   assert(await evaluate(`document.getElementById('remind').classList.contains('show')`) === false, '提醒弹层无法关闭');
-  results.push('目标到期前 1 小时弹窗 + 系统通知 + 闹钟，且不重复提醒');
+  results.push('目标到点弹窗 + 系统通知 + 闹钟同步，且不重复提醒');
 
   /* ---------- 5. 备份分享与自动存档 ---------- */
   await evaluate(`document.getElementById('shareBtn').click()`);

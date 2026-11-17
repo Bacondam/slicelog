@@ -10,6 +10,7 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '..');
 const shellPath = path.join(__dirname, 'device-preview.html');
+const x8uPath = path.join(__dirname, 'phone-x8u.html');
 const appPath = path.join(root, 'app', 'src', 'main', 'assets', 'index.html');
 const port = parseInt(process.env.PREVIEW_PORT || '8770', 10);
 
@@ -23,8 +24,6 @@ function bridge(insets) {
     'shareBackup:function(j,n){window.__previewShare=j;parent.postMessage({t:"share",name:n},"*");},' +
     'autoBackup:function(j){window.__previewAuto=j;},' +
     'readAutoBackup:function(){return window.__previewAuto||"";},' +
-    'setGoalReminders:function(j){window.__previewAlarms=j;},' +
-    'notifyGoal:function(t,m){parent.postMessage({t:"notify",title:t,msg:m},"*");},' +
     'setSystemBars:function(c,d){parent.postMessage({t:"bars",color:c,dark:d},"*");},' +
     'openAppSettings:function(){parent.postMessage({t:"settings"},"*");}' +
     '};})();</scr' + 'ipt>';
@@ -48,6 +47,11 @@ const server = http.createServer((req, res) => {
       res.end(fs.readFileSync(shellPath));
       return;
     }
+    if (url.pathname === '/x8u' || url.pathname === '/x8u/') {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+      res.end(fs.readFileSync(x8uPath));
+      return;
+    }
     if (url.pathname === '/app' || url.pathname === '/app/') {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
       res.end(buildApp(url));
@@ -68,4 +72,5 @@ const server = http.createServer((req, res) => {
 
 server.listen(port, '127.0.0.1', () => {
   console.log('Growth OS preview: http://127.0.0.1:' + port + '/');
+  console.log('Find X8 Ultra 模拟: http://127.0.0.1:' + port + '/x8u');
 });

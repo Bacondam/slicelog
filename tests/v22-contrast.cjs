@@ -77,10 +77,9 @@ async function evaluate(expression) {
       applyTheme(t.id);
       switchView('goals'); render();
       const cardTexts = [
-        pick('#view-goals .goal-card.is-count .cl-tip'),
-        pick('#view-goals .goal-card.is-count .count-line .link-btn'),
         pick('#view-goals .goal-card .goal-prog .cnt'),
         pick('#view-goals .goal-card .goal-due'),
+        pick('#view-goals .goal-card .sub-title-btn'),
         pick('#view-goals .goal-card .sub-empty'),
         pick('#view-goals .filter-chip'),
         pick('#view-goals .filter-chip.on')
@@ -88,18 +87,13 @@ async function evaluate(expression) {
 
       openGoalModal();
       const modalTexts = [
-        pick('#modal .track-seg button'),
-        pick('#modal .track-seg button.active'),
-        pick('#modal .tl-note'),
-        pick('#modal .cat-opt.on')
+        pick('#modal .cat-opt.on'),
+        pick('#modal .fb-val'),
+        pick('#modal .small.muted')
       ].filter(Boolean);
-      const segBorder = (() => {
-        const el = document.querySelector('#modal .track-seg');
-        return +ratio(parse(getComputedStyle(el).borderTopColor), bgOf(el)).toFixed(2);
-      })();
       closeModal();
 
-      rows[t.id] = { dark: !!t.dark, texts: cardTexts.concat(modalTexts), segBorder };
+      rows[t.id] = { dark: !!t.dark, texts: cardTexts.concat(modalTexts) };
     }
     applyTheme('oat'); switchView('dashboard'); render();
     return { rows };
@@ -110,10 +104,10 @@ async function evaluate(expression) {
     const min = Math.min(...v.texts.map(t => t.ratio));
     const ok = min >= 4.5;
     if (!ok) bad++;
-    console.log(`  ${ok ? '✓' : '✗'} ${id.padEnd(9)} 目标卡 / 推进方式文字最低 ${min.toFixed(2)}:1 · 分段描边 ${v.segBorder}:1`);
+    console.log(`  ${ok ? '✓' : '✗'} ${id.padEnd(9)} 目标卡 / 小目标 / 表单文字最低 ${min.toFixed(2)}:1`);
     if (!ok) v.texts.filter(t => t.ratio < 4.5).forEach(t => console.log(`      ${t.sel} ${t.color} on ${t.bg} = ${t.ratio}:1`));
   }
   assert(bad === 0, `有 ${bad} 套主题的对比度低于 4.5:1`);
-  console.log('\n目标卡与「怎么推进」分段对比度全部达标');
+  console.log('\n目标卡、小目标与目标表单对比度全部达标');
   ws.close();
 })().catch(e => { console.error('✗ ' + (e.stack || e.message)); process.exitCode = 1; }).finally(() => setTimeout(() => browser.kill(), 300));

@@ -133,24 +133,26 @@ async function main() {
   assert(fin.options.every(t => !/\s/.test(t)), '分类下拉里混入了图标：' + JSON.stringify(fin.options));
   pass('记账图标统一', `${fin.rows} 行分类 + 行内按钮 + 分类列表全部线性 svg，下拉仅文字`);
 
-  /* ---------- 3. 目标进度：按数量推进的卡片能直接改数字（v2.2 起学习记录已下线） ---------- */
+  /* ---------- 3. 目标进度：勾小目标推进，卡片上的 x/y 步跟着变 ---------- */
   await evaluate(`switchView('goals')`);
   const prog = await evaluate(`(() => {
-    const g = state.goals.find(x => x.track === 'count');
-    const want = Math.min(g.target, 260);
-    openProgressModal(g.id);
-    const form = document.querySelector('form[data-form="progress"]');
-    form.elements.current.value = String(want);
-    form.requestSubmit();
-    const after = state.goals.find(x => x.id === g.id);
+    const g = state.goals.find(x => (x.subtasks || []).some(t => !t.done));
     const card = document.querySelector('#view-goals .goal-card[data-id="' + g.id + '"]');
-    return { want, cur: after.current, text: card ? card.querySelector('.goal-prog .cnt').textContent.trim() : '',
-      closed: document.getElementById('modal').classList.contains('hidden') };
+    const before = card.querySelector('.goal-prog .cnt').textContent.trim();
+    card.querySelector('[data-action="toggle-sub"]').click();
+    const g2 = state.goals.find(x => x.id === g.id);
+    const card2 = document.querySelector('#view-goals .goal-card[data-id="' + g.id + '"]');
+    return {
+      before,
+      done: g2.subtasks.filter(t => t.done).length,
+      total: g2.subtasks.length,
+      text: card2 ? card2.querySelector('.goal-prog .cnt').textContent.trim() : '',
+      width: card2 ? card2.querySelector('.progress i').style.width : ''
+    };
   })()`);
-  assert(prog.cur === prog.want, `进度没有写回：${prog.cur} ≠ ${prog.want}`);
-  assert(prog.text.includes(String(prog.want)), `卡片没跟着更新：${prog.text}`);
-  assert(prog.closed, '提交后弹窗没有关闭');
-  pass('进度写回', `更新到 ${prog.cur} · 卡片显示「${prog.text}」`);
+  assert(prog.text.includes(prog.done + '/' + prog.total), `勾完一步后卡片没跟着更新：${JSON.stringify(prog)}`);
+  assert(prog.text !== prog.before, `进度文案没变化：${JSON.stringify(prog)}`);
+  pass('进度写回', `勾一步 ${prog.before} → ${prog.text}，条宽 ${prog.width}`);
 
   /* ---------- 5. 交互令牌：五套主题都有，松烟夜的控件描边比结构线更亮 ---------- */
   const tokens = await evaluate(`(() => {

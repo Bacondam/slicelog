@@ -204,8 +204,16 @@ try {
   .nav .ico { width: 20px; text-align: center; font-size: 15px; display: grid; place-items: center; }
   .nav .ico svg { width: 1em; height: 1em; display: block; }
   .sidebar-foot {
-    margin-top: auto; display: flex; flex-direction: column; gap: 4px;
+    margin-top: auto; display: flex; flex-direction: column; gap: 12px;
     border-top: 1px solid var(--line); padding-top: 14px;
+    min-height: 0; overflow-y: auto;
+  }
+  /* 设置按钮按用途分组，避免一长串按钮分不清轻重 */
+  .sf-group { display: grid; grid-template-columns: 1fr; gap: 4px; }
+  .sf-group + .sf-group { padding-top: 12px; border-top: 1px solid var(--line); }
+  .sf-label {
+    font-size: 10px; letter-spacing: .14em; color: var(--muted);
+    padding: 0 12px 3px; opacity: .8;
   }
   .sidebar-foot button {
     padding: 8px 12px; border-radius: 8px; color: var(--muted);
@@ -215,8 +223,21 @@ try {
   .sidebar-foot button .bi { width: 15px; height: 15px; flex: none; display: grid; place-items: center; opacity: .9; }
   .sidebar-foot button .bi svg { width: 15px; height: 15px; display: block; }
   .sidebar-foot button:hover { background: var(--bg); color: var(--text); }
+  .sidebar-foot .sf-primary { color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+  .sidebar-foot .sf-primary:hover { color: var(--accent); background: var(--accent-soft); filter: brightness(.97); }
   .sidebar-foot .danger { color: var(--danger); }
-  .foot-hint { font-size: 10.5px; line-height: 1.7; color: var(--muted); padding: 6px 4px 2px; }
+  .foot-hint { font-size: 10.5px; line-height: 1.7; color: var(--muted); padding: 2px 4px; }
+  /* 面板最底部的版本号：左边品牌、右边版本，中间用点隔开，细线分隔上面内容 */
+  .sf-ver {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-top: 2px; padding: 9px 4px 0; border-top: 1px solid var(--line);
+    font-size: 10.5px; color: var(--muted); letter-spacing: .4px;
+  }
+  .sf-ver .sf-ver-name { opacity: .8; }
+  .sf-ver .sf-ver-no {
+    font-weight: 600; letter-spacing: .8px;
+    background: var(--bg); border-radius: 999px; padding: 2px 8px;
+  }
 
   /* layout */
   .main { flex: 1; min-width: 0; padding: 26px 34px 64px; max-width: 1240px; margin: 0 auto; }
@@ -454,31 +475,6 @@ try {
   }
   .arch-row .ar-del:hover { color: var(--danger); border-color: var(--danger); }
 
-  /* 提醒弹层 */
-  .remind-backdrop {
-    position: fixed; inset: 0; background: rgba(10, 20, 16, .42);
-    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
-    display: grid; place-items: center; padding: 22px; z-index: 120;
-    opacity: 0; pointer-events: none; transition: opacity .22s;
-  }
-  .remind-backdrop.show { opacity: 1; pointer-events: auto; }
-  .remind-card {
-    width: 100%; max-width: 330px; background: var(--card);
-    border-radius: 18px; padding: 22px 20px 16px; text-align: center;
-    box-shadow: 0 22px 60px rgba(10, 25, 18, .28);
-    transform: translateY(10px) scale(.97); transition: transform .24s cubic-bezier(.2,.9,.3,1);
-  }
-  .remind-backdrop.show .remind-card { transform: none; }
-  .remind-icon { font-size: 34px; line-height: 1; }
-  .remind-card h3 { font-size: 16px; margin: 10px 0 6px; }
-  .remind-card p { font-size: 13px; color: var(--muted); line-height: 1.65; }
-  .remind-card .remind-left {
-    margin-top: 12px; display: inline-block; font-size: 12px; font-weight: 600;
-    color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 5px 12px;
-  }
-  .remind-actions { display: flex; gap: 10px; margin-top: 18px; }
-  .remind-actions .btn { flex: 1; }
-
   /* 详情页 */
   .detail-hero { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   .detail-hero .big-value { font-size: 30px; letter-spacing: -1px; line-height: 1.2; margin: 4px 0 2px; }
@@ -534,17 +530,6 @@ try {
   .goal-mini .row strong { font-size: 13.5px; font-weight: 600; }
   .goal-mini .row span { font-size: 12px; color: var(--muted); }
   .goal-mini .row .link-btn { font-size: 11.5px; }
-
-  /* heatmap */
-  .hm-wrap { overflow-x: auto; padding-bottom: 2px; }
-  .hm-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 13px); gap: 3px; width: max-content; }
-  .hm-cell { width: 13px; height: 13px; border-radius: 3.5px; background: var(--line); display: inline-block; }
-  .hm-cell.lv1 { background: var(--accent); opacity: .28; }
-  .hm-cell.lv2 { background: var(--accent); opacity: .58; }
-  .hm-cell.lv3 { background: var(--accent); opacity: 1; }
-  .hm-cell.future { opacity: .16; }
-  .hm-legend { display: flex; align-items: center; gap: 4px; margin-top: 12px; color: var(--muted); font-size: 11px; }
-  .hm-legend .hm-cell { width: 11px; height: 11px; }
 
   /* chart */
   .chart { display: flex; align-items: flex-end; gap: 5px; height: 148px; padding-top: 6px; }
@@ -642,6 +627,18 @@ try {
   }
   .sub-check.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .sub-title { flex: 1; font-size: 12.5px; line-height: 1.45; word-break: break-word; }
+  .sub-title-btn {
+    flex: 1; text-align: left; border: 0; background: none; padding: 1px 2px;
+    margin: -1px -2px; border-radius: 6px; color: inherit; font: inherit;
+    font-size: 12.5px; line-height: 1.45; cursor: text; word-break: break-word;
+  }
+  .sub-title-btn:hover { background: var(--ctl-hover, rgba(0,0,0,.04)); box-shadow: inset 0 0 0 1px var(--line); }
+  .sub-title-btn:active { background: var(--bg); }
+  .sub-edit {
+    flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.45; font-family: inherit;
+    padding: 2px 6px; border-radius: 7px; border: 1px solid var(--accent);
+    background: var(--card); color: var(--ink); outline: none;
+  }
   .sub-item.done .sub-title { text-decoration: line-through; color: var(--muted); }
   .sub-del { width: 22px; height: 22px; border-radius: 6px; color: var(--muted); font-size: 11px; opacity: 0; transition: .15s; }
   .sub-item:hover .sub-del { opacity: .8; }
@@ -724,6 +721,17 @@ try {
   .stat.clickable:hover { border-color: var(--accent); transform: translateY(-1px); }
   .month-nav { display: flex; align-items: center; gap: 8px; }
   .month-nav strong { font-size: 15px; min-width: 92px; text-align: center; letter-spacing: -.2px; }
+  /* 中间那串「2026年11月」本身就是按钮：点开是月份选择面板 */
+  .month-nav .nav-month {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    min-width: 104px; padding: 5px 9px; border-radius: 9px;
+    border: 1px solid transparent; background: transparent; color: var(--text);
+    font: inherit; font-size: 15px; font-weight: 700; letter-spacing: -.2px;
+    transition: .14s;
+  }
+  .month-nav .nav-month svg { width: 12px; height: 12px; opacity: .5; }
+  .month-nav .nav-month:hover { background: var(--ctl-bg); border-color: var(--line-ctl); }
+  .month-nav .nav-month:hover svg { opacity: .8; }
   .month-nav .nav-btn {
     width: 30px; height: 30px; border-radius: 9px; border: 1px solid var(--line-ctl);
     background: var(--ctl-bg); display: grid; place-items: center;
@@ -771,21 +779,29 @@ try {
   .fin-facts { margin-top: 12px; padding-top: 4px; border-top: 1px solid var(--line); }
   .year-top { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; align-items: start; }
   .year-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .year-bottom.single { grid-template-columns: 1fr; }
   .year-top > *, .year-bottom > * { min-width: 0; }
-  .y-chart { display: flex; align-items: flex-end; gap: 5px; height: 210px; padding-top: 6px; }
-  .y-col {
-    flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column;
-    justify-content: flex-end; align-items: center; gap: 6px;
-    padding: 0; border-radius: 7px; transition: background .15s;
+  /* 年度支出构成：复用月度那张环形图（.donut），这里只把尺寸放大一点 */
+  .year-donut .donut-figure { width: 154px; }
+  .year-donut .donut-legend { gap: 8px; }
+  @media (max-width: 430px) {
+    .year-donut .donut-figure { width: 134px; }
   }
-  .y-col:hover { background: var(--bg); }
-  .y-bars { width: 100%; height: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 2px; }
-  .y-bar { width: 40%; max-width: 16px; border-radius: 4px 4px 2px 2px; }
-  .y-bar.income { background: linear-gradient(180deg, var(--accent-hi), var(--accent)); }
-  .y-bar.expense { background: var(--danger); opacity: .8; }
-  .y-label { font-size: 9px; color: var(--muted); white-space: nowrap; }
-  .legend { display: flex; align-items: center; gap: 16px; margin-top: 12px; font-size: 11px; color: var(--muted); }
-  .legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 5px; vertical-align: 0; }
+  /* 选月份：12 个小格子，跟日历同一个弹层壳 */
+  .mon-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .mon-cell {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 9px 2px 7px; border-radius: 11px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--text); font: inherit; transition: .13s;
+  }
+  .mon-cell:hover { border-color: var(--accent); }
+  .mon-cell b { font-size: 12.5px; font-weight: 600; letter-spacing: -.2px; }
+  .mon-cell span { font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mon-cell.has span { color: var(--accent); }
+  .mon-cell.now { box-shadow: inset 0 0 0 1.2px var(--accent); }
+  .mon-cell.on { background: var(--accent); border-color: var(--accent); }
+  .mon-cell.on b { color: var(--on-accent); }
+  .mon-cell.on span { color: var(--on-accent); opacity: .85; }
   .fin-table-wrap { overflow-x: auto; }
   .fin-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 430px; }
   .fin-table th { font-size: 11px; font-weight: 600; color: var(--muted); text-align: right; padding: 0 8px 9px; white-space: nowrap; }
@@ -820,6 +836,16 @@ try {
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .form-row.three { grid-template-columns: 1.2fr 1fr 1fr; }
   .form-row.three.compact { grid-template-columns: 1.2fr 1fr 0.8fr; }
+  /* 常用备注快选 */
+  .note-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -2px 0 14px; }
+  .nc-label { font-size: 11.5px; color: var(--muted); margin-right: 2px; }
+  .nc-chip {
+    border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+    font-size: 12px; padding: 5px 11px; border-radius: 999px;
+    cursor: pointer; font-family: inherit; transition: border-color .15s, color .15s;
+  }
+  .nc-chip:hover { border-color: var(--accent); }
+  .nc-chip.on { border-color: var(--accent); color: var(--accent-ink); }
 
   /* ===== 自绘下拉：原生 select 在 WebView 里弹的是系统列表，
      深色主题下会变成白底 + 页面浅色文字，完全看不清。这里统一换成主题化面板 ===== */
@@ -1083,18 +1109,28 @@ try {
     .nav .ico { width: auto; font-size: 19px; line-height: 1.3; }
     .sidebar-foot {
       display: none; position: fixed; top: calc(64px + var(--sat));
-      left: auto; right: 12px; bottom: auto; z-index: 45;
-      width: min(320px, calc(100vw - 24px)); margin: 0; padding: 10px;
-      grid-template-columns: 1fr 1fr; gap: 8px;
-      background: var(--card); border: 1px solid var(--line-ctl); border-radius: 16px;
-      box-shadow: 0 16px 48px rgba(0,0,0,.2);
+      left: auto; right: calc(12px + var(--sar)); bottom: auto; z-index: 45;
+      width: min(324px, calc(100vw - 24px)); margin: 0; padding: 14px;
+      max-height: calc(100vh - 76px - var(--sab));
+      max-height: calc(100dvh - 76px - var(--sab));
+      overflow-y: auto; overscroll-behavior: contain;
+      background: var(--card); border: 1px solid var(--line-ctl); border-radius: 18px;
+      box-shadow: 0 16px 48px rgba(0,0,0,.2); gap: 10px;
+      border-top: 1px solid var(--line-ctl); padding-top: 14px;
+      flex-direction: column; flex-wrap: nowrap;
     }
-    .sidebar-foot.mobile-open { display: grid; }
+    .sidebar-foot.mobile-open { display: flex; }
+    .sidebar-foot .sf-group { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .sidebar-foot .sf-wide { grid-column: 1 / -1; }
+    .sidebar-foot .sf-label { grid-column: 1 / -1; padding: 0 2px 4px; }
+    .sidebar-foot .sf-group + .sf-group { padding-top: 10px; }
     .sidebar-foot button {
-      min-height: 44px; padding: 9px 8px; border-radius: 10px;
+      min-height: 44px; padding: 9px 10px; border-radius: 11px;
       background: var(--ctl-bg); border: 1px solid var(--line-ctl);
-      text-align: center; font-size: 12px;
+      text-align: center; font-size: 12px; justify-content: center; gap: 6px;
     }
+    .sidebar-foot .sf-primary { background: var(--accent-soft); border-color: transparent; }
+    .foot-hint { font-size: 10.5px; line-height: 1.65; padding: 0 2px; }
     .main {
       width: 100%; max-width: none; margin: 0;
       padding: calc(76px + var(--sat)) calc(14px + var(--sar))
@@ -1189,9 +1225,44 @@ try {
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-soft);
   }
-  /* 去掉 WebView 自带日历/时钟小图标，避免和主题打架 */
+  /* 藏掉 WebView 自带的日历/时钟小图标（各版本长得不一样），改由 .date-field 自己贴；
+     点框弹日历靠脚本调 showPicker()，见「日期框」那段 */
   input[type="date"]::-webkit-calendar-picker-indicator,
   input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
+  .date-field { position: relative; display: block; }
+  .date-field input {
+    padding-right: 42px; width: 100%;
+    /* 日期是「点开日历选」，不是可编辑文本：关掉文本选择，
+       否则手指按下去会先把 2026/12/01 涂蓝选中，看着像点不动 */
+    -webkit-user-select: none; user-select: none;
+    -webkit-tap-highlight-color: transparent; cursor: pointer;
+  }
+  .date-field input::-webkit-datetime-edit { cursor: pointer; }
+  /* 原生日期控件内部的分段字段（年 / 月 / 日）不继承外层样式，WebView 里会按 UA 默认的
+     16px 渲染，比同一行的其它输入框大一圈、颜色也更黑。逐段拉回来，跟主题对齐 */
+  .date-field input::-webkit-datetime-edit,
+  .date-field input::-webkit-datetime-edit-fields-wrapper {
+    padding: 0; margin: 0; font: inherit; font-size: inherit;
+    line-height: inherit; color: inherit; letter-spacing: inherit;
+  }
+  .date-field input::-webkit-datetime-edit-text { color: var(--muted); padding: 0 1px; }
+  .date-field input::-webkit-datetime-edit-year-field,
+  .date-field input::-webkit-datetime-edit-month-field,
+  .date-field input::-webkit-datetime-edit-day-field {
+    color: var(--text); padding: 0 1px; border-radius: 4px;
+  }
+  .date-field input::-webkit-datetime-edit-year-field:focus,
+  .date-field input::-webkit-datetime-edit-month-field:focus,
+  .date-field input::-webkit-datetime-edit-day-field:focus {
+    background: var(--accent-soft); color: var(--text); outline: none;
+  }
+  /* 系统日期面板跟着主题深浅走 */
+  [data-mode="dark"] .date-field input { color-scheme: dark; }
+  .date-field .df-ico {
+    position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+    width: 17px; height: 17px; color: var(--muted); pointer-events: none;
+  }
+  .date-field .df-ico svg { width: 100%; height: 100%; display: block; }
 
   /* ② 分类：胶囊选择器，替代原生下拉 */
   .cat-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
@@ -1300,20 +1371,7 @@ try {
   .goal-card .sub-list { margin-top: 2px; padding: 0; list-style: none; }
 
   /* ---- 按数量推进的目标：进度条下面多一行「更新进度」 ---- */
-  .count-line {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 10px; margin-top: 9px; padding-top: 8px;
-    border-top: 1px dashed var(--line);
-  }
-  .count-line .cl-tip {
-    font-size: 11.5px; color: var(--muted); min-width: 0;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .count-line .link-btn { flex: none; font-size: 12px; }
   /* 弹窗里的「怎么推进」：两个等宽分段按钮 */
-  .track-seg { display: flex; width: 100%; }
-  .track-seg button { flex: 1; padding: 9px 10px; font-size: 13px; font-weight: 600; }
-  .seg.track-seg { margin: 2px 0 4px; }
   .tl-note { font-size: 11.5px; color: var(--muted); font-weight: 400; margin-left: 6px; }
 
   /* 折叠按钮全局同规格：30×30、圆角 10、可交互描边；展开态才用强调色 */
@@ -1464,13 +1522,22 @@ try {
       <button data-action="nav" data-view="journal"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h8l5 5v10a1.6 1.6 0 0 1-1.6 1.6H5.5A1.6 1.6 0 0 1 3.9 19.5v-13A1.6 1.6 0 0 1 5.5 4.5z"/><path d="M13.5 4.5v5h5"/><path d="M8 13.5h7M8 17h4.5"/></svg></span>日记</button>
     </nav>
     <div class="sidebar-foot">
-      <button id="shareBtn" data-ico="share">分享备份到微信</button>
-      <button id="exportBtn" data-ico="export">导出备份</button>
-      <button id="importBtn" data-ico="import">导入备份</button>
-      <button id="restoreBtn" data-ico="restore">恢复自动存档</button>
-      <button id="themeBtn" data-ico="theme">主题 · 森林绿</button>
-      <button id="resetBtn" class="danger" data-ico="reset">清空数据</button>
-      <div class="foot-hint">每次改动都会自动存档一份到应用内，最多保留 8 份；换手机或清理数据前，先「分享备份到微信」发给自己留一份。</div>
+      <div class="sf-group">
+        <div class="sf-label">备份</div>
+        <button id="shareBtn" class="sf-wide sf-primary" data-ico="share">分享备份到微信</button>
+        <button id="exportBtn" data-ico="export">导出备份</button>
+        <button id="importBtn" data-ico="import">导入备份</button>
+        <button id="restoreBtn" class="sf-wide" data-ico="restore">恢复自动存档</button>
+      </div>
+      <div class="sf-group">
+        <div class="sf-label">外观</div>
+        <button id="themeBtn" class="sf-wide" data-ico="theme">主题 · 森林绿</button>
+      </div>
+      <div class="sf-group">
+        <button id="resetBtn" class="sf-wide danger" data-ico="reset">清空数据</button>
+      </div>
+      <div class="foot-hint">每次改动都会自动存档一份到应用内，最多保留 8 份。换手机或清理数据前，先「分享备份到微信」发给自己留一份。</div>
+      <div class="sf-ver"><span class="sf-ver-name">Slicelog</span> <span class="sf-ver-no">V1.0</span></div>
       <input type="file" id="importFile" accept=".json,application/json" hidden>
     </div>
   </aside>
@@ -1499,18 +1566,6 @@ try {
     <div class="confirm-actions">
       <button class="btn ghost" id="confirmCancel" data-action="confirm-cancel">取消</button>
       <button class="btn solid-danger" id="confirmOk" data-action="confirm-ok">确定</button>
-    </div>
-  </div>
-</div>
-<div class="remind-backdrop" id="remind" role="alertdialog" aria-modal="true" aria-labelledby="remindTitle">
-  <div class="remind-card">
-    <div class="remind-icon">⏰</div>
-    <h3 id="remindTitle">目标快到期了</h3>
-    <p class="remind-msg" id="remindMsg"></p>
-    <div class="remind-left" id="remindLeft"></div>
-    <div class="remind-actions">
-      <button class="btn ghost" data-action="remind-later">稍后再说</button>
-      <button class="btn primary" data-action="remind-go">去看看</button>
     </div>
   </div>
 </div>
@@ -2081,7 +2136,7 @@ function seedState() {
   return {
     goals: [
       {
-        id: 'g1', track: 'count', title: '全年读完 24 本书', category: '学习', current: 9, target: 24, unit: '本',
+        id: 'g1', track: 'sub', title: '全年读完 24 本书', category: '学习',
         deadline: `${new Date().getFullYear()}-12-31`, note: '每月两本，优先非虚构。', createdAt: now - day * 40,
         done: false, doneAt: null,
         subtasks: [
@@ -2092,7 +2147,7 @@ function seedState() {
         ]
       },
       {
-        id: 'g2', track: 'count', title: '累计跑步 500 公里', category: '健康', current: 187, target: 500, unit: '公里',
+        id: 'g2', track: 'sub', title: '累计跑步 500 公里', category: '健康',
         deadline: '', note: '每周至少三次，慢慢来。', createdAt: now - day * 38,
         done: false, doneAt: null,
         subtasks: [
@@ -2102,7 +2157,7 @@ function seedState() {
         ]
       },
       {
-        id: 'g3', track: 'count', title: '存款达到 10 万元', category: '财务', current: 4.2, target: 10, unit: '万元',
+        id: 'g3', track: 'sub', title: '存款达到 10 万元', category: '财务',
         deadline: '', note: '每月固定存下收入的 30%。', createdAt: now - day * 30,
         done: false, doneAt: null,
         subtasks: [
@@ -2111,7 +2166,7 @@ function seedState() {
         ]
       },
       {
-        id: 'g4', track: 'count', title: '完成一次半程马拉松', category: '健康', current: 21, target: 21, unit: '公里',
+        id: 'g4', track: 'sub', title: '完成一次半程马拉松', category: '健康',
         deadline: toKey(addDays(new Date(), -14)), note: '城市半马 2 小时 08 分完赛。',
         createdAt: now - day * 96, done: true, doneAt: now - day * 14,
         subtasks: [
@@ -2119,10 +2174,8 @@ function seedState() {
           { id: 'g4s2', title: '赛前一周减量', done: true, doneAt: now - day * 20 }
         ]
       },
-      /* 另一种推进方式：不靠数字，靠一条条小目标往前挪 */
       {
         id: 'g5', track: 'sub', title: '把阳台收拾成能坐着看书的地方', category: '其他',
-        current: 0, target: 1, unit: '',
         deadline: '', note: '', createdAt: now - day * 12, done: false, doneAt: null,
         subtasks: [
           { id: 'g5s1', title: '量好尺寸，定一张小桌', done: true, doneAt: now - day * 4 },
@@ -2131,21 +2184,31 @@ function seedState() {
           { id: 'g5s4', title: '把杂物清出去', done: false, doneAt: null }
         ]
       },
-      /* 同一个列表，两种推进方式：按数量（上面这些）/ 拆小目标 */
       {
-        id: 'l1', title: '读完《原则》', category: '学习', track: 'count',
-        current: 180, target: 400, unit: '页',
-        deadline: '', note: '', createdAt: now - day * 30, done: false, doneAt: null, subtasks: []
+        id: 'l1', title: '读完《原则》', category: '学习', track: 'sub',
+        deadline: '', note: '', createdAt: now - day * 30, done: false, doneAt: null,
+        subtasks: [
+          { id: 'l1s1', title: '读完第一部分', done: true, doneAt: now - day * 12 },
+          { id: 'l1s2', title: '读完第二部分', done: false, doneAt: null },
+          { id: 'l1s3', title: '写一篇读书笔记', done: false, doneAt: null }
+        ]
       },
       {
-        id: 'l2', title: '英语口语能聊满 10 分钟', category: '学习', track: 'count',
-        current: 3, target: 10, unit: '分钟',
-        deadline: '', note: '', createdAt: now - day * 25, done: false, doneAt: null, subtasks: []
+        id: 'l2', title: '英语口语能聊满 10 分钟', category: '学习', track: 'sub',
+        deadline: '', note: '', createdAt: now - day * 25, done: false, doneAt: null,
+        subtasks: [
+          { id: 'l2s1', title: '每天跟读 15 分钟', done: true, doneAt: now - day * 6 },
+          { id: 'l2s2', title: '找语伴聊三次', done: false, doneAt: null }
+        ]
       },
       {
-        id: 'l3', title: 'TypeScript 进阶课', category: '学习', track: 'count',
-        current: 12, target: 24, unit: '讲',
-        deadline: '', note: '', createdAt: now - day * 20, done: false, doneAt: null, subtasks: []
+        id: 'l3', title: 'TypeScript 进阶课', category: '学习', track: 'sub',
+        deadline: '', note: '', createdAt: now - day * 20, done: false, doneAt: null,
+        subtasks: [
+          { id: 'l3s1', title: '看完前 12 讲', done: true, doneAt: now - day * 8 },
+          { id: 'l3s2', title: '看完后 12 讲', done: false, doneAt: null },
+          { id: 'l3s3', title: '动手做一个小项目', done: false, doneAt: null }
+        ]
       }
     ],
     habits,
@@ -2176,10 +2239,38 @@ function seedState() {
     sub —— 拆成小目标，勾一个推一点（默认）
     count —— 按数量推进，填「当前 / 总量 + 单位」（读书的页数、课程的讲数都走这条） */
 const TRACKS = {
-  sub: { name: '拆小目标', hint: '一行一个，勾完就算完成' },
-  count: { name: '按数量', hint: '填一个总数，进度自己更新' }
+  sub: { name: '小目标', hint: '一行一个，勾完就算完成' }
 };
-const isCountGoal = g => !!(g && g.track === 'count');
+/* 2.10：只保留「目标 + 小目标」一种推进方式，按数量已下线。
+   旧数据在 normGoal 里由 countToSubs 转成小目标清单。 */
+const isCountGoal = () => false;
+
+/** 把「按数量」的老目标转成小目标清单，进度不丢：
+    总量 ≤ 30 时按个数逐条拆开，超过就留一条把当时的数字记下来 */
+function countToSubs(g) {
+  if (!g) return g;
+  const tgt = Math.round(Number(g.target) || 0);
+  const cur = Number(g.current) || 0;
+  const unit = String(g.unit || '').trim();
+  g.track = 'sub';
+  const has = Array.isArray(g.subtasks) && g.subtasks.length > 0;
+  if (!has && tgt > 0) {
+    const subs = [];
+    if (tgt <= 30) {
+      for (let i = 1; i <= tgt; i++) {
+        subs.push({ id: uid(), title: unit ? `第 ${i} ${unit}` : `第 ${i} 步`, done: i <= cur, doneAt: i <= cur ? Date.now() : null });
+      }
+    } else {
+      subs.push({ id: uid(), title: `已完成 ${fmtNum(cur)} / ${fmtNum(tgt)}${unit ? ' ' + unit : ''}`, done: cur >= tgt, doneAt: null });
+    }
+    g.subtasks = subs;
+  }
+  g.current = 0;
+  g.target = 1;
+  g.unit = '';
+  g.updatedAt = 0;
+  return g;
+}
 
 /** 单个目标的清洗：新建 / 导入 / 归档恢复都走这里 */
 function normGoal(g) {
@@ -2187,14 +2278,14 @@ function normGoal(g) {
   if (!g.id) g.id = uid();
   g.title = String(g.title || '未命名目标');
   g.category = String(g.category || '其他');
-  g.track = g.track === 'count' ? 'count' : 'sub';
+  if (g.track === 'count') countToSubs(g);
+  g.track = 'sub';
   g.current = Math.max(0, Number(g.current) || 0);
   g.target = Math.max(0.01, Number(g.target) || 1);
   g.unit = String(g.unit || '').slice(0, 8);
   g.updatedAt = Math.max(0, Number(g.updatedAt) || 0);
   g.done = !!g.done;
   g.dueTime = /^([01]\d|2[0-3]):[0-5]\d$/.test(String(g.dueTime || '')) ? g.dueTime : '';
-  g.remindedFor = g.remindedFor ? String(g.remindedFor) : null;
   g.archivedAt = Math.max(0, Number(g.archivedAt) || 0);
   if (!g.done) g.doneAt = null;
   const subs = Array.isArray(g.subtasks) ? g.subtasks : [];
@@ -2215,10 +2306,13 @@ function migrateLearnGoals(s) {
     if (!g || !g.kind) return;
     if (g.kind === 'skill') {
       g.target = 5;
-      g.unit = '';
+      g.unit = '级';
       g.current = clamp(Number(g.level) || 1, 1, 5);
     }
+    /* 老的学习型目标一律折成小目标清单，不再有「按数量」 */
+    if (!(Number(g.target) > 0)) { g.target = 1; g.current = 0; }
     g.track = 'count';
+    countToSubs(g);
     delete g.kind;
     delete g.level;
   };
@@ -2312,19 +2406,12 @@ function loadState() {
 function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
   catch (e) { toast('保存失败：本地存储空间不足'); }
-  try { syncGoalAlarms(false); } catch (e) {}
   try { autoSnapshot(); } catch (e) {}
 }
 
 /* ==================== 统计辅助 ==================== */
 function goalPct(g) {
-  /* 按数量推进：当前 / 总量 */
-  if (isCountGoal(g)) {
-    const total = Number(g.target) || 0;
-    if (!total) return 0;
-    return clamp(Math.round((Number(g.current) || 0) / total * 1000) / 10, 0, 100);
-  }
-  /* 拆小目标：已完成小目标 / 全部小目标；一个都没有时看是否已手动完成 */
+  /* 已完成小目标 / 全部小目标；一个都没有时看是否已手动完成 */
   const st = goalSubStats(g);
   if (st.total) return clamp(Math.round(st.done / st.total * 100), 0, 100);
   return g.done ? 100 : 0;
@@ -2422,71 +2509,6 @@ function goalDeadline(g) {
   return { text: `剩 ${diff} 天${timeText}`, cls: '' };
 }
 
-/* ==================== 目标到期提醒 ==================== */
-const REMIND_AHEAD_MS = 60 * 60 * 1000;   // 到期前 1 小时
-let remindGoalId = null;
-let lastRemindAt = 0;
-
-function goalRemindKey(g) {
-  return `${g.deadline} ${g.dueTime || '23:59'}`;
-}
-
-/** 找出进入「1 小时内」窗口且尚未提醒的目标 */
-function dueReminderGoals() {
-  const now = Date.now();
-  return state.goals.filter(g => {
-    if (g.done) return false;
-    const due = goalDueMs(g);
-    if (!due) return false;
-    const left = due - now;
-    if (left <= 0 || left > REMIND_AHEAD_MS) return false;
-    return g.remindedFor !== goalRemindKey(g);
-  }).map(g => ({ g, left: goalDueMs(g) - now }));
-}
-
-function showReminder(g, leftMs) {
-  const mins = Math.max(1, Math.round(leftMs / 60000));
-  const msg = `「${g.title}」还有 ${mins} 分钟就到期了，现在推进一下还来得及。`;
-  remindGoalId = g.id;
-  $('#remindMsg').textContent = msg;
-  $('#remindLeft').textContent = `截止 ${fmtDate(g.deadline)}${g.dueTime ? ' ' + g.dueTime : ''}`;
-  $('#remind').classList.add('show');
-  try {
-    if (window.AndroidBridge && typeof window.AndroidBridge.notifyGoal === 'function') {
-      window.AndroidBridge.notifyGoal('目标快到期了 ⏰', msg);
-    }
-  } catch (e) {}
-}
-
-function closeReminder() { $('#remind').classList.remove('show'); remindGoalId = null; }
-
-function checkGoalReminders(silent) {
-  const hits = dueReminderGoals();
-  if (!hits.length) return false;
-  hits.forEach(h => { h.g.remindedFor = goalRemindKey(h.g); });
-  saveState();
-  lastRemindAt = Date.now();
-  if (!silent) {
-    showReminder(hits[0].g, hits[0].left);
-    if (hits.length > 1) toast(`另外还有 ${hits.length - 1} 个目标也快到期了`);
-  }
-  return true;
-}
-
-/** 把未完成目标的提醒时间同步给系统闹钟，App 关掉也能收到通知 */
-let lastAlarmSync = 0;
-function syncGoalAlarms(force) {
-  if (!(window.AndroidBridge && typeof window.AndroidBridge.setGoalReminders === 'function')) return;
-  const now = Date.now();
-  if (!force && now - lastAlarmSync < 4000) return;
-  lastAlarmSync = now;
-  const list = state.goals.filter(g => !g.done).map(g => {
-    const due = goalDueMs(g);
-    return due ? { id: g.id, title: g.title, at: due - REMIND_AHEAD_MS } : null;
-  }).filter(x => x && x.at > now);
-  try { window.AndroidBridge.setGoalReminders(JSON.stringify(list)); } catch (e) {}
-}
-
 /* ==================== 渲染入口 ==================== */
 const VIEW_META = {
   dashboard: { title: '概览', sub: '看看今天的进展，把注意力放在最重要的事上。' },
@@ -2569,8 +2591,6 @@ function swipeAllowed(target) {
   if (VIEW_ORDER.indexOf(currentView) < 0) return false;
   if (!modalEl.classList.contains('hidden')) return false;
   if (!confirmEl.classList.contains('hidden')) return false;
-  const remind = document.getElementById('remind');
-  if (remind && remind.classList.contains('show')) return false;
   if (!target || !target.closest) return false;
   if (target.closest(SWIPE_BLOCK_SEL)) return false;
   /* 容器本身可横向滚动（比如筛选条、柱状图）时不劫持手势 */
@@ -2647,24 +2667,6 @@ document.addEventListener('click', e => {
 }, true);
 
 /* ==================== 概览页 ==================== */
-function heatmapHTML() {
-  const now = new Date();
-  const dow = (now.getDay() + 6) % 7;
-  const start = addDays(now, -dow - 11 * 7);
-  let cells = '';
-  for (let w = 0; w < 12; w++) {
-    for (let d = 0; d < 7; d++) {
-      const date = addDays(start, w * 7 + d);
-      const key = toKey(date);
-      const future = date > now;
-      const score = future ? 0 : activityScore(key);
-      const lvl = score === 0 ? 0 : score <= 1 ? 1 : score <= 3 ? 2 : 3;
-      cells += `<div class="hm-cell lv${lvl}${future ? ' future' : ''}" title="${fmtDate(key)} · ${score ? score + ' 项活动' : '无记录'}"></div>`;
-    }
-  }
-  return `<div class="hm-wrap"><div class="hm-grid">${cells}</div></div>
-    <div class="hm-legend"><span>少</span><i class="hm-cell lv0"></i><i class="hm-cell lv1"></i><i class="hm-cell lv2"></i><i class="hm-cell lv3"></i><span>多</span><span style="margin-left:auto">最近 12 周</span></div>`;
-}
 
 /* 环形占比图：items = [{ label, value, color, valueText }] */
 function donutChart(items, opts) {
@@ -2746,9 +2748,7 @@ function renderDashboard() {
     const p = goalPct(g);
     const dl = goalDeadline(g);
     const st = goalSubStats(g);
-    const sub = isCountGoal(g)
-      ? [`${fmtNum(g.current)} / ${fmtNum(g.target)}`, g.unit].filter(Boolean).map(esc).join(' ')
-      : (st.total ? `小目标 ${st.done}/${st.total}` : '还没拆小目标');
+    const sub = st.total ? `小目标 ${st.done}/${st.total}` : '还没拆小目标';
     return `<div class="goal-mini">
       <div class="row"><strong>${esc(g.title)}</strong><span>${p}%</span></div>
       <div class="progress slim"><i style="width:${p}%"></i></div>
@@ -2793,15 +2793,9 @@ function renderDashboard() {
         ${goalMinis}
       </div>
     </div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-head"><h3>成长热力图</h3><span class="small muted">颜色越深，当天投入越多</span></div>
-        ${heatmapHTML()}
-      </div>
-      <div class="card">
-        <div class="card-head"><h3>最近日记</h3><button class="link-btn" data-action="nav" data-view="journal">全部 →</button></div>
-        ${recentHTML}
-      </div>
+    <div class="card">
+      <div class="card-head"><h3>最近日记</h3><button class="link-btn" data-action="nav" data-view="journal">全部 →</button></div>
+      ${recentHTML}
     </div>`;
 }
 
@@ -3057,8 +3051,6 @@ function subOpenOf(g) {
   const m = (state.settings.subOpen && typeof state.settings.subOpen === 'object' && !Array.isArray(state.settings.subOpen))
     ? state.settings.subOpen : {};
   if (Object.prototype.hasOwnProperty.call(m, g.id)) return !!m[g.id];
-  /* 按数量的目标先让人看进度，步骤收起来；拆小目标的目标默认摊开 */
-  if (isCountGoal(g)) return false;
   return !g.done;
 }
 
@@ -3069,7 +3061,6 @@ function goalCardHTML(g, collapsible) {
   const p = goalPct(g);
   const dl = goalDeadline(g);
   const st = goalSubStats(g);
-  const count = isCountGoal(g);
   const open = g.done ? true : subOpenOf(g);
   const foldAction = g.done ? 'toggle-done-one' : 'toggle-subfold';
   const foldTitle = g.done ? '收起这条已完成目标' : (open ? '收起小目标' : '展开小目标');
@@ -3078,28 +3069,23 @@ function goalCardHTML(g, collapsible) {
         ${g.done
       ? `<span class="sub-check${t.done ? ' on' : ''}">${t.done ? '✓' : ''}</span>`
       : `<button class="sub-check${t.done ? ' on' : ''}" data-action="toggle-sub" data-id="${g.id}" data-sub="${t.id}" title="${t.done ? '标记为未完成' : '标记完成'}">${t.done ? '✓' : ''}</button>`}
-        <span class="sub-title">${esc(t.title)}</span>
+        ${g.done
+      ? `<span class="sub-title">${esc(t.title)}</span>`
+      : `<button type="button" class="sub-title sub-title-btn" data-action="edit-sub" data-id="${g.id}" data-sub="${t.id}" title="点一下改文字">${esc(t.title)}</button>`}
         ${g.done ? '' : `<button class="sub-del" data-action="del-sub" data-id="${g.id}" data-sub="${t.id}" title="删除小目标">✕</button>`}
       </li>`).join('');
 
-  /* 只有「拆小目标」的目标才拦着不让直接完成；按数量的目标自己说了算 */
-  const blocked = !g.done && !count && st.left > 0;
+  /* 小目标没勾完就不让直接结束这个目标 */
+  const blocked = !g.done && st.left > 0;
   const dueText = g.done
     ? (g.doneAt ? `完成于 ${fmtDate(toKey(new Date(g.doneAt)))}` : '已完成')
     : dl.text;
   const dueCls = g.done ? 'is-done-due' : (dl.cls || '');
 
-  const countText = count
-    ? `${fmtNum(g.current)}/${fmtNum(g.target)}${g.unit ? ' ' + esc(g.unit) : ''}`
-    : (st.total ? `${st.done}/${st.total} 步` : '');
+  const countText = st.total ? `${st.done}/${st.total} 步` : '';
   const checkTitle = g.done ? '恢复为进行中' : blocked ? `还有 ${st.left} 个小目标没完成` : '标记为已完成';
 
-  const countLine = count && !g.done ? `<div class="count-line">
-      <span class="cl-tip">${g.updatedAt ? `上次更新 ${fmtDate(toKey(new Date(g.updatedAt)))}` : '还没更新过进度'}</span>
-      <button class="link-btn" data-action="edit-progress" data-id="${g.id}">更新进度 →</button>
-    </div>` : '';
-
-  return `<article class="goal-card card${g.done ? ' is-done' : ''}${count ? ' is-count' : ''}" data-id="${g.id}">
+  return `<article class="goal-card card${g.done ? ' is-done' : ''}" data-id="${g.id}">
       <div class="goal-top">
         <button class="goal-check${g.done ? ' on' : ''}${blocked ? ' locked' : ''}" data-action="toggle-goal" data-id="${g.id}" title="${checkTitle}">${blocked ? '!' : '✓'}</button>
         <span class="chip cat-${catClass(g.category)}">${esc(g.category || '其他')}</span>
@@ -3117,9 +3103,8 @@ function goalCardHTML(g, collapsible) {
         <div class="progress"><i style="width:${p}%"></i></div>
         ${countText ? `<span class="cnt">${countText}</span>` : ''}
       </div>
-      ${countLine}
       ${(st.total || !g.done) ? `<div class="sub-wrap"${open ? '' : ' hidden'}>
-        ${st.total ? `<ul class="sub-list">${subs}</ul>` : `<div class="sub-empty">${count ? '想拆得更细的话，也可以加几条小步骤' : '把它拆小一点，更容易开始'}</div>`}
+        ${st.total ? `<ul class="sub-list">${subs}</ul>` : `<div class="sub-empty">把它拆小一点，更容易开始</div>`}
         ${blocked ? `<div class="sub-note">还有 ${st.left} 个小目标没完成，全部勾完才能结束这个目标</div>` : ''}
         ${g.done ? '' : `<form class="sub-add" data-form="sub" data-id="${g.id}"><input name="title" maxlength="80" placeholder="+ 添加小目标，回车保存" autocomplete="off"></form>`}
       </div>` : ''}
@@ -3280,7 +3265,7 @@ function renderHabits() {
     <div class="card">
       <div class="card-head"><h3>小提示</h3><span class="small muted">让习惯更容易坚持</span></div>
       <div class="small muted" style="line-height:2">
-        · 每周一自动开启新的一周，七个格子会重新变空，上一周的记录仍保留在「累计」和热力图里。<br>
+        · 每周一自动开启新的一周，七个格子会重新变空，上一周的记录仍保留在每条习惯的「累计」里。<br>
         · 把新习惯绑在已有习惯后面：比如「刷完牙后，做 1 分钟冥想」。<br>
         · 从最小版本开始，先做到「每天出现」，再谈强度。<br>
         · 偶尔断一天没关系，重要的是第二天继续。
@@ -3454,6 +3439,30 @@ function financeHeader(navHTML) {
   </div>`;
 }
 
+/* 日期用原生 <input type="date">：点一下就是系统日历，选年月日一步到位。
+   系统自带的小图标被 CSS 藏了（各版本长得不一样），这里自己贴一个日历图标当提示 */
+function dateFieldHTML(value) {
+  const v = /^\d{4}-\d{2}-\d{2}$/.test(String(value || '')) ? String(value) : todayKey();
+  return `<span class="date-field"><input type="date" name="date" value="${v}" required><span class="df-ico">${ICON_CALENDAR}</span></span>`;
+}
+/** 记过的备注攒起来，下次点一下就能选，不用重复敲 */
+function rememberFinNote(note) {
+  const v = String(note || '').trim().slice(0, 40);
+  if (!v) return;
+  const st = state.settings = state.settings || {};
+  const list = Array.isArray(st.finNotes) ? st.finNotes : [];
+  st.finNotes = [v, ...list.filter(x => x !== v)].slice(0, 12);
+}
+function noteChipsHTML(current) {
+  const st = state.settings || {};
+  const list = Array.isArray(st.finNotes) ? st.finNotes : [];
+  if (!list.length) return '';
+  return `<div class="note-chips">
+    <span class="nc-label">常用</span>
+    ${list.map(n => `<button type="button" class="nc-chip${n === current ? ' on' : ''}" data-action="pick-note" data-note="${esc(n)}">${esc(n)}</button>`).join('')}
+  </div>`;
+}
+
 /* ==================== 记账页 ==================== */
 function renderFinance() {
   if (financeMode === 'year') { renderFinanceYear(); return; }
@@ -3526,7 +3535,9 @@ function renderFinance() {
   const emptyText = financeFilter === 'all' ? '这个月还没有记录。' : financeFilter === 'income' ? '这个月还没有收入记录。' : '这个月还没有支出记录。';
   const navHTML = `<div class="month-nav">
       <button class="nav-btn" data-action="fin-prev" title="上个月">‹</button>
-      <strong>${monthLabel(month)}</strong>
+      <button class="nav-month" data-action="fin-pick-month" title="选择月份" aria-haspopup="dialog">
+        <span>${monthLabel(month)}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.2 9.4 12 15.2l5.8-5.8"/></svg>
+      </button>
       <button class="nav-btn" data-action="fin-next" title="下个月">›</button>
       ${month !== todayKey().slice(0, 7) ? `<button class="link-btn" data-action="fin-now">回到本月</button>` : ''}
     </div>`;
@@ -3541,18 +3552,19 @@ function renderFinance() {
         </div>
       </div>
       <div class="quick-body"${quickOpen ? '' : ' hidden'}>
-        <div class="form-row three">
+        <div class="form-row">
           <label>类型<select name="type" data-fin-type>
             <option value="expense">支出</option>
             <option value="income">收入</option>
           </select></label>
           <label>金额（元）<input class="amount-input" type="number" name="amount" min="0.01" step="0.01" placeholder="0.00" required></label>
-          <label>日期<input type="date" name="date" value="${defaultDate}" required></label>
         </div>
+        <label>日期${dateFieldHTML(defaultDate)}</label>
         <div class="form-row">
           <label>分类<select name="category">${categoryOptions('expense')}</select></label>
-          <label>备注<input name="note" maxlength="40" placeholder="选填，比如：午饭"></label>
+          <label>备注<input name="note" maxlength="40" placeholder="选填，比如：加油"></label>
         </div>
+        ${noteChipsHTML('')}
         <div class="form-actions"><button class="btn primary" type="submit">保存这笔</button></div>
       </div>
     </form>`;
@@ -3625,40 +3637,24 @@ function renderFinanceYear() {
     { label: '月均支出', value: activeMonths ? fmtMoney(avgMonthly) : '—', icon: ICON_CALENDAR, hint: activeMonths ? `按 ${activeMonths} 个有记录月份` : '还没有记录' }
   ];
 
-  const chartMax = Math.max(1, ...sum.months.map(m => Math.max(m.income, m.expense)));
-  const chartHTML = sum.list.length ? `
-    <div class="y-chart">
-      ${sum.months.map(m => {
-        const key = `${year}-${pad2(m.month)}`;
-        const ih = m.income ? Math.max(2, Math.round(m.income / chartMax * 100)) : 0;
-        const eh = m.expense ? Math.max(2, Math.round(m.expense / chartMax * 100)) : 0;
-        return `<button type="button" class="y-col" data-action="fin-open-month" data-month="${key}" title="${m.month}月 · 收入 ${fmtMoney(m.income)} · 支出 ${fmtMoney(m.expense)}">
-          <span class="y-bars"><i class="y-bar income" style="height:${ih}%"></i><i class="y-bar expense" style="height:${eh}%"></i></span>
-          <span class="y-label">${m.month}</span>
-        </button>`;
-      }).join('')}
-    </div>
-    <div class="legend">
-      <span><i style="background:var(--accent)"></i>收入</span>
-      <span><i style="background:var(--danger);opacity:.8"></i>支出</span>
-      <span class="small muted" style="margin-left:auto">点击柱形查看当月明细</span>
-    </div>` : `<div class="empty">这一年还没有记录，先记几笔吧。</div>`;
-
+  /* 这一年钱花在哪：按分类占比画环形图，跟月度那张「本月支出构成」同一个组件 */
   const catMap = {};
   sum.list.filter(t => t.type === 'expense').forEach(t => {
     catMap[t.category] = (catMap[t.category] || 0) + (Number(t.amount) || 0);
   });
   const cats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
-  const maxCat = cats.length ? cats[0][1] : 0;
-  const catHTML = cats.length ? cats.map(([name, amount]) => {
-    const c = finCat('expense', name);
-    const w = maxCat ? Math.max(3, amount / maxCat * 100) : 0;
-    const share = sum.expense ? Math.round(amount / sum.expense * 100) : 0;
-    return `<div class="cat-row">
-      <div class="cat-top"><span class="cat-name">${c.svg}${esc(name)} <span class="muted small">· ${share}%</span></span><strong>${fmtMoney(amount)}</strong></div>
-      <div class="progress slim"><i style="width:${w}%;background:${finCatColor('expense', name)}"></i></div>
-    </div>`;
-  }).join('') : `<div class="empty" style="padding:18px 6px">这一年还没有支出记录。</div>`;
+  const catItems = cats.map(([name, amount]) => ({
+    label: name,
+    value: amount,
+    color: finCatColor('expense', name),
+    valueText: fmtMoney(amount)
+  }));
+  const chartHTML = cats.length
+    ? `<div class="year-donut">${donutChart(catItems, {
+        center: fmtMoneyCompact(sum.expense),
+        centerLabel: '全年支出'
+      })}</div>`
+    : `<div class="empty">这一年还没有支出记录，先记几笔吧。</div>`;
 
   const incMap = {};
   sum.list.filter(t => t.type === 'income').forEach(t => {
@@ -3710,7 +3706,7 @@ function renderFinanceYear() {
       </div>`).join('')}
     </div>
     <div class="year-top">
-      ${foldCard('fin:ychart', '月度收支', chartHTML, { extra: `<span class="small muted">${year} 年</span>` })}
+      ${foldCard('fin:ychart', '支出构成', chartHTML, { extra: `<span class="small muted">${year} 年 · 按分类占比</span>` })}
       ${foldCard('fin:yinc', '收入分类', `${incHTML}
         <div class="fin-facts">
           <div class="fin-fact"><span>记账笔数</span><strong>${sum.list.length} 笔</strong></div>
@@ -3719,8 +3715,7 @@ function renderFinanceYear() {
           <div class="fin-fact"><span>最大分类</span><strong>${topCat ? `${finCat('expense', topCat[0]).svg}${esc(topCat[0])} ${fmtMoney(topCat[1])}` : '暂无'}</strong></div>
         </div>`, { extra: '<span class="small muted">全年占比</span>' })}
     </div>
-    <div class="year-bottom">
-      ${foldCard('fin:ycats', '支出分类', catHTML, { extra: '<span class="small muted">全年占比</span>' })}
+    <div class="year-bottom single">
       <div class="card">
         <div class="card-head"><h3>月度明细</h3><span class="small muted">点击任意月份查看明细</span></div>
         <div class="fin-table-wrap">
@@ -3884,15 +3879,48 @@ function deadlineText(dateStr, timeStr) {
   return timeStr ? `${base} · ${timeStr}` : base;
 }
 
+/** 小目标就地改名：点文字变成输入框，回车或失焦保存，Esc 放弃 */
+function startSubEdit(btn) {
+  const li = btn.closest('.sub-item');
+  if (!li || li.querySelector('.sub-edit')) return;
+  const g = state.goals.find(x => x.id === btn.dataset.id);
+  const t = g && (g.subtasks || []).find(x => x.id === btn.dataset.sub);
+  if (!t) return;
+  btn.hidden = true;
+  const inp = document.createElement('input');
+  inp.className = 'sub-edit';
+  inp.maxLength = 80;
+  inp.value = t.title;
+  inp.setAttribute('aria-label', '修改小目标');
+  btn.parentNode.insertBefore(inp, btn.nextSibling);
+  inp.focus();
+  inp.select();
+  let finished = false;
+  const finish = save => {
+    if (finished) return;
+    finished = true;
+    const v = inp.value.trim();
+    if (save && v && v !== t.title) {
+      t.title = v.slice(0, 80);
+      saveState();
+      render();
+    } else {
+      inp.remove();
+      btn.hidden = false;
+    }
+  };
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+  });
+  inp.addEventListener('blur', () => finish(true));
+}
+
 function openGoalModal(id) {
   const g = id ? state.goals.find(x => x.id === id) : null;
   const selCat = (g && g.category) ? g.category : '学习';
-  const track = g && isCountGoal(g) ? 'count' : 'sub';
   const dStr = g ? (g.deadline || '') : '';
   const tStr = g ? (g.dueTime || '') : '';
-  const cur = g ? Number(g.current) || 0 : 0;
-  const tgt = g && Number(g.target) > 1 ? Number(g.target) : '';
-  const unit = g ? (g.unit || '') : '';
   openModal(`
     <div class="modal-head"><h3>${g ? '编辑目标' : '新建目标'}</h3><button class="close" data-action="close-modal">✕</button></div>
     <form data-form="goal" data-id="${g ? g.id : ''}">
@@ -3903,21 +3931,6 @@ function openGoalModal(id) {
         </div>
         <input type="hidden" name="category" value="${esc(selCat)}">
       </label>
-      <label>怎么推进
-        <div class="seg track-seg">
-          <button type="button" class="${track === 'sub' ? 'active' : ''}" data-action="pick-track" data-track="sub">拆小目标</button>
-          <button type="button" class="${track === 'count' ? 'active' : ''}" data-action="pick-track" data-track="count">按数量</button>
-        </div>
-        <input type="hidden" name="track" value="${track}">
-      </label>
-      <div data-track-panel="count"${track === 'count' ? '' : ' hidden'}>
-        <div class="form-row three compact">
-          <label>当前<input type="number" name="current" step="any" min="0" value="${cur}"></label>
-          <label>总量<input type="number" name="total" step="any" min="0" value="${tgt}" placeholder="如 24"></label>
-          <label>单位<input name="unit" maxlength="8" value="${esc(unit)}" placeholder="本"></label>
-        </div>
-      </div>
-      <div class="small muted track-hint" data-track-panel="count"${track === 'count' ? '' : ' hidden'} style="margin:-6px 0 14px">按数量推进的目标，卡片上会有「更新进度」，随手填最新的数字就行。</div>
       <label>截止
         <button type="button" class="field-btn" data-action="pick-deadline">
           <span class="fb-val${dStr ? '' : ' is-empty'}">${deadlineText(dStr, tStr)}</span>
@@ -3926,31 +3939,8 @@ function openGoalModal(id) {
         <input type="hidden" name="deadline" value="${esc(dStr)}">
         <input type="hidden" name="dueTime" value="${esc(tStr)}">
       </label>
-      <div class="small muted" style="margin:-6px 0 14px">选了具体时间才会提醒：到期前 1 小时弹窗 + 系统通知。</div>
-      <label>小目标<span class="tl-note" data-track-panel="count"${track === 'count' ? '' : ' hidden'}>选填，不影响进度</span><textarea name="subtasks" rows="3" placeholder="一行一个，例如：&#10;读完《原则》&#10;每周写一篇读书笔记">${esc(g && g.subtasks && g.subtasks.length ? g.subtasks.map(t => t.title).join('\n') : '')}</textarea></label>
-      <div class="form-actions">
-        <button type="button" class="btn ghost" data-action="close-modal">取消</button>
-        <button class="btn primary" type="submit">保存</button>
-      </div>
-    </form>`);
-}
-
-/** 更新进度：按数量推进的目标专用，一个数字就能推着走 */
-function openProgressModal(id) {
-  const g = state.goals.find(x => x.id === id);
-  if (!g) return;
-  const cur = Number(g.current) || 0;
-  const tgt = Number(g.target) || 0;
-  openModal(`
-    <div class="modal-head"><h3>更新进度</h3><button class="close" data-action="close-modal">✕</button></div>
-    <form data-form="progress" data-id="${g.id}">
-      <div class="small muted" style="margin:-4px 0 12px">${esc(g.title)}</div>
-      <div class="form-row three compact">
-        <label>当前<input type="number" name="current" step="any" min="0" value="${cur}" autocomplete="off"></label>
-        <label>总量<input type="number" name="total" step="any" min="0" value="${tgt}"></label>
-        <label>单位<input name="unit" maxlength="8" value="${esc(g.unit || '')}" placeholder="本"></label>
-      </div>
-      <div class="small muted" style="margin:-2px 0 14px">填到总量就算完成，也可以随时回来改。</div>
+      <div class="small muted" style="margin:-6px 0 14px">具体时间可选，填了就按这个时刻算截止；不填按当天结束算。</div>
+      <label>小目标<textarea name="subtasks" rows="3" placeholder="一行一个，例如：&#10;读完《原则》&#10;每周写一篇读书笔记">${esc(g && g.subtasks && g.subtasks.length ? g.subtasks.map(t => t.title).join('\n') : '')}</textarea></label>
       <div class="form-actions">
         <button type="button" class="btn ghost" data-action="close-modal">取消</button>
         <button class="btn primary" type="submit">保存</button>
@@ -4124,7 +4114,7 @@ function openDeadlinePicker(curDate, curTime, onDone) {
         <div class="picker-sep"></div>
         <div class="picker-row">
           <span class="lbl">时间</span>
-          <button type="button" class="chip-btn${selTime ? '' : ' on'}" data-timeclear="1">不提醒</button>
+          <button type="button" class="chip-btn${selTime ? '' : ' on'}" data-timeclear="1">不设时间</button>
           <button type="button" class="chip-btn" data-now="1">此刻</button>
         </div>
         <div class="time-quick">${quick}<button type="button" class="chip-btn${customMode ? ' on' : ''}" data-custom="1">自定义</button></div>
@@ -4208,6 +4198,64 @@ function openDeadlinePicker(curDate, curTime, onDone) {
   host.classList.remove('hidden');
 }
 
+/** 选月份：12 个格子，顺手把当月结余写在下面，跳月之前心里先有个数 */
+function openMonthPicker(curMonth, onDone) {
+  const host = ensurePickerHost();
+  const cur = /^\d{4}-\d{2}$/.test(String(curMonth || '')) ? String(curMonth) : todayKey().slice(0, 7);
+  let year = Number(cur.slice(0, 4));
+  const nowKey = todayKey().slice(0, 7);
+
+  const stat = {};
+  (state.finance.transactions || []).forEach(t => {
+    const k = String(t.date).slice(0, 7);
+    if (!/^\d{4}-\d{2}$/.test(k)) return;
+    const s = stat[k] || (stat[k] = { n: 0, balance: 0 });
+    s.n++;
+    s.balance += (t.type === 'income' ? 1 : -1) * (Number(t.amount) || 0);
+  });
+
+  const draw = () => {
+    const cells = Array.from({ length: 12 }, (_, i) => {
+      const m = i + 1;
+      const key = `${year}-${pad2(m)}`;
+      const s = stat[key];
+      const on = key === cur;
+      const cls = ['mon-cell', s ? 'has' : '', key === nowKey ? 'now' : '', on ? 'on' : ''].filter(Boolean).join(' ');
+      return `<button type="button" class="${cls}" data-m="${key}" aria-label="${year} 年 ${m} 月">
+        <b>${m} 月</b><span>${s ? fmtMoneyCompact(s.balance) : '—'}</span>
+      </button>`;
+    }).join('');
+    host.innerHTML = `
+      <div class="picker">
+        <div class="picker-head">
+          <h4>选择月份</h4>
+          <div class="picker-nav">
+            <button type="button" data-y="-1" aria-label="上一年">‹</button>
+            <span class="mon">${year} 年</span>
+            <button type="button" data-y="1" aria-label="下一年">›</button>
+          </div>
+        </div>
+        <div class="mon-grid">${cells}</div>
+        <div class="picker-foot">
+          <button type="button" class="link-btn" data-now="1">回到本月</button>
+          <button type="button" class="btn ghost" data-cancel="1">取消</button>
+        </div>
+      </div>`;
+  };
+
+  host.onclick = e => {
+    const b = e.target.closest('button');
+    if (!b) { if (e.target === host) closePicker(); return; }
+    if (b.dataset.y) { year += Number(b.dataset.y); draw(); return; }
+    if (b.dataset.m) { closePicker(); onDone(b.dataset.m); return; }
+    if (b.dataset.now) { closePicker(); onDone(nowKey); return; }
+    if (b.dataset.cancel === '1') { closePicker(); }
+  };
+
+  draw();
+  host.classList.remove('hidden');
+}
+
 function openHabitModal() {
   const def = HABIT_ICONS[0].key;
   openModal(`
@@ -4234,18 +4282,19 @@ function openTxModal(id) {
   openModal(`
     <div class="modal-head"><h3>${t ? '编辑记录' : '记一笔'}</h3><button class="close" data-action="close-modal">✕</button></div>
     <form data-form="tx" data-id="${t ? t.id : ''}">
-      <div class="form-row three">
+      <div class="form-row">
         <label>类型<select name="type" data-fin-type>
           <option value="expense"${type === 'expense' ? ' selected' : ''}>支出</option>
           <option value="income"${type === 'income' ? ' selected' : ''}>收入</option>
         </select></label>
         <label>金额（元）<input class="amount-input" type="number" name="amount" min="0.01" step="0.01" value="${t ? t.amount : ''}" placeholder="0.00" required></label>
-        <label>日期<input type="date" name="date" value="${t ? t.date : todayKey()}" required></label>
       </div>
+      <label>日期${dateFieldHTML(t ? t.date : todayKey())}</label>
       <div class="form-row">
         <label>分类<select name="category">${categoryOptions(type, t ? t.category : '')}</select></label>
         <label>备注<input name="note" maxlength="40" value="${esc(t ? t.note : '')}" placeholder="选填"></label>
       </div>
+      ${noteChipsHTML(t ? t.note : '')}
       <div class="form-actions">
         <button type="button" class="btn ghost" data-action="close-modal">取消</button>
         <button class="btn primary" type="submit">保存</button>
@@ -4310,8 +4359,7 @@ document.addEventListener('submit', e => {
     });
     const dueTimeRaw = String(fd.get('dueTime') || '');
     /* 2.2：一个目标只有两种推进方式，进度字段跟着方式走，切换时按新方式重来 */
-    const track = String(fd.get('track') || 'sub') === 'count' ? 'count' : 'sub';
-    const totalRaw = Math.max(0, Number(fd.get('total')) || 0);
+    const track = 'sub';
     const data = {
       title,
       category: String(fd.get('category') || '其他'),
@@ -4319,23 +4367,21 @@ document.addEventListener('submit', e => {
       dueTime: /^([01]\d|2[0-3]):[0-5]\d$/.test(dueTimeRaw) ? dueTimeRaw : '',
       subtasks,
       track,
-      current: track === 'count' ? Math.max(0, Number(fd.get('current')) || 0) : 0,
-      target: track === 'count' ? (totalRaw > 0 ? totalRaw : 1) : 1,
-      unit: track === 'count' ? String(fd.get('unit') || '').trim().slice(0, 8) : '',
+      current: 0,
+      target: 1,
+      unit: '',
       note: old ? (old.note || '') : '',
-      updatedAt: track === 'count' ? Date.now() : 0
+      updatedAt: 0
     };
     if (old) {
       Object.assign(old, data);
-      if (old.remindedFor && old.remindedFor !== goalRemindKey(old)) old.remindedFor = null;
       toast('目标已更新');
     } else {
-      state.goals.push(Object.assign({ id: uid(), createdAt: Date.now(), done: false, doneAt: null, remindedFor: null }, data));
+      state.goals.push(Object.assign({ id: uid(), createdAt: Date.now(), done: false, doneAt: null }, data));
       toast('目标已创建');
     }
     closeModal();
     saveState();
-    syncGoalAlarms(true);
     render();
     return;
   }
@@ -4404,35 +4450,25 @@ document.addEventListener('submit', e => {
     return;
   }
 
-  if (kind === 'progress') {
-    const g = state.goals.find(x => x.id === form.dataset.id);
-    if (!g) return;
-    const total = Math.max(0, Number(fd.get('total')) || 0);
-    const cur = Math.max(0, Number(fd.get('current')) || 0);
-    g.current = total > 0 ? Math.min(cur, total) : cur;
-    g.target = total > 0 ? total : 1;
-    g.unit = String(fd.get('unit') || '').trim().slice(0, 8);
-    g.track = 'count';
-    g.updatedAt = Date.now();
-    const hit = total > 0 && g.current >= total;
-    closeModal();
-    saveState();
-    render();
-    toast(hit && !g.done ? '已经到总量了，可以勾掉完成 🎉' : '进度已更新');
-    return;
-  }
-
   if (kind === 'tx') {
     const amount = Math.round((Number(fd.get('amount')) || 0) * 100) / 100;
     if (!(amount > 0)) { toast('请输入正确的金额'); return; }
+    const dateStr = String(fd.get('date') || '').trim() || todayKey();
     const data = {
       type: String(fd.get('type') || 'expense') === 'income' ? 'income' : 'expense',
       amount,
-      date: String(fd.get('date') || '').trim() || todayKey(),
+      date: dateStr,
       category: String(fd.get('category') || '').trim() || '其他',
       note: String(fd.get('note') || '').trim()
     };
     const id = form.dataset.id;
+    /* 从「快速记一笔」保存完就收起表单，把流水露出来；顺手记住这条备注 */
+    const fromQuick = !form.closest('.modal');
+    rememberFinNote(data.note);
+    if (fromQuick) {
+      state.settings = state.settings || {};
+      state.settings.finQuickCollapsed = true;
+    }
     if (id) {
       const t = state.finance.transactions.find(x => x.id === id);
       if (t) Object.assign(t, data, { updatedAt: Date.now() });
@@ -4459,6 +4495,22 @@ document.addEventListener('submit', e => {
   }
 });
 
+/* ==================== 日期框 ====================
+   原生 <input type="date"> 右侧的日历图标被 CSS 藏掉了，WebView 里光点文字区域
+   不会弹选择器（真机上就是「日期点不开」）。这里主动调 showPicker() 拉起系统日历；
+   没有这个 API 的老 WebView 退回到 focus。capture 阶段处理，先于其他点击逻辑。 */
+document.addEventListener('click', e => {
+  const inp = e.target && e.target.closest && e.target.closest('input[type="date"], input[type="time"]');
+  if (!inp || inp.disabled || inp.readOnly) return;
+  const now = Date.now();
+  if (inp.__pickerAt && now - inp.__pickerAt < 700) return; /* 连点不重复弹 */
+  inp.__pickerAt = now;
+  try {
+    if (typeof inp.showPicker === 'function') { inp.showPicker(); return; }
+  } catch (_) { /* 非用户手势时 Chromium 会抛错，走下面的兜底 */ }
+  try { inp.focus(); } catch (_) {}
+}, true);
+
 /* ==================== 点击交互 ==================== */
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-action]');
@@ -4467,6 +4519,16 @@ document.addEventListener('click', e => {
   const id = el.dataset.id;
 
   if (action === 'confirm-ok') { closeConfirm(true); return; }
+  if (action === 'edit-sub') { startSubEdit(el); return; }
+  if (action === 'pick-note') {
+    const form = el.closest('form');
+    const inp = form && form.querySelector('input[name="note"]');
+    if (inp) {
+      inp.value = el.dataset.note || '';
+      form.querySelectorAll('.nc-chip').forEach(b => b.classList.toggle('on', b.dataset.note === inp.value));
+    }
+    return;
+  }
   if (action === 'confirm-cancel') { closeConfirm(false); return; }
   if (action === 'nav') { switchView(el.dataset.view, { openJournal: el.dataset.openJournal === '1' }); return; }
   if (action === 'open-stat') { detailKey = el.dataset.stat || 'streak'; switchView('detail'); return; }
@@ -4677,12 +4739,6 @@ document.addEventListener('click', e => {
     });
     return;
   }
-  if (action === 'remind-later') { closeReminder(); return; }
-  if (action === 'remind-go') {
-    closeReminder();
-    switchView('goals');
-    return;
-  }
   if (action === 'toggle-goal') {
     const g = state.goals.find(x => x.id === id);
     if (!g) return;
@@ -4805,17 +4861,6 @@ document.addEventListener('click', e => {
     return;
   }
 
-  if (action === 'edit-progress') { openProgressModal(id); return; }
-  if (action === 'pick-track') {
-    const t = el.dataset.track === 'count' ? 'count' : 'sub';
-    const form = el.closest('form');
-    if (!form) return;
-    const hidden = form.querySelector('[name="track"]');
-    if (hidden) hidden.value = t;
-    form.querySelectorAll('.track-seg button').forEach(b => b.classList.toggle('active', b.dataset.track === t));
-    form.querySelectorAll('[data-track-panel]').forEach(pn => { pn.hidden = pn.dataset.trackPanel !== t; });
-    return;
-  }
 
   if (action === 'add-tx') { openTxModal(); return; }
   if (action === 'edit-tx') { openTxModal(id); return; }
@@ -4849,6 +4894,10 @@ document.addEventListener('click', e => {
   if (action === 'fin-prev') { financeMonth = shiftMonth(financeMonth, -1); render(); return; }
   if (action === 'fin-next') { financeMonth = shiftMonth(financeMonth, 1); render(); return; }
   if (action === 'fin-now') { financeMonth = todayKey().slice(0, 7); render(); return; }
+  if (action === 'fin-pick-month') {
+    openMonthPicker(financeMonth, m => { financeMonth = m; render(); });
+    return;
+  }
   if (action === 'fin-mode') {
     financeMode = el.dataset.mode === 'year' ? 'year' : 'month';
     if (financeMode === 'year') {
@@ -5039,11 +5088,9 @@ $('#themeBtn').addEventListener('click', () => {
 });
 
 $('#resetBtn').addEventListener('click', () => {
-  askConfirm({
-    title: '清空所有数据',
-    message: '目标（含已归档）、习惯、日记和账单都会被删除，无法恢复。建议先导出备份。',
-    icon: '🗑️', okText: '清空'
-  }, () => {
+  /* 点之前先把设置抽屉收起来：删除类操作不该和抽屉动画抢视线 */
+  closeMobileTools();
+  const doWipe = () => {
     const theme = state.settings.theme;
     state = { goals: [], archivedGoals: [], habits: [], habitLogs: {}, journal: [], finance: { transactions: [], budget: 0 }, settings: { theme } };
     editingJournal = null;
@@ -5054,6 +5101,22 @@ $('#resetBtn').addEventListener('click', () => {
     saveState();
     render();
     toast('已清空，重新开始 🌱');
+  };
+  /* 两道确认：第一道讲清后果，第二道才是真正的删除键，手滑连点也删不掉 */
+  askConfirm({
+    title: '清空所有数据',
+    message: '目标（含已归档）、习惯、日记和账单都会被删除，无法恢复。\n建议先导出备份。',
+    icon: '🗑️', okText: '继续'
+  }, () => {
+    /* 稍等一下再弹第二道：让第一次弹窗的关闭动作看得出来，
+       否则内容原地换掉，容易让人以为没反应又点一次 */
+    setTimeout(() => {
+      askConfirm({
+        title: '真的要清空？',
+        message: '这一步不可撤销。\n确认后立刻删除全部记录，只能靠之前导出的备份找回。',
+        icon: '⚠️', okText: '确认清空', cancelText: '我再想想'
+      }, doWipe);
+    }, 160);
   });
 });
 
@@ -5065,6 +5128,8 @@ function closeMobileTools() {
 }
 $('#mobileSettings').addEventListener('click', e => {
   e.stopPropagation();
+  /* 设置面板和日期选择器都从顶部弹出，先收起下层，避免两层叠在一起 */
+  if (document.getElementById('pickerHost')) closePicker();
   const open = mobileTools.classList.toggle('mobile-open');
   $('#mobileSettings').setAttribute('aria-expanded', String(open));
 });
@@ -5076,7 +5141,6 @@ document.addEventListener('click', e => {
 });
 function androidHandleBack() {
   if (document.getElementById('cselectPop')) { closeCselect(); return true; }
-  if ($('#remind').classList.contains('show')) { closeReminder(); return true; }
   if (!confirmEl.classList.contains('hidden')) { closeConfirm(false); return true; }
   if (!modalEl.classList.contains('hidden')) { closeModal(); return true; }
   if (mobileTools.classList.contains('mobile-open')) { closeMobileTools(); return true; }
@@ -5114,7 +5178,7 @@ const initialView = initialRaw === 'learning' ? 'goals' : initialRaw;
   setTimeout(() => {
     if (el.parentNode) el.remove();
     document.documentElement.classList.remove('booting');
-    /* 封面退场后再渲染首屏 + 同步系统闹钟，主线程此刻是干净的 */
+    /* 封面退场后再渲染首屏，主线程此刻是干净的 */
     switchView(VIEW_META[initialView] ? initialView : 'dashboard');
   }, 2020);
 })();
@@ -5124,20 +5188,14 @@ window.addEventListener('hashchange', () => {
   if (VIEW_META[view] && view !== currentView) switchView(view);
 });
 
-/* 目标到期提醒：启动 / 回到前台 / 每分钟 各检查一次。
-   启动时等封面退场后再检查，避免和淡出动画抢主线程 */
-setTimeout(() => { syncGoalAlarms(true); checkGoalReminders(); }, 2400);
-setInterval(() => { if (!document.hidden) checkGoalReminders(); }, 60000);
-document.addEventListener('visibilitychange', () => {
-  if (!document.hidden) { checkGoalReminders(); syncGoalAlarms(true); refreshQuote(); }
-});
-window.addEventListener('focus', () => checkGoalReminders());
-
 /* 跨零点 / 从后台切回时，把「今日一句」换成当天的 */
 function refreshQuote() {
   const sub = document.getElementById('pageSub');
   if (sub && sub.classList.contains('quote-line')) sub.textContent = quoteOfDay();
 }
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) refreshQuote();
+});
 setInterval(refreshQuote, 60000);
 
 window.androidHandleBack = androidHandleBack;

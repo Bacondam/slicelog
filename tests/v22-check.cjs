@@ -149,21 +149,25 @@ async function main() {
     const plain = s.goals.find(g => g.id === 'x3');
     const arch = (s.archivedGoals || []).find(g => g.id === 'x4');
     return {
-      bookTrack: book && book.track, bookKind: book && book.kind, bookTarget: book && book.target,
-      skillTrack: skill && skill.track, skillCur: skill && skill.current, skillUnit: skill && skill.unit,
+      bookTrack: book && book.track, bookKind: book && book.kind,
+      bookSubs: book ? book.subtasks.length : 0,
+      bookSubTitle: book && book.subtasks[0] ? book.subtasks[0].title : '',
+      skillTrack: skill && skill.track, skillSubs: skill ? skill.subtasks.length : 0,
+      skillDone: skill ? skill.subtasks.filter(t => t.done).length : 0,
       plainTrack: plain && plain.track,
-      archTrack: arch && arch.track,
+      archTrack: arch && arch.track, archSubs: arch ? arch.subtasks.length : 0,
       merged: s.goals.some(g => g.title === '旧学习项目'),
       learningGone: !('learning' in s)
     };
   })()`);
-  assert(mig.bookTrack === 'count' && mig.bookKind === undefined && mig.bookTarget === 400, `阅读目标没转成按数量：${JSON.stringify(mig)}`);
-  assert(mig.skillTrack === 'count' && mig.skillCur === 4 && mig.skillUnit === '', `技能目标没换算成 4/5：${JSON.stringify(mig)}`);
-  assert(mig.plainTrack === 'sub', `普通目标不该变成按数量：${mig.plainTrack}`);
-  assert(mig.archTrack === 'count', '归档里的学习目标没迁移');
+  assert(mig.bookTrack === 'sub' && mig.bookKind === undefined, `阅读目标应转成小目标：${JSON.stringify(mig)}`);
+  assert(mig.bookSubs === 1 && /120|400/.test(mig.bookSubTitle), `页数类目标应留一条带原始数字的小目标：${JSON.stringify(mig)}`);
+  assert(mig.skillTrack === 'sub' && mig.skillSubs === 5 && mig.skillDone === 4, `技能等级应拆成 5 级小目标、已完成 4 级：${JSON.stringify(mig)}`);
+  assert(mig.plainTrack === 'sub', `普通目标应保持小目标：${mig.plainTrack}`);
+  assert(mig.archTrack === 'sub' && mig.archSubs === 10, `归档里的课程目标没转成小目标：${JSON.stringify(mig)}`);
   assert(mig.merged, '旧 learning.items 没并进目标');
   assert(mig.learningGone, 'state.learning 应彻底移除');
-  pass('旧数据迁移', 'kind 目标 → 按数量，技能等级 → 4/5，learning 字段移除');
+  pass('旧数据迁移', '老目标全部折成小目标，页数类保留原始数字，技能 5 级拆开，learning 字段移除');
 
   /* ---------- 3. 目标页：标题「目标」，顶部只有一个「+ 目标」 ---------- */
   await evaluate(`switchView('goals')`);
@@ -198,72 +202,64 @@ async function main() {
   assert(!leftovers.invest && !leftovers.recent, `目标页还留着学习统计：${JSON.stringify(leftovers)}`);
   pass('学习统计下线', '目标页只剩目标本身');
 
-  /* ---------- 6. 两种推进方式的卡片：按数量 / 拆小目标 ---------- */
+  /* ---------- 6. 只剩一种推进方式：目标 + 小目标 ---------- */
   const cards = await evaluate(`(() => {
     const list = [...document.querySelectorAll('#view-goals .goal-card')];
-    const count = list.find(c => c.classList.contains('is-count'));
-    const sub = list.find(c => !c.classList.contains('is-count'));
     return {
       counts: list.length,
-      countText: count ? count.querySelector('.goal-prog .cnt').textContent.trim() : '',
-      countLine: count ? !!count.querySelector('.count-line [data-action="edit-progress"]') : false,
-      subText: sub ? (sub.querySelector('.goal-prog .cnt') || {}).textContent : '',
-      subUpdate: sub ? !!sub.querySelector('[data-action="edit-progress"]') : false
+      anyCount: list.some(c => c.classList.contains('is-count')),
+      anyUpdate: list.some(c => c.querySelector('[data-action="edit-progress"]')),
+      stepTexts: list.map(c => (c.querySelector('.goal-prog .cnt') || {}).textContent || '').filter(Boolean)
     };
   })()`);
   assert(cards.counts >= 3, `目标卡片数量异常：${cards.counts}`);
-  assert(/\/\s*\S+/.test(cards.countText), `按数量卡没有「当前/总量」：${cards.countText}`);
-  assert(cards.countLine, '按数量卡缺少「更新进度」入口');
-  assert(!cards.subUpdate, '拆小目标卡不该有「更新进度」');
-  pass('两种进度', `按数量「${cards.countText}」 / 拆小目标「${(cards.subText || '').trim()}」`);
+  assert(!cards.anyCount, '还有按数量的目标卡');
+  assert(!cards.anyUpdate, '还有「更新进度」入口');
+  assert(cards.stepTexts.every(t => /\d+\/\d+ 步/.test(t.trim())), `进度文案应统一成「x/y 步」：${JSON.stringify(cards.stepTexts)}`);
+  pass('单一推进方式', `${cards.counts} 张卡全部走小目标，进度写作「x/y 步」`);
 
-  /* ---------- 7. 新建「按数量」目标：一个弹窗搞定 ---------- */
+  /* ---------- 7. 新建目标：弹窗里没有「按数量」，小目标直接写 ---------- */
   const created = await evaluate(`(() => {
     openGoalModal();
     const form = document.querySelector('#modal form[data-form="goal"]');
-    const segs = [...form.querySelectorAll('.track-seg button')].map(b => b.textContent.trim());
-    form.querySelector('.track-seg [data-track="count"]').click();
-    const panelShown = !form.querySelector('[data-track-panel="count"]').hasAttribute('hidden');
+    const hasTrack = !!form.querySelector('[data-action="pick-track"], .track-seg, [name="track"]');
+    const hasCount = !!form.querySelector('[data-track-panel="count"], [name="total"], [name="current"]');
     form.elements.title.value = '看完 12 部纪录片';
-    form.elements.total.value = '12';
-    form.elements.unit.value = '部';
+    form.elements.subtasks.value = '第 1 部\\n第 2 部\\n第 3 部';
     form.querySelector('button[type="submit"]').click();
     const g = state.goals.find(x => x.title === '看完 12 部纪录片');
-    const list = [...document.querySelectorAll('#view-goals .goal-card')];
-    const card = list.find(c => c.textContent.includes('看完 12 部纪录片'));
+    const card = [...document.querySelectorAll('#view-goals .goal-card')].find(x => x.textContent.includes('看完 12 部纪录片'));
     return {
-      segs, panelShown,
-      saved: !!g, track: g && g.track, target: g && g.target, unit: g && g.unit,
+      hasTrack, hasCount,
+      saved: !!g, track: g && g.track, subs: g ? g.subtasks.length : 0,
       cardText: card ? card.querySelector('.goal-prog .cnt').textContent.trim() : '',
       modalClosed: document.getElementById('modal').classList.contains('hidden')
     };
   })()`);
-  assert(created.segs.join('/') === '拆小目标/按数量', `推进方式分段不对：${created.segs}`);
-  assert(created.panelShown, '切到「按数量」后没展开当前/总量/单位');
-  assert(created.saved && created.track === 'count' && created.target === 12 && created.unit === '部', `按数量目标没存对：${JSON.stringify(created)}`);
+  assert(!created.hasTrack && !created.hasCount, `弹窗里还留着按数量相关控件：${JSON.stringify(created)}`);
+  assert(created.saved && created.track === 'sub' && created.subs === 3, `新建目标没存成小目标：${JSON.stringify(created)}`);
   assert(created.modalClosed, '保存后弹窗没关');
-  assert(created.cardText.includes('0/12'), `卡片没显示 0/12 部：${created.cardText}`);
-  pass('新建按数量目标', `0/12 部 · 弹窗内切换推进方式`);
+  assert(created.cardText.includes('0/3'), `卡片没显示 0/3 步：${created.cardText}`);
+  pass('新建目标', `只填目标和三个小目标 · 卡片 0/3 步`);
 
-  /* ---------- 8. 更新进度：卡片上的数字跟着变 ---------- */
-  const updated = await evaluate(`(() => {
+  /* ---------- 8. 卡片上直接改小目标文字 ---------- */
+  const inline = await evaluate(`(() => {
     const g = state.goals.find(x => x.title === '看完 12 部纪录片');
-    openProgressModal(g.id);
-    const form = document.querySelector('#modal form[data-form="progress"]');
-    form.elements.current.value = '5';
-    form.querySelector('button[type="submit"]').click();
-    const card = [...document.querySelectorAll('#view-goals .goal-card')].find(c => c.textContent.includes('看完 12 部纪录片'));
-    return {
-      cur: state.goals.find(x => x.id === g.id).current,
-      text: card.querySelector('.goal-prog .cnt').textContent.trim(),
-      width: card.querySelector('.progress i').style.width,
-      tip: (card.querySelector('.cl-tip') || {}).textContent || ''
-    };
+    const card = [...document.querySelectorAll('#view-goals .goal-card')].find(x => x.dataset.id === g.id);
+    const btn = card.querySelector('[data-action="edit-sub"]');
+    if (!btn) return { missing: true };
+    btn.click();
+    const inp = card.querySelector('.sub-edit');
+    if (!inp) return { missing: true };
+    inp.value = '第 1 部（已改名）';
+    inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    const after = state.goals.find(x => x.id === g.id).subtasks[0].title;
+    const card2 = [...document.querySelectorAll('#view-goals .goal-card')].find(x => x.dataset.id === g.id);
+    return { missing: false, after, shown: card2.textContent.includes('已改名') };
   })()`);
-  assert(updated.cur === 5 && updated.text.includes('5/12'), `进度没更新：${JSON.stringify(updated)}`);
-  assert(updated.width === '41.7%', `进度条宽度不对：${updated.width}`);
-  assert(/上次更新/.test(updated.tip), `没标记上次更新时间：${updated.tip}`);
-  pass('更新进度', `5/12 部 · 41.7% · ${updated.tip.trim()}`);
+  assert(!inline.missing, '小目标标题不能点开编辑');
+  assert(inline.after === '第 1 部（已改名）' && inline.shown, `改名没保存：${JSON.stringify(inline)}`);
+  pass('小目标内联编辑', '点文字变输入框，回车即存');
 
   /* ---------- 9. 拆小目标的目标：勾完才能完成 ---------- */
   const subFlow = await evaluate(`(() => {

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slicelog · Find X8 Ultra 模拟测试</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    background: #131518; color: #e6eaee; display: flex; overflow: hidden;
+  }
+
+  /* ---------- 左侧控制台 ---------- */
+  .panel {
+    width: 258px; flex: 0 0 258px; height: 100%; overflow-y: auto;
+    background: #181b1f; border-right: 1px solid #262a2f; padding: 16px 14px 20px;
+  }
+  .panel::-webkit-scrollbar { width: 6px; }
+  .panel::-webkit-scrollbar-thumb { background: #2d3238; border-radius: 3px; }
+  .panel h1 { font-size: 13.5px; margin: 0 0 3px; letter-spacing: .3px; }
+  .panel .sub { font-size: 10.5px; color: #6f7a85; margin-bottom: 15px; letter-spacing: .2px; }
+  .group { margin-bottom: 14px; }
+  .group > label {
+    display: block; font-size: 10px; letter-spacing: .8px; color: #5f6a75;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip {
+    border: 1px solid #2c323a; background: #1e2228; color: #bcc6d0; font-family: inherit;
+    font-size: 11.5px; padding: 6px 9px; border-radius: 7px; cursor: pointer; transition: .14s;
+  }
+  .chip:hover { border-color: #3b444f; color: #fff; }
+  .chip.on { background: #2c5b48; border-color: #3d7d63; color: #eafff4; }
+  .chips .chip.grow { flex: 1; text-align: center; }
+
+  /* 本轮改动快捷测试 */
+  .test-list { display: flex; flex-direction: column; gap: 5px; }
+  .test {
+    display: flex; align-items: flex-start; gap: 8px; width: 100%; text-align: left;
+    border: 1px solid #2c323a; background: #1c2026; color: #c8d2dc; font-family: inherit;
+    padding: 7px 9px; border-radius: 8px; cursor: pointer; transition: .14s; font-size: 11.5px;
+  }
+  .test:hover { border-color: #46866c; background: #1f2a25; color: #fff; }
+  .test .num {
+    flex: 0 0 16px; height: 16px; border-radius: 5px; background: #2f3a44; color: #9fb0bd;
+    font-size: 9.5px; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-top: 1px;
+  }
+  .test:hover .num { background: #3d7d63; color: #fff; }
+  .test .tx { display: block; min-width: 0; }
+  .test b { display: block; font-weight: 600; font-size: 11.5px; color: #dbe4ec; }
+  .test em { display: block; font-style: normal; font-size: 10px; color: #75808b; margin-top: 1px; line-height: 1.35; }
+  .test:hover b { color: #fff; }
+  #presets .chip { padding: 6px 8px; }
+  #themes .chip { padding: 6px 7px; }
+
+  .hint { font-size: 10.5px; line-height: 1.7; color: #6f7a85; margin-top: 12px; }
+  .hint b { color: #a8b5c1; font-weight: 600; }
+  .meta { margin-top: 13px; padding-top: 11px; border-top: 1px solid #262a2f; font-size: 10.5px; color: #5f6a75; line-height: 1.85; }
+  .meta span { color: #9dabb7; }
+
+  /* ---------- 舞台 ---------- */
+  .stage {
+    flex: 1; min-width: 0; height: 100%; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 50% 8%, #1d2329 0%, #131518 58%);
+  }
+  .stage-tip {
+    position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+    font-size: 10.5px; color: #5d6771; white-space: nowrap; letter-spacing: .2px;
+  }
+  .device-wrap { transform-origin: center center; }
+  /* X8 Ultra：金属中框 + 四微曲，用两段渐变近似 */
+  .device {
+    padding: 10px; border-radius: 48px; position: relative;
+    background: linear-gradient(155deg, #4a5158 0%, #1a1d21 38%, #262b30 62%, #434a51 100%);
+    box-shadow: 0 26px 64px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .screen {
+    position: relative; overflow: hidden; border-radius: 39px;
+    background: var(--bar-color, #F5F1E8); isolation: isolate;
+  }
+  iframe { display: block; width: 100%; height: 100%; border: 0; background: transparent; }
+
+  /* ColorOS 风格状态栏 */
+  .status {
+    position: absolute; left: 0; right: 0; top: 0; height: var(--sat, 34px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; z-index: 3; pointer-events: none;
+    color: var(--bar-fg, #1b2a22); font-size: 12px; font-weight: 600; letter-spacing: .3px;
+  }
+  .status .right { display: flex; align-items: center; gap: 4px; }
+  .status svg { display: block; }
+
+  /* 居中单挖孔 */
+  .punch {
+    position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+    width: 12px; height: 12px; border-radius: 50%; background: #040608;
+    box-shadow: inset 0 0 2px rgba(130,170,200,.5), 0 0 0 1px rgba(255,255,255,.04);
+    z-index: 4; pointer-events: none;
+  }
+  /* 手势条 */
+  .gesture {
+    position: absolute; left: 50%; transform: translateX(-50%); bottom: 6px;
+    width: 104px; height: 4px; border-radius: 99px;
+    background: var(--bar-fg, #1b2a22); opacity: .34; z-index: 3; pointer-events: none;
+  }
+  /* 三键导航 */
+  .keys {
+    position: absolute; left: 0; right: 0; bottom: 0; height: var(--sab, 24px);
+    display: flex; align-items: center; justify-content: center; gap: 58px;
+    z-index: 3; pointer-events: none;
+  }
+  .keys i {
+    width: 13px; height: 13px; display: block; opacity: .5;
+    border: 1.6px solid var(--bar-fg, #1b2a22);
+  }
+  .keys i:nth-child(1) { border-width: 0 0 1.6px 1.6px; transform: rotate(45deg); width: 10px; height: 10px; }
+  .keys i:nth-child(2) { border-radius: 50%; }
+  .keys i:nth-child(3) { border-radius: 3px; }
+  .hidden { display: none !important; }
+
+  .toast {
+    position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%);
+    background: rgba(16,20,24,.92); color: #fff; font-size: 11px; padding: 7px 12px;
+    border-radius: 8px; opacity: 0; transition: .25s; pointer-events: none;
+    z-index: 6; max-width: 88%; text-align: center; line-height: 1.45;
+  }
+  .toast.on { opacity: 1; }
+
+  /* 窄窗口：面板收成顶部条，快捷测试改两列 */
+  @media (max-width: 780px) {
+    body { flex-direction: column; }
+    .panel {
+      width: 100%; flex: 0 0 auto; height: auto; max-height: 44%;
+      border-right: 0; border-bottom: 1px solid #262a2f; padding: 9px 11px 7px;
+    }
+    .panel h1 { font-size: 12px; }
+    .panel .sub, .hint, .meta { display: none; }
+    .group { margin-bottom: 7px; }
+    .group > label { margin-bottom: 4px; }
+    .chip, .test { font-size: 11px; padding: 5px 8px; }
+    .test-list { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .test .num { flex-basis: 14px; height: 14px; font-size: 9px; }
+    .test em { display: none; }
+    .stage-tip { display: none; }
+  }
+</style>
+</head>
+<body>
+  <aside class="panel">
+    <h1>Find X8 Ultra 真机模拟</h1>
+    <div class="sub">OPPO · 3168×1440 · 6.82″</div>
+
+    <div class="group">
+      <label>设备显示</label>
+      <div class="chips" id="presets"></div>
+    </div>
+
+    <div class="group">
+      <label>导航方式</label>
+      <div class="chips" id="navMode">
+        <button class="chip on grow" data-sab="24" data-keys="0">手势条</button>
+        <button class="chip grow" data-sab="46" data-keys="1">虚拟三键</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>主题</label>
+      <div class="chips" id="themes">
+        <button class="chip on" data-theme="oat">燕麦</button>
+        <button class="chip" data-theme="mist">雾霭</button>
+        <button class="chip" data-theme="clay">陶土</button>
+        <button class="chip" data-theme="graphite">素纸</button>
+        <button class="chip" data-theme="pine">松烟</button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>v1.0 页面 · 一键直达</label>
+      <div class="test-list" id="tests">
+        <button class="test" data-run="year"><span class="num">1</span><span class="tx"><b>支出构成环图</b><em>按分类占比的扇形图</em></span></button>
+        <button class="test" data-run="form"><span class="num">2</span><span class="tx"><b>记账表单</b><em>日期点开是日历 + 常用备注</em></span></button>
+        <button class="test" data-run="subedit"><span class="num">3</span><span class="tx"><b>小目标内联编辑</b><em>点标题就地改字</em></span></button>
+        <button class="test" data-run="goals"><span class="num">4</span><span class="tx"><b>目标列表</b><em>只剩目标 + 小目标</em></span></button>
+        <button class="test" data-run="settings"><span class="num">5</span><span class="tx"><b>设置面板</b><em>备份 / 外观 / 清空 分组</em></span></button>
+        <button class="test" data-run="dash"><span class="num">6</span><span class="tx"><b>概览</b><em>成长热力图已删除</em></span></button>
+      </div>
+    </div>
+
+    <div class="group">
+      <label>操作</label>
+      <div class="chips">
+        <button class="chip" id="reload">重新加载</button>
+        <button class="chip" id="reseed">重置示例数据</button>
+        <button class="chip" id="openApp">新窗口</button>
+      </div>
+    </div>
+
+    <div class="hint">
+      屏幕里可以直接点、打字、滑动。<br>
+      数据存在浏览器本地，<b>不碰手机上的数据</b>。
+    </div>
+
+    <div class="meta">
+      视口 <span id="mSize">411 × 905</span><br>
+      状态栏 <span id="mSat">34</span>px · 底部 <span id="mSab">24</span>px<br>
+      密度 <span id="mDpr">3.5</span>× · 物理 <span id="mPhys">1439 × 3168</span>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="stage-tip">顶栏与底栏会避开状态栏和手势条，和真机安全区一致</div>
+    <div class="device-wrap" id="wrap">
+      <div class="device">
+        <div class="screen" id="screen">
+          <iframe id="app" title="Slicelog"></iframe>
+          <div class="status">
+            <span id="clock">11:50</span>
+            <span class="right">
+              <svg width="14" height="10" viewBox="0 0 15 11" fill="currentColor"><rect x="0" y="7" width="2.6" height="4" rx="1"/><rect x="4" y="5" width="2.6" height="6" rx="1"/><rect x="8" y="2.6" width="2.6" height="8.4" rx="1"/><rect x="12" y="0" width="2.6" height="11" rx="1" opacity=".32"/></svg>
+              <svg width="13" height="10" viewBox="0 0 14 11" fill="currentColor"><path d="M7 10.2 4.7 7.7a3.3 3.3 0 0 1 4.6 0L7 10.2Z"/><path d="M2.3 5.2 4 7a4.3 4.3 0 0 1 6 0l1.7-1.8a6.6 6.6 0 0 0-9.4 0Z" opacity=".72"/><path d="M.4 3.2a9 9 0 0 1 13.2 0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity=".5"/></svg>
+              <svg width="21" height="10" viewBox="0 0 22 11" fill="none"><rect x=".6" y=".6" width="18" height="9.8" rx="3" stroke="currentColor" stroke-opacity=".45"/><rect x="2.2" y="2.2" width="13.5" height="6.6" rx="1.8" fill="currentColor"/><path d="M20.4 4v3a2 2 0 0 0 0-3Z" fill="currentColor" opacity=".55"/></svg>
+            </span>
+          </div>
+          <div class="punch"></div>
+          <div class="gesture" id="gesture"></div>
+          <div class="keys hidden" id="keys"><i></i><i></i><i></i></div>
+          <div class="toast" id="toast"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+<script>
+(function () {
+  /* 411 × 905 @3.5 = 1438.5 × 3167.5，正好是 X8U 的 1440 × 3168 */
+  var PRESETS = [
+    { id: 'std',  name: '标准', w: 411, h: 905, sat: 34, dpr: 3.5, phys: '1439 × 3168' },
+    { id: 'zoom', name: '放大', w: 393, h: 866, sat: 32, dpr: 3.5, phys: '1376 × 3031' },
+    { id: 'old',  name: '对照', w: 452, h: 994, sat: 32, dpr: 3.19, phys: '1442 × 3171' },
+    { id: 'land', name: '横屏', w: 905, h: 411, sat: 22, dpr: 3.5, phys: '3168 × 1439' }
+  ];
+  var st = { preset: PRESETS[0], sab: 24, keys: 0 };
+
+  var elApp = document.getElementById('app');
+  var elWrap = document.getElementById('wrap');
+  var elScreen = document.getElementById('screen');
+  var elGesture = document.getElementById('gesture');
+  var elKeys = document.getElementById('keys');
+  var elToast = document.getElementById('toast');
+
+  function toast(text) {
+    elToast.textContent = text;
+    elToast.classList.add('on');
+    clearTimeout(toast._t);
+    toast._t = setTimeout(function () { elToast.classList.remove('on'); }, 2200);
+  }
+
+  function win() { return elApp.contentWindow; }
+
+  /* 同源 iframe 里间接 eval：能访问 App 脚本顶层的 let/const（switchView、financeMode 等） */
+  function run(code) {
+    try { win().eval(code); }
+    catch (e) { toast('App 还没加载完，稍等一下'); }
+  }
+
+  var ACTIONS = {
+    year: "switchView('finance'); financeMode='year'; render(); setTimeout(function(){var el=document.querySelector('.year-donut'); if(el){el.scrollIntoView({block:'center'});}},260);",
+    form: "financeMode='month'; state.settings.finQuickCollapsed=false; switchView('finance'); render(); setTimeout(function(){var el=document.querySelector('.date-field'); if(el){el.scrollIntoView({block:'center'});}},300);",
+    subedit: "switchView('goals'); setTimeout(function(){var b=document.querySelector('.sub-title-btn'); if(b){b.click(); b.scrollIntoView({block:'center'});}},300);",
+    goals: "switchView('goals'); setTimeout(function(){scrollTo(0,0);},120);",
+    settings: "var b=document.getElementById('mobileSettings'); if(b){b.click();}",
+    dash: "switchView('dashboard'); setTimeout(function(){scrollTo(0,0);},120);"
+  };
+
+  function loadApp() {
+    var p = st.preset;
+    elApp.src = '/app?sat=' + p.sat + '&sab=' + st.sab + '&r=' + Date.now();
+  }
+
+  function applySize() {
+    var p = st.preset;
+    elScreen.style.width = p.w + 'px';
+    elScreen.style.height = p.h + 'px';
+    elScreen.style.setProperty('--sat', p.sat + 'px');
+    elScreen.style.setProperty('--sab', st.sab + 'px');
+    elGesture.classList.toggle('hidden', st.keys === 1);
+    elKeys.classList.toggle('hidden', st.keys !== 1);
+    document.getElementById('mSize').textContent = p.w + ' × ' + p.h;
+    document.getElementById('mSat').textContent = p.sat;
+    document.getElementById('mSab').textContent = st.sab;
+    document.getElementById('mDpr').textContent = p.dpr;
+    document.getElementById('mPhys').textContent = p.phys;
+    fit();
+  }
+
+  function fit() {
+    var stage = document.querySelector('.stage');
+    var narrow = window.innerWidth <= 780;
+    var availW = stage.clientWidth - (narrow ? 16 : 44);
+    var availH = stage.clientHeight - (narrow ? 26 : 64);
+    var fw = st.preset.w + 20;
+    var fh = st.preset.h + 20;
+    var scale = Math.min(1, availW / fw, availH / fh);
+    elWrap.style.transform = 'scale(' + Math.max(0.18, scale) + ')';
+  }
+
+  function renderPresets() {
+    var box = document.getElementById('presets');
+    box.innerHTML = '';
+    PRESETS.forEach(function (p) {
+      var b = document.createElement('button');
+      b.className = 'chip' + (p.id === st.preset.id ? ' on' : '');
+      b.textContent = p.name;
+      b.onclick = function () { st.preset = p; renderPresets(); applySize(); loadApp(); };
+      box.appendChild(b);
+    });
+  }
+
+  document.querySelectorAll('#navMode .chip').forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll('#navMode .chip').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      st.sab = parseInt(b.dataset.sab, 10);
+      st.keys = parseInt(b.dataset.keys, 10);
+      applySize(); loadApp();
+    };
+  });
+
+  document.querySelectorAll('#themes .chip').forEach(function (b) {
+    b.onclick = function () {
+      document.querySelectorAll('#themes .chip').forEach(function (x) { x.classList.remove('on'); });
+      b.classList.add('on');
+      var id = b.dataset.theme;
+      try { win().eval("applyTheme('" + id + "'); saveState(); render();"); }
+      catch (e) { loadApp(); }
+    };
+  });
+
+  document.querySelectorAll('#tests .test').forEach(function (b) {
+    b.onclick = function () {
+      var code = ACTIONS[b.dataset.run];
+      if (code) { run(code); toast('已跳转：' + b.querySelector('b').textContent); }
+    };
+  });
+
+  document.getElementById('reload').onclick = function () { loadApp(); toast('已重新加载，会重新走启动封面'); };
+  document.getElementById('openApp').onclick = function () { window.open('/app', '_blank'); };
+  document.getElementById('reseed').onclick = function () {
+    run("state = seedState(); saveState(); editingJournal = null; financeMode='month'; render();");
+    toast('已重置为示例数据');
+  };
+
+  /* App 通过桥接把系统栏颜色和事件抛上来，壳里同步 */
+  window.addEventListener('message', function (e) {
+    var d = e.data || {};
+    if (d.t === 'bars') {
+      elScreen.style.setProperty('--bar-color', d.color);
+      elScreen.style.setProperty('--bar-fg', d.dark ? '#e8f0eb' : '#1b2a22');
+    } else if (d.t === 'backup') {
+      toast('已触发导出：' + (d.name || 'backup.json'));
+    } else if (d.t === 'share') {
+      toast('模拟：真机会弹出系统分享面板');
+    }
+  });
+
+  elApp.addEventListener('load', function () {
+    try {
+      var t = elApp.contentDocument.documentElement.dataset.theme;
+      if (t) {
+        document.querySelectorAll('#themes .chip').forEach(function (x) {
+          x.classList.toggle('on', x.dataset.theme === t);
+        });
+      }
+    } catch (e) {}
+  });
+
+  window.addEventListener('resize', fit);
+
+  function tick() {
+    var d = new Date();
+    document.getElementById('clock').textContent =
+      String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  tick();
+  setInterval(tick, 20000);
+
+  if (location.protocol === 'file:') {
+    toast('要用本地服务打开：node tests/serve.cjs 后访问 http://127.0.0.1:8770/x8u');
+  }
+
+  renderPresets();
+  applySize();
+  loadApp();
+})();
+</script>
+</body>
+</html>

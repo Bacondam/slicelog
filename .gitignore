@@ -23,6 +23,7 @@ tests/index-before-*.html
 .edge-*/
 tests/icon-sheet.html
 tests/_dbg*.cjs
+tests/probe-*.cjs
 
 # IDE
 .idea/
