@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<meta name="theme-color" content="#F5F1E8">
+<meta name="theme-color" content="#F9F6F0">
 <title>人生切片 · Slicelog</title>
 <!-- iOS / PWA：可添加到主屏幕、全屏运行 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,9 +19,9 @@
 try {
   var _s = JSON.parse(localStorage.getItem('growth-os-v1'));
   var _t = _s && _s.settings && _s.settings.theme;
-  var _map = { light: 'oat', dark: 'pine' };
-  var _dark = ['pine'];
-  var _themes = ['oat', 'mist', 'clay', 'graphite', 'pine'];
+  var _map = { light: 'oat', dark: 'ink', pine: 'ink', graphite: 'cedar' };
+  var _dark = ['ink'];
+  var _themes = ['oat', 'mist', 'clay', 'cedar', 'paper', 'ink'];
   _t = _map[_t] || _t;
   if (_themes.indexOf(_t) >= 0) {
     document.documentElement.dataset.theme = _t;
@@ -182,101 +182,124 @@ try {
      --ctl-hover 悬停/按压填充 */
   :root,
   [data-theme="oat"] {
-    --bg: #F5F1E8;
-    --card: #FFFDF7;
+    --bg: #F9F6F0;
+    --card: #FFFEFB;
     --text: #2B2A23;
-    --muted: #706B5F;
-    --line: #E8E1D3;
-    --accent: #5F7A5A;
-    --accent-ink: #4C6448;
-    --accent-soft: #E8EFE1;
-    --accent-2: #B57A34;
-    --accent-2-ink: #8F6029;
-    --accent-hi: #8AA684;
-    --on-accent: #FFFDF7;
+    --muted: #6B6555;
+    --line: #E4DCCB;
+    --accent: #556E4F;
+    --accent-ink: #45583F;
+    --accent-soft: #E7EEDF;
+    --accent-2: #B0762F;
+    --accent-2-ink: #8B5C24;
+    --accent-hi: #87A182;
+    --on-accent: #FFFEFB;
     --danger: #A9473C;
-    --line-ctl: #CAC2B2;
+    --line-ctl: #C9C0AF;
     --ctl-bg: var(--bg);
-    --ctl-hover: #EFE9DC;
+    --ctl-hover: #F3EEE3;
     --shadow: 0 1px 2px rgba(74,64,44,.05), 0 8px 24px rgba(74,64,44,.05);
     --radius: 18px;
   }
+  /* 雾霭：冷白纸 + 靛蓝，清醒利落 */
   [data-theme="mist"] {
-    --bg: #EFF3F5;
+    --bg: #F3F7FB;
     --card: #FFFFFF;
-    --text: #1B2A33;
-    --muted: #5E6E77;
-    --line: #E0E8EC;
-    --accent: #3E7089;
-    --accent-ink: #345F75;
-    --accent-soft: #E2EEF3;
-    --accent-2: #B0703C;
-    --accent-2-ink: #965F33;
-    --accent-hi: #629BB4;
+    --text: #17222E;
+    --muted: #57687A;
+    --line: #D8E1EE;
+    --accent: #2C5A9E;
+    --accent-ink: #244B85;
+    --accent-soft: #DDE8F7;
+    --accent-2: #A9702F;
+    --accent-2-ink: #8A5A24;
+    --accent-hi: #6D92C7;
     --on-accent: #FFFFFF;
-    --danger: #B14A3F;
-    --line-ctl: #B8C5CB;
+    --danger: #AC4038;
+    --line-ctl: #B5C4D6;
     --ctl-bg: var(--bg);
-    --ctl-hover: #E7EFF3;
-    --shadow: 0 1px 2px rgba(30,60,80,.05), 0 8px 24px rgba(30,60,80,.06);
+    --ctl-hover: #E9F1FA;
+    --shadow: 0 1px 2px rgba(30,55,85,.05), 0 8px 24px rgba(30,55,85,.06);
   }
+  /* 陶土：暖沙纸 + 砖红，最有温度 */
   [data-theme="clay"] {
-    --bg: #F6F0E8;
-    --card: #FFFCF6;
-    --text: #2E241D;
-    --muted: #79685A;
-    --line: #ECE0D3;
-    --accent: #A5604A;
-    --accent-ink: #8A4E3C;
-    --accent-soft: #F6E6DD;
-    --accent-2: #8C7530;
-    --accent-2-ink: #7D682B;
-    --accent-hi: #C88A74;
-    --on-accent: #FFFCF6;
-    --danger: #96322B;
-    --line-ctl: #D0C1B2;
+    --bg: #FCF6F1;
+    --card: #FFFEFC;
+    --text: #2C211C;
+    --muted: #755F52;
+    --line: #EBDBCE;
+    --accent: #B14A31;
+    --accent-ink: #933D28;
+    --accent-soft: #F8E3D9;
+    --accent-2: #7C7430;
+    --accent-2-ink: #6B6429;
+    --accent-hi: #D18A72;
+    --on-accent: #FFFEFC;
+    --danger: #9A332C;
+    --line-ctl: #D2BFB1;
     --ctl-bg: var(--bg);
-    --ctl-hover: #F3E8DC;
-    --shadow: 0 1px 2px rgba(90,66,48,.06), 0 8px 24px rgba(90,66,48,.06);
+    --ctl-hover: #F7EDE4;
+    --shadow: 0 1px 2px rgba(90,62,44,.05), 0 8px 24px rgba(90,62,44,.06);
   }
-  [data-theme="graphite"] {
-    --bg: #FAFAF8;
+  /* 雪松：浅青纸 + 深青，安静但不发灰 */
+  [data-theme="cedar"] {
+    --bg: #F5FAF8;
     --card: #FFFFFF;
-    --text: #191A17;
-    --muted: #6E7069;
-    --line: #E9E9E4;
-    --accent: #3A4E42;
-    --accent-ink: #2F4036;
-    --accent-soft: #EAEEE9;
-    --accent-2: #9A7B36;
-    --accent-2-ink: #81672D;
-    --accent-hi: #6A8175;
+    --text: #16211E;
+    --muted: #54655F;
+    --line: #D8E4DF;
+    --accent: #15736B;
+    --accent-ink: #115C56;
+    --accent-soft: #DCEEEA;
+    --accent-2: #A9702F;
+    --accent-2-ink: #8A5A24;
+    --accent-hi: #55A79C;
+    --on-accent: #FFFFFF;
+    --danger: #A63E39;
+    --line-ctl: #B4C7C1;
+    --ctl-bg: var(--bg);
+    --ctl-hover: #EAF4F0;
+    --shadow: 0 1px 2px rgba(24,60,55,.05), 0 8px 24px rgba(24,60,55,.06);
+  }
+  /* 纸白：素纸白 + 墨黑，安静到极简 */
+  [data-theme="paper"] {
+    --bg: #F8F8F5;
+    --card: #FFFFFF;
+    --text: #1B1B19;
+    --muted: #6B6B65;
+    --line: #E4E3DE;
+    --accent: #35373A;
+    --accent-ink: #26282B;
+    --accent-soft: #ECECE8;
+    --accent-2: #A8792F;
+    --accent-2-ink: #875F22;
+    --accent-hi: #6E7278;
     --on-accent: #FFFFFF;
     --danger: #A33B33;
-    --line-ctl: #CBCBC4;
+    --line-ctl: #C9C8C2;
     --ctl-bg: var(--bg);
-    --ctl-hover: #F0F0EB;
-    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+    --ctl-hover: #EFEFEB;
+    --shadow: 0 1px 2px rgba(30,30,28,.05), 0 8px 24px rgba(30,30,28,.05);
   }
-  /* 松烟夜：夜间不刺眼，但结构线与可交互件必须看得见 */
-  [data-theme="pine"] {
-    --bg: #101412;
-    --card: #1B211E;
-    --text: #E9EEE8;
-    --muted: #A6B2A9;
-    --line: #38423B;
-    --accent: #86C7A5;
-    --accent-ink: #B4E8C8;
-    --accent-soft: rgba(134,199,165,.16);
-    --accent-2: #E0A667;
-    --accent-2-ink: #E8B587;
-    --accent-hi: #A9E2C2;
-    --on-accent: #0C1A14;
+  /* 墨石：中性黑灰，夜里不刺眼，也没有绿调 */
+  [data-theme="ink"] {
+    --bg: #17181A;
+    --card: #222427;
+    --text: #E9EBED;
+    --muted: #A2A8AF;
+    --line: #3B3E43;
+    --accent: #CFD5DC;
+    --accent-ink: #E4E8ED;
+    --accent-soft: rgba(207,213,220,.22);
+    --accent-2: #C79A5B;
+    --accent-2-ink: #DCB57F;
+    --accent-hi: #E4E8ED;
+    --on-accent: #15171A;
     --danger: #E88C80;
-    --line-ctl: #4C5850;
-    --ctl-bg: rgba(255,255,255,.055);
-    --ctl-hover: rgba(255,255,255,.11);
-    --shadow: 0 1px 2px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.4);
+    --line-ctl: #4A4E54;
+    --ctl-bg: rgba(255,255,255,.06);
+    --ctl-hover: rgba(255,255,255,.12);
+    --shadow: 0 1px 2px rgba(0,0,0,.45), 0 10px 30px rgba(0,0,0,.5);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -1074,7 +1097,7 @@ try {
     box-shadow: 0 24px 60px rgba(0,0,0,.28); animation: pop .16s ease;
   }
   /* 深色主题：弹窗本身要比背景亮一档，描边也要看得见 */
-  [data-mode="dark"] .modal-backdrop { background: rgba(4,8,6,.62); }
+  [data-mode="dark"] .modal-backdrop { background: rgba(6,7,9,.66); }
   [data-mode="dark"] .modal {
     border-color: var(--line-ctl);
     box-shadow: 0 24px 64px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.04);
@@ -1110,7 +1133,7 @@ try {
   .theme-check {
     position: absolute; right: 4px; top: 4px; width: 16px; height: 16px; border-radius: 50%;
     display: none; place-items: center; font-size: 10px; font-weight: 700;
-    background: var(--p-accent); color: var(--on-accent, #fff); font-style: normal;
+    background: var(--p-accent); color: var(--p-on, #fff); font-style: normal;
   }
   .theme-card.active .theme-check { display: grid; }
   .theme-meta { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -1132,11 +1155,11 @@ try {
   }
   .toast {
     position: fixed; left: 50%; bottom: 30px; transform: translate(-50%, 16px);
-    background: #17231d; color: #fff; padding: 10px 18px; border-radius: 999px;
+    background: #1B1D20; color: #fff; padding: 10px 18px; border-radius: 999px;
     font-size: 13px; opacity: 0; pointer-events: none; transition: .25s; z-index: 60;
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
   }
-  [data-mode="dark"] .toast { background: #e9f1ec; color: #17231d; }
+  [data-mode="dark"] .toast { background: #E9EBED; color: #17181A; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
   /* 应用内确认框（不使用浏览器原生 confirm，避免被 WebView/预览容器拦截） */
@@ -2173,20 +2196,26 @@ const FIN_CATS = {
     { name: '兼职', icon: 'parttime' }, { name: '红包', icon: 'redpacket' }, { name: '其他', icon: 'other' }
   ]
 };
-/* 分类色：与五套配色同温的低饱和自然色，不用高饱和霓虹，避免和主题打架 */
+/* 分类色：与六套配色同温的低饱和自然色，不用高饱和霓虹，避免和主题打架 */
 const FIN_COLORS = ['#5F7A5A', '#A5604A', '#7C8A6E', '#3E7089', '#9A7B36', '#8A6E7A', '#6E8E8A', '#8A7E6A', '#8A8A85'];
+/* 六款 = 六个明确色相：绿 / 蓝 / 红 / 青 / 纸白 / 黑灰。
+   每款只有 1 个强调色 + 中性色阶，跨款不靠亮度区分，靠色相区分。 */
 const THEMES = [
-  { id: 'oat', name: '燕麦 · 苔绿', desc: '暖白纸感', dark: false, bg: '#F5F1E8', card: '#FFFDF7', line: '#E8E1D3', accent: '#5F7A5A' },
-  { id: 'mist', name: '雾霭 · 石青', desc: '冷调干净', dark: false, bg: '#EFF3F5', card: '#FFFFFF', line: '#E0E8EC', accent: '#3E7089' },
-  { id: 'clay', name: '陶土 · 亚麻', desc: '暖而不燥', dark: false, bg: '#F6F0E8', card: '#FFFCF6', line: '#ECE0D3', accent: '#A5604A' },
-  { id: 'graphite', name: '素纸 · 墨绿', desc: '最安静', dark: false, bg: '#FAFAF8', card: '#FFFFFF', line: '#E9E9E4', accent: '#3A4E42' },
-  { id: 'pine', name: '松烟 · 夜', desc: '夜间不刺眼', dark: true, bg: '#101412', card: '#1B211E', line: '#4C5850', accent: '#86C7A5' }
+  { id: 'oat', name: '燕麦 · 苔绿', desc: '暖米纸感', dark: false, bg: '#F9F6F0', card: '#FFFEFB', line: '#E4DCCB', accent: '#556E4F', onAccent: '#FFFEFB' },
+  { id: 'mist', name: '雾霭 · 靛蓝', desc: '冷调清爽', dark: false, bg: '#F3F7FB', card: '#FFFFFF', line: '#D8E1EE', accent: '#2C5A9E', onAccent: '#FFFFFF' },
+  { id: 'clay', name: '陶土 · 砖红', desc: '暖而不燥', dark: false, bg: '#FCF6F1', card: '#FFFEFC', line: '#EBDBCE', accent: '#B14A31', onAccent: '#FFFEFC' },
+  { id: 'cedar', name: '雪松 · 青碧', desc: '安静不灰', dark: false, bg: '#F5FAF8', card: '#FFFFFF', line: '#D8E4DF', accent: '#15736B', onAccent: '#FFFFFF' },
+  { id: 'paper', name: '纸白 · 墨', desc: '素纸极简', dark: false, bg: '#F8F8F5', card: '#FFFFFF', line: '#E4E3DE', accent: '#35373A', onAccent: '#FFFFFF' },
+  { id: 'ink', name: '墨石 · 黑灰', desc: '夜间中性灰', dark: true, bg: '#17181A', card: '#222427', line: '#3B3E43', accent: '#CFD5DC', onAccent: '#15171A' }
 ];
 const THEME_FALLBACK = 'oat';
 const themeMeta = id => THEMES.find(t => t.id === id) || THEMES[0];
 const normalizeTheme = id => {
   if (id === 'light') return THEME_FALLBACK;
-  if (id === 'dark') return 'pine';
+  if (id === 'dark') return 'ink';
+  /* 旧版本主题退役，按气质就近迁移，别让老用户回到默认款 */
+  if (id === 'pine') return 'ink';
+  if (id === 'graphite') return 'cedar';
   return THEMES.some(t => t.id === id) ? id : THEME_FALLBACK;
 };
 function applyTheme(id) {
@@ -4589,7 +4618,7 @@ function openBudgetModal() {
 function openThemeModal() {
   const current = normalizeTheme(state.settings.theme);
   const cardOf = t => `<button type="button" class="theme-card${t.id === current ? ' active' : ''}" data-action="set-theme" data-theme="${t.id}"
-        style="--p-bg:${t.bg};--p-card:${t.card};--p-line:${t.line};--p-accent:${t.accent}">
+        style="--p-bg:${t.bg};--p-card:${t.card};--p-line:${t.line};--p-accent:${t.accent};--p-on:${t.onAccent}">
         <span class="theme-preview">
           <i class="tp-side"></i>
           <span class="tp-main"><i></i><i></i><i></i></span>

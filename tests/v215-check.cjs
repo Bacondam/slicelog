@@ -187,7 +187,7 @@ async function main() {
   const dark = await evaluate(`(() => {
     const f = document.querySelector('.sidebar-foot');
     if (f.classList.contains('mobile-open')) document.getElementById('mobileSettings').click();
-    state.settings.theme = 'pine'; applyTheme('pine'); render();
+    state.settings.theme = 'ink'; applyTheme('ink'); render();
     document.getElementById('mobileSettings').click();
     const cs = getComputedStyle(f);
     const lab = f.querySelector('.sf-label');

@@ -162,7 +162,7 @@ async function main() {
   assert(/^\d{4}-\d{2}-\d{2}$/.test(editForm.value), '编辑弹窗日期值异常：' + editForm.value);
   pass('编辑弹窗同步', '同样走原生日历，值 ' + editForm.value);
 
-  /* ---------- 8. 五套主题下，折线标注 / 月份格子文字的对比度 ---------- */
+  /* ---------- 8. 六套主题下，折线标注 / 月份格子文字的对比度 ---------- */
   const audit = await evaluate(`(() => {
     const parse = c => { const m = String(c).match(/rgba?\\(([^)]+)\\)/); if (!m) return null;
       const p = m[1].split(',').map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
@@ -200,7 +200,7 @@ async function main() {
     if (!ok) list.filter(x => x.ratio < 4.5).forEach(x => console.log(`      ${x.sel} = ${x.ratio}:1`));
   }
   assert(bad === 0, `有 ${bad} 套主题的月份面板文字对比度低于 4.5:1`);
-  pass('月份面板对比度', '5 套主题全部 ≥ 4.5:1');
+  pass('月份面板对比度', '6 套主题全部 ≥ 4.5:1');
 
   console.log(`\n全部通过：${results.length} 项`);
   ws.close();

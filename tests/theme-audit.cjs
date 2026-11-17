@@ -1,4 +1,4 @@
-/** v1.9.D 主题审计：五套配色 × 全部视图/弹窗，逐项检查文字与控件对比度 */
+/** v1.9.D 主题审计：六套配色 × 全部视图/弹窗，逐项检查文字与控件对比度 */
 const { spawn } = require('child_process');
 const path = require('path');
 const { pathToFileURL } = require('url');
@@ -189,7 +189,7 @@ async function main() {
   const report = [];
   const failures = [];
 
-  for (const theme of ['oat', 'mist', 'clay', 'graphite', 'pine']) {
+  for (const theme of ['oat', 'mist', 'clay', 'cedar', 'paper', 'ink']) {
     await evaluate(`applyTheme('${theme}')`);
     const dark = await evaluate(`document.documentElement.getAttribute('data-mode') === 'dark'`);
     let minText = 99, minTextWhat = '', minCtl = 99, minCtlWhat = '', total = 0, lowText = 0, all = [];
@@ -225,10 +225,10 @@ async function main() {
   });
   console.log('');
   assert(failures.length === 0, failures.join('\n'));
-  pass('五套主题 × 六个视图对比度', `文字最低 ${Math.min(...report.map(r => r.minText)).toFixed(2)}:1，控件描边最低 ${Math.min(...report.map(r => r.minCtl)).toFixed(2)}:1`);
+  pass('六套主题 × 六个视图对比度', `文字最低 ${Math.min(...report.map(r => r.minText)).toFixed(2)}:1，控件描边最低 ${Math.min(...report.map(r => r.minCtl)).toFixed(2)}:1`);
 
   /* ---------- 下拉：全部换成自绘，原生 select 不再直接出现在界面 ---------- */
-  await evaluate(`applyTheme('pine'); switchView('finance')`);
+  await evaluate(`applyTheme('ink'); switchView('finance')`);
   await delay(150);
   const sel = await evaluate(`(() => {
     const all = [...document.querySelectorAll('#view-finance select')];
@@ -242,7 +242,7 @@ async function main() {
 
   /* ---------- 下拉面板在每套主题下都可读 ---------- */
   const popRatios = [];
-  for (const theme of ['oat', 'mist', 'clay', 'graphite', 'pine']) {
+  for (const theme of ['oat', 'mist', 'clay', 'cedar', 'paper', 'ink']) {
     const r = await evaluate(`(async () => {
       applyTheme('${theme}');
       switchView('finance');
@@ -261,11 +261,11 @@ async function main() {
     assert(r.min >= 4.5, `${theme} 下拉选项对比度只有 ${r.min.toFixed(2)}:1`);
     popRatios.push(+r.min.toFixed(2));
   }
-  pass('下拉面板可读', `五套主题选项对比度最低 ${Math.min(...popRatios)}:1`);
+  pass('下拉面板可读', `六套主题选项对比度最低 ${Math.min(...popRatios)}:1`);
 
   /* ---------- 弹窗框架：描边比结构线更亮，深色下也不糊 ---------- */
   const modal = await evaluate(`(async () => {
-    applyTheme('pine');
+    applyTheme('ink');
     switchView('finance');
     openTxModal();
     await new Promise(r => setTimeout(r, 120));
@@ -323,7 +323,7 @@ async function main() {
 
   /* ---------- 换了收支类型，分类下拉的按钮文案要跟着变 ---------- */
   const sync = await evaluate(`(async () => {
-    applyTheme('pine');
+    applyTheme('ink');
     state.settings.finQuickCollapsed = false;
     switchView('finance');
     const form = document.getElementById('txForm');

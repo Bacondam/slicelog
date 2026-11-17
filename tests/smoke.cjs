@@ -136,8 +136,8 @@ async function main() {
   await evaluate(`document.getElementById('mobileSettings').click()`);
   assert(await evaluate(`document.querySelector('.sidebar-foot').classList.contains('mobile-open')`), '设置面板未打开');
   await evaluate(`document.getElementById('themeBtn').click()`);
-  await evaluate(`document.querySelector('[data-action="set-theme"][data-theme="pine"]').click()`);
-  assert(await evaluate(`document.documentElement.dataset.theme`) === 'pine', '主题切换失败');
+  await evaluate(`document.querySelector('[data-action="set-theme"][data-theme="ink"]').click()`);
+  assert(await evaluate(`document.documentElement.dataset.theme`) === 'ink', '主题切换失败');
   assert(await evaluate(`window.__barCalls.some(call => call.dark)`), '未同步安卓深色系统栏');
   await evaluate(`closeModal(); closeMobileTools()`);
   results.push('设置面板与深色主题');

@@ -1,5 +1,5 @@
 /* 人生切片 PWA：离线缓存应用外壳 */
-const CACHE = 'slicelog-v1.0.0';
+const CACHE = 'slicelog-v1.0.1';
 const ASSETS = [
   './',
   './index.html',

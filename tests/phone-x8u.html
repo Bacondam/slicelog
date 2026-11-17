@@ -172,8 +172,9 @@
         <button class="chip on" data-theme="oat">燕麦</button>
         <button class="chip" data-theme="mist">雾霭</button>
         <button class="chip" data-theme="clay">陶土</button>
-        <button class="chip" data-theme="graphite">素纸</button>
-        <button class="chip" data-theme="pine">松烟</button>
+        <button class="chip" data-theme="cedar">雪松</button>
+        <button class="chip" data-theme="paper">纸白</button>
+        <button class="chip" data-theme="ink">墨石</button>
       </div>
     </div>
 
@@ -186,6 +187,7 @@
         <button class="test" data-run="goals"><span class="num">4</span><span class="tx"><b>目标列表</b><em>只剩目标 + 小目标</em></span></button>
         <button class="test" data-run="settings"><span class="num">5</span><span class="tx"><b>设置面板</b><em>备份 / 外观 / 清空 分组</em></span></button>
         <button class="test" data-run="dash"><span class="num">6</span><span class="tx"><b>概览</b><em>成长热力图已删除</em></span></button>
+        <button class="test" data-run="countdown"><span class="num">7</span><span class="tx"><b>日记 · 倒数日</b><em>天数 / 增删改 / 上下排序</em></span></button>
       </div>
     </div>
 
@@ -272,7 +274,8 @@
     subedit: "switchView('goals'); setTimeout(function(){var b=document.querySelector('.sub-title-btn'); if(b){b.click(); b.scrollIntoView({block:'center'});}},300);",
     goals: "switchView('goals'); setTimeout(function(){scrollTo(0,0);},120);",
     settings: "var b=document.getElementById('mobileSettings'); if(b){b.click();}",
-    dash: "switchView('dashboard'); setTimeout(function(){scrollTo(0,0);},120);"
+    dash: "switchView('dashboard'); setTimeout(function(){scrollTo(0,0);},120);",
+    countdown: "state.settings.cardFold=state.settings.cardFold||{}; state.settings.cardFold['journal:countdown']=true; switchView('journal'); render(); setTimeout(function(){var el=document.querySelector('.cd-item')||document.querySelector('.cd-list'); if(el){el.scrollIntoView({block:'center'});} else {scrollTo(0,0);}},360);"
   };
 
   function loadApp() {

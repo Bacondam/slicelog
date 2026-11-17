@@ -74,7 +74,7 @@ async function evaluate(expression) {
   fs.writeFileSync(path.join(root, 'tests', 'preview-shell.png'), Buffer.from(shot.data, 'base64'));
 
   // 交互：切深色主题 → 核对 App 内主题与状态栏图标反色
-  await evaluate(`document.querySelector('.theme-card[data-theme="pine"]').click()`);
+  await evaluate(`document.querySelector('.theme-card[data-theme="ink"]').click()`);
   await delay(700);
   const dark = await evaluate(`(() => {
     const f = document.getElementById('app');

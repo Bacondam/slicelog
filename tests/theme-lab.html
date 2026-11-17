@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Slicelog 主题色系方案</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: #EDECE7;
+    font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    padding: 34px 40px 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .head { margin-bottom: 24px; }
+  .head h1 { font-size: 21px; margin: 0 0 6px; color: #24231F; letter-spacing: .2px; }
+  .head p { margin: 0; font-size: 12.5px; color: #77726A; line-height: 1.7; }
+  .head p b { color: #55514A; font-weight: 600; }
+
+  .rack { display: grid; grid-template-columns: repeat(6, 300px); gap: 20px; }
+
+  .col { display: flex; flex-direction: column; }
+  .cap { padding: 0 2px 10px; }
+  .cap .idx {
+    display: inline-block; font-size: 9.5px; color: #9A948A;
+    border: 1px solid #D8D4CB; border-radius: 4px; padding: 1px 5px; margin-bottom: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .cap .nm { font-size: 14px; font-weight: 650; color: #24231F; letter-spacing: .2px; }
+  .cap .nm i { font-style: normal; font-weight: 400; color: #8A8478; font-size: 12px; }
+  .cap .ds { font-size: 11px; color: #8A8478; margin-top: 2px; }
+
+  /* ---------- 每个主题的 mini 屏 ---------- */
+  .mini {
+    border-radius: 20px; padding: 16px 14px 13px;
+    background: var(--bg); color: var(--text);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: 10px;
+    height: 100%;
+  }
+  .mh { display: flex; align-items: baseline; justify-content: space-between; padding: 0 1px; }
+  .mh .t { font-size: 15px; font-weight: 650; letter-spacing: .3px; }
+  .mh .d { font-size: 10px; color: var(--muted); letter-spacing: .3px; }
+
+  .mcard {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 12px 13px 13px;
+  }
+  .mc-l { font-size: 10.5px; color: var(--muted); letter-spacing: .4px; }
+  .mc-v { font-size: 22px; font-weight: 650; letter-spacing: -.3px; margin: 3px 0 10px; font-variant-numeric: tabular-nums; }
+  .bar { height: 6px; border-radius: 3px; background: var(--accent-soft); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  .mc-f { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--muted); margin-top: 6px; }
+
+  /* 倒数日小卡 */
+  .mcd {
+    display: flex; align-items: center; gap: 11px;
+    background: var(--card); border: 1px solid var(--accent);
+    border-radius: 14px; padding: 10px 12px;
+  }
+  .mcd .n { display: flex; flex-direction: column; align-items: center; line-height: 1; min-width: 40px; }
+  .mcd .n span { font-size: 8.5px; color: var(--muted); letter-spacing: .5px; margin-bottom: 3px; }
+  .mcd .n b { font-size: 20px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .mcd .m { flex: 1; min-width: 0; }
+  .mcd .m b { display: block; font-size: 12px; font-weight: 600; }
+  .mcd .m em { display: block; font-style: normal; font-size: 9.5px; color: var(--muted); margin-top: 2px; }
+  .mcd .tagsm {
+    font-size: 8.5px; padding: 2px 5px; border-radius: 5px;
+    background: var(--accent-soft); color: var(--accent-ink); font-weight: 600;
+  }
+
+  .mrow { display: flex; gap: 7px; }
+  .mbtn {
+    flex: 1; border: 1px solid var(--accent); background: var(--accent);
+    color: var(--on-accent); font-size: 11.5px; font-weight: 600;
+    padding: 8px 0; border-radius: 9px; text-align: center; font-family: inherit;
+  }
+  .mbtn.ghost { background: transparent; color: var(--accent-ink); border-color: var(--line-ctl); }
+  .mbtn.soft { background: var(--accent-soft); color: var(--accent-ink); border-color: transparent; }
+
+  /* 色板 */
+  .sw { display: flex; gap: 4px; margin-top: 2px; }
+  .sw i {
+    flex: 1; height: 24px; border-radius: 5px; display: block;
+    border: 1px solid rgba(0,0,0,.07);
+  }
+  .sw-legend { display: flex; justify-content: space-between; font-size: 8.5px; color: var(--muted); margin-top: 5px; padding: 0 1px; letter-spacing: .2px; }
+
+  .hex { display: flex; flex-wrap: wrap; gap: 2px 9px; font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .hex b { color: var(--text); font-weight: 600; margin-left: 2px; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>Slicelog 主题色系 · 六款（纸色提亮 + 两款改色）</h1>
+  <p>05 由紫罗兰换成<b>纸白 · 墨</b>，06 由深绿换成<b>中性黑灰</b>；其余四款只保留提亮后的纸色，按钮色不变。<br>
+     底部色块依次为：背景 · 卡片 · 结构线 · 强调色 · 强调浅底 · 次强调。正文对比度均 ≥ 13:1，强调色 ≥ 5:1（WCAG AA）。</p>
+</div>
+
+<div class="rack" id="rack"></div>
+
+<script>
+const THEMES = [
+  {
+    id: 'oat', name: '燕麦', hue: '苔绿', desc: '暖米纸 + 苔绿，原来的经典款',
+    bg: '#F9F6F0', card: '#FFFEFB', text: '#2B2A23', muted: '#6B6555', line: '#E4DCCB',
+    accent: '#556E4F', accentInk: '#45583F', accentSoft: '#E7EEDF',
+    accent2: '#B0762F', accentHi: '#87A182', onAccent: '#FFFDF7',
+    lineCtl: '#C9C0AF', shadow: '0 1px 2px rgba(74,64,44,.06), 0 10px 26px rgba(74,64,44,.07)'
+  },
+  {
+    id: 'mist', name: '雾霭', hue: '靛蓝', desc: '冷白纸 + 靛蓝，清醒利落',
+    bg: '#F3F7FB', card: '#FFFFFF', text: '#17222E', muted: '#57687A', line: '#D8E1EE',
+    accent: '#2C5A9E', accentInk: '#244B85', accentSoft: '#DDE8F7',
+    accent2: '#A9702F', accentHi: '#6D92C7', onAccent: '#FFFFFF',
+    lineCtl: '#B5C4D6', shadow: '0 1px 2px rgba(30,55,85,.06), 0 10px 26px rgba(30,55,85,.07)'
+  },
+  {
+    id: 'clay', name: '陶土', hue: '砖红', desc: '暖沙纸 + 砖红，最有温度',
+    bg: '#FCF6F1', card: '#FFFEFC', text: '#2C211C', muted: '#755F52', line: '#EBDBCE',
+    accent: '#B14A31', accentInk: '#933D28', accentSoft: '#F8E3D9',
+    accent2: '#7C7430', accentHi: '#D18A72', onAccent: '#FFFCF8',
+    lineCtl: '#D2BFB1', shadow: '0 1px 2px rgba(90,62,44,.06), 0 10px 26px rgba(90,62,44,.07)'
+  },
+  {
+    id: 'cedar', name: '雪松', hue: '青碧', desc: '浅青纸 + 深青，安静不灰',
+    bg: '#F5FAF8', card: '#FFFFFF', text: '#16211E', muted: '#54655F', line: '#D8E4DF',
+    accent: '#15736B', accentInk: '#115C56', accentSoft: '#DCEEEA',
+    accent2: '#A9702F', accentHi: '#55A79C', onAccent: '#FFFFFF',
+    lineCtl: '#B4C7C1', shadow: '0 1px 2px rgba(24,60,55,.06), 0 10px 26px rgba(24,60,55,.07)'
+  },
+  {
+    id: 'paper', name: '纸白', hue: '墨', desc: '素纸白 + 墨黑，安静到极简',
+    bg: '#F8F8F5', card: '#FFFFFF', text: '#1B1B19', muted: '#6B6B65', line: '#E4E3DE',
+    accent: '#35373A', accentInk: '#26282B', accentSoft: '#ECECE8',
+    accent2: '#A8792F', accentHi: '#6E7278', onAccent: '#FFFFFF',
+    lineCtl: '#C9C8C2', shadow: '0 1px 2px rgba(30,30,28,.05), 0 10px 26px rgba(30,30,28,.06)'
+  },
+  {
+    id: 'ink', name: '墨石', hue: '黑灰', desc: '中性黑灰，去掉绿调，夜里不刺眼',
+    bg: '#17181A', card: '#222427', text: '#E9EBED', muted: '#A2A8AF', line: '#3B3E43',
+    accent: '#CFD5DC', accentInk: '#E4E8ED', accentSoft: 'rgba(207,213,220,.22)',
+    accent2: '#C79A5B', accentHi: '#E4E8ED', onAccent: '#15171A',
+    lineCtl: '#4A4E54', shadow: '0 1px 2px rgba(0,0,0,.45), 0 12px 30px rgba(0,0,0,.5)'
+  }
+];
+
+const rack = document.getElementById('rack');
+rack.innerHTML = THEMES.map((t, i) => `
+  <div class="col">
+    <div class="cap">
+      <span class="idx">${String(i + 1).padStart(2, '0')}</span>
+      <div class="nm">${t.name} <i>· ${t.hue}</i></div>
+      <div class="ds">${t.desc}</div>
+    </div>
+    <div class="mini" style="
+      --bg:${t.bg}; --card:${t.card}; --text:${t.text}; --muted:${t.muted}; --line:${t.line};
+      --accent:${t.accent}; --accent-ink:${t.accentInk}; --accent-soft:${t.accentSoft};
+      --accent-2:${t.accent2}; --accent-hi:${t.accentHi}; --on-accent:${t.onAccent};
+      --line-ctl:${t.lineCtl}; --shadow:${t.shadow};">
+
+      <div class="mh"><div class="t">概览</div><div class="d">11月17日 周二</div></div>
+
+      <div class="mcard">
+        <div class="mc-l">本月支出</div>
+        <div class="mc-v">¥ 3,280</div>
+        <div class="bar"><i style="width:62%"></i></div>
+        <div class="mc-f"><span>预算 ¥5,300</span><span>62%</span></div>
+      </div>
+
+      <div class="mcd">
+        <div class="n"><span>还有</span><b>21</b></div>
+        <div class="m"><b>项目验收</b><em>12月8日 · 周一</em></div>
+        <div class="tagsm">倒数日</div>
+      </div>
+
+      <div class="mrow">
+        <div class="mbtn">记一笔</div>
+        <div class="mbtn soft">详情</div>
+        <div class="mbtn ghost">更多</div>
+      </div>
+
+      <div class="sw">
+        <i style="background:${t.bg}"></i>
+        <i style="background:${t.card}"></i>
+        <i style="background:${t.line}"></i>
+        <i style="background:${t.accent}"></i>
+        <i style="background:${t.accentSoft}"></i>
+        <i style="background:${t.accent2}"></i>
+      </div>
+      <div class="sw-legend"><span>背景</span><span>卡片</span><span>线</span><span>强调</span><span>浅底</span><span>次</span></div>
+
+      <div class="hex">
+        <span>纸色<b>${t.bg}</b></span><span>强调<b>${t.accent}</b></span><span>次强调<b>${t.accent2}</b></span>
+      </div>
+    </div>
+  </div>
+`).join('');
+</script>
+</body>
+</html>

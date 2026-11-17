@@ -342,7 +342,7 @@ async function main() {
     const before = document.documentElement.dataset.theme;
     const list = THEMES.map(t => t.id);
     const out = [];
-    for (const id of ['oat', 'mist', 'clay', 'graphite', 'pine']) {
+    for (const id of ['oat', 'mist', 'clay', 'cedar', 'paper', 'ink']) {
       const t = applyTheme(id);
       const cs = getComputedStyle(document.documentElement);
       out.push({
@@ -359,17 +359,17 @@ async function main() {
     applyTheme(before);
     return { list, out, groups: THEMES.length };
   })()`);
-  assert(themes.groups === 5, `配色应为 5 套，实际 ${themes.groups}`);
-  assert(['oat', 'mist', 'clay', 'graphite', 'pine'].every(id => themes.list.includes(id)), '缺少新版配色：' + themes.list.join(','));
+  assert(themes.groups === 6, `配色应为 6 套，实际 ${themes.groups}`);
+  assert(['oat', 'mist', 'clay', 'cedar', 'paper', 'ink'].every(id => themes.list.includes(id)), '缺少新版配色：' + themes.list.join(','));
   for (const t of themes.out) {
     assert(t.applied === t.id, `${t.id} 没生效`);
     assert(t.accent === t.expectAccent, `${t.id} 强调色不符：${t.accent} ≠ ${t.expectAccent}`);
     assert(t.bg === t.expectBg, `${t.id} 底色不符：${t.bg} ≠ ${t.expectBg}`);
     assert(t.onAccent, `${t.id} 缺少 on-accent`);
   }
-  assert(themes.out.find(t => t.id === 'pine').mode === 'dark', '松烟·夜应为 dark 模式');
-  assert(themes.out.filter(t => t.mode === 'dark').length === 1, '新版里只有松烟·夜是暗色');
-  pass('配色接入', '5 套主题，色值与设计稿一致，松烟·夜走 dark 模式，旧主题已下线');
+  assert(themes.out.find(t => t.id === 'ink').mode === 'dark', '墨石·黑灰应为 dark 模式');
+  assert(themes.out.filter(t => t.mode === 'dark').length === 1, '新版里只有墨石·黑灰是暗色');
+  pass('配色接入', '6 套主题，色值与设计稿一致，墨石·黑灰走 dark 模式，旧主题已下线');
 
   console.log(`\n全部通过：${results.length} 项`);
   ws.close();

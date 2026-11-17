@@ -1,4 +1,4 @@
-/** v1.9.C 回归：折叠箭头 / 记账线性图标 / 目标进度写回 / 五套主题与交互令牌 */
+/** v1.9.C 回归：折叠箭头 / 记账线性图标 / 目标进度写回 / 六套主题与交互令牌 */
 const { spawn } = require('child_process');
 const path = require('path');
 const { pathToFileURL } = require('url');
@@ -154,7 +154,7 @@ async function main() {
   assert(prog.text !== prog.before, `进度文案没变化：${JSON.stringify(prog)}`);
   pass('进度写回', `勾一步 ${prog.before} → ${prog.text}，条宽 ${prog.width}`);
 
-  /* ---------- 5. 交互令牌：五套主题都有，松烟夜的控件描边比结构线更亮 ---------- */
+  /* ---------- 5. 交互令牌：六套主题都有，松烟夜的控件描边比结构线更亮 ---------- */
   const tokens = await evaluate(`(() => {
     const lum = hex => {
       const h = hex.replace('#', '');
@@ -176,9 +176,9 @@ async function main() {
   })()`);
   assert(tokens.length === 5, `主题数量不对：${tokens.length}`);
   assert(tokens.every(t => t.line && t.ctl), '有主题缺少 --line-ctl 令牌');
-  const pine = tokens.find(t => t.id === 'pine');
+  const pine = tokens.find(t => t.id === 'ink');
   assert(pine.ratio >= 1.8, `松烟夜的控件描边太暗，与卡片对比只有 ${pine.ratio.toFixed(2)}:1`);
-  pass('交互令牌', `松烟夜 --line-ctl 与卡片对比 ${pine.ratio.toFixed(2)}:1，五套主题均定义了控件令牌`);
+  pass('交互令牌', `松烟夜 --line-ctl 与卡片对比 ${pine.ratio.toFixed(2)}:1，六套主题均定义了控件令牌`);
 
   console.log(`\n全部通过：${results.length} 项`);
   ws.close();

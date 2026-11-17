@@ -221,7 +221,7 @@ async function main() {
 
   /* ---------- 6b. 深色主题可读性 ---------- */
   const dark = await evaluate(`(() => {
-    state.settings.theme = 'pine'; applyTheme('pine'); render();
+    state.settings.theme = 'ink'; applyTheme('ink'); render();
     const item = document.querySelector('.cd-item');
     const num = item.querySelector('.cd-num');
     const title = item.querySelector('.cd-title');
@@ -235,7 +235,7 @@ async function main() {
       theme: document.documentElement.dataset.theme
     };
   })()`);
-  assert(dark.theme === 'pine', '主题没切到深色，实际 ' + dark.theme);
+  assert(dark.theme === 'ink', '主题没切到深色，实际 ' + dark.theme);
   assert(dark.cardBg !== dark.todayBg, '当天卡片应与普通卡片有区分：' + dark.todayBg);
   pass('深色主题', `底 ${dark.cardBg} / 天数 ${dark.numColor} / 当天 ${dark.todayNum}`);
   await delay(350);

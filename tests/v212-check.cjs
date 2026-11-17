@@ -212,7 +212,7 @@ async function main() {
   assert(submitted.amount === 18, '金额写错：' + submitted.amount);
   pass('日期提交正确', '2026-09-09 记账成功');
 
-  /* ---------- 8. 五套主题下环形图文字对比度 ---------- */
+  /* ---------- 8. 六套主题下环形图文字对比度 ---------- */
   const audit = await evaluate(`(() => {
     const parse = c => { const m = String(c).match(/rgba?\\(([^)]+)\\)/); if (!m) return null;
       const p = m[1].split(',').map(Number); return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 }; };
@@ -251,7 +251,7 @@ async function main() {
     if (!ok) list.filter(x => x.ratio < 4.5).forEach(x => console.log(`      ${x.sel} = ${x.ratio}:1`));
   }
   assert(bad === 0, `有 ${bad} 套主题的环形图文字对比度低于 4.5:1`);
-  pass('环形图对比度', '5 套主题全部 ≥ 4.5:1');
+  pass('环形图对比度', '6 套主题全部 ≥ 4.5:1');
 
   /* ---------- 9. 提醒自检已移除（v2.15）：改由 v215-check.cjs 负责设置面板与提醒清除检查 ---------- */
 
