@@ -14,6 +14,8 @@
 >
 > 当前版本 **V1.0**：设置面板底部与安卓安装包的 `versionName` 都是 `1.0`。
 >
+> 要改代码：先看 **[`docs/维护指南.md`](docs/维护指南.md)** —— 文件地图、常见改动配方、两端同步步骤、踩坑清单都在里面。
+>
 > **iPhone**：把 `ios/` 部署到任意静态托管，Safari 打开后「添加到主屏幕」，全程无需上架 App Store（详见「iOS / Web 版」）。
 >
 > 注意：Release 里的 APK 由 GitHub Actions 用 runner 的临时调试签名编译，和自己在本机 `assembleDebug` 出来的签名不同，
@@ -160,6 +162,9 @@ Release 包需要自备签名：
 `ios/` 是一份**纯静态站点**，没有构建步骤、没有依赖：`index.html` + `manifest.webmanifest` + `sw.js` + 图标。
 丢到任何静态托管（GitHub Pages、Nginx、对象存储、内网服务器）就能用；iPhone 用 Safari 打开后「添加到主屏幕」，即为全屏 App，无地址栏。
 
+**界面与安卓版同源**（同一份 `index.html` + 一层 PWA 适配层），当前同样是 **V1.0**：五套主题、设置面板三组、版本号、年度环形图、月份选择器、原生日期框全部一致。
+同步步骤写在 [`docs/维护指南.md`](docs/维护指南.md) 第 6 节 —— 改完安卓版记得同步过去，别在 iOS 版里单独改。
+
 ```bash
 cd ios
 node tools/build-dist.cjs     # 生成 dist/
@@ -203,6 +208,7 @@ slicelog/
 │   ├── icons/
 │   └── tools/                          # 打包、预览、自检、图标生成
 ├── docs/screenshots/                   # README 截图
+├── docs/维护指南.md                     # 改代码前先看：文件地图 / 改动配方 / 踩坑
 ├── tests/                              # CDP 自动化测试与截图脚本
 ├── gradlew / gradlew.bat
 └── build.gradle
