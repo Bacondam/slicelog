@@ -1,7 +1,7 @@
 /**
  * iPhone 15 模拟回归（V1.0）：node tools/iphone-check.cjs
  * 393×852 CSS px / DPR 3 / 灵动岛安全区 59 + 34
- * 覆盖：PWA meta、Service Worker、安全区布局、四视图渲染、设置面板与版本号、备份桥接、首访提示
+ * 覆盖：PWA meta、Service Worker、安全区布局、四视图渲染、倒数日、设置面板与版本号、备份桥接、首访提示
  */
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -185,6 +185,30 @@ setTimeout(() => { console.error('整体超时（90s），可能有步骤卡住'
   assert(journal.heads >= 1 && journal.overflow <= 0, '日记页折叠异常：' + journal.heads);
   await shot('ios-04-journal.png');
   pass('四视图渲染', `目标 ${goals.cards} 卡 · 日记 ${journal.heads} 个折叠 · 输入框 ${fin.inputFont}px`);
+
+  /* ---------- 4b. 倒数日（日记页顶部） ---------- */
+  const cd = await evaluate(`(() => {
+    state = seedState(); switchView('journal');
+    state.settings.journalCollapsed = false; render();
+    const items = [...document.querySelectorAll('.cd-item')];
+    const card = document.getElementById('view-journal').querySelector('.fold-card');
+    const form = document.querySelector('[data-form="journal"]');
+    return {
+      n: items.length,
+      caps: items.map(e => (e.querySelector('.cd-cap') || {}).textContent || '今天'),
+      above: !!card && !!form && card.getBoundingClientRect().top < form.getBoundingClientRect().top,
+      ops: items[0] ? items[0].querySelectorAll('.cd-ops button').length : 0,
+      overflow: document.documentElement.scrollWidth - innerWidth,
+      titleW: items[0] ? Math.round(items[0].querySelector('.cd-title').getBoundingClientRect().width) : 0
+    };
+  })()`);
+  assert(cd.n >= 2, '倒数日没渲染出来：' + cd.n);
+  assert(cd.above, '倒数日应在「写今日日记」之上');
+  assert(cd.ops === 4, '每条应有 4 个操作按钮，实际 ' + cd.ops);
+  assert(cd.overflow <= 0, '倒数日导致横向溢出 ' + cd.overflow + 'px');
+  assert(cd.titleW >= 90, 'iPhone 宽度下标题区只剩 ' + cd.titleW + 'px');
+  await shot('ios-06-countdown.png');
+  pass('倒数日', `${cd.n} 条 · ${cd.caps.join('/')} · 每卡 ${cd.ops} 个操作 · 标题 ${cd.titleW}px`);
 
   /* ---------- 5. 设置面板与版本号 ---------- */
   await evaluate(`switchView('dashboard'); scrollTo(0,0);`);

@@ -555,6 +555,41 @@ try {
   .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
   .tag { font-size: 11px; color: var(--muted); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; }
 
+  /* 倒数日：左边大天数，右边标题，操作按钮贴右边缘 */
+  .cd-list { display: flex; flex-direction: column; gap: 8px; }
+  .cd-empty-add { display: flex; justify-content: center; margin-top: -10px; padding-bottom: 4px; }
+  .cd-item {
+    display: flex; align-items: center; gap: 11px; min-height: 72px;
+    padding: 10px 10px 10px 6px; border: 1px solid var(--line); border-radius: 12px;
+    background: var(--bg); transition: border-color .15s, background .15s; cursor: pointer;
+  }
+  .cd-item:hover { border-color: var(--line-ctl); }
+  .cd-item.is-today { border-color: var(--accent); background: var(--accent-soft); }
+  .cd-days {
+    flex: 0 0 56px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    line-height: 1; color: var(--accent-ink, var(--accent));
+  }
+  .cd-cap { font-size: 10px; color: var(--muted); letter-spacing: .2px; margin-bottom: 3px; }
+  .cd-num { font-size: 25px; font-weight: 700; letter-spacing: -.7px; font-variant-numeric: tabular-nums; }
+  .cd-num.md { font-size: 19px; letter-spacing: -.2px; }
+  .cd-num.sm { font-size: 14px; letter-spacing: 0; }
+  .cd-unit { font-size: 9.5px; color: var(--muted); margin-top: 3px; }
+  .cd-item.is-past .cd-days { color: var(--muted); }
+  .cd-main { flex: 1; min-width: 0; }
+  .cd-title { font-size: 13.5px; font-weight: 600; letter-spacing: -.1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cd-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .cd-note { font-size: 11.5px; color: var(--muted); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cd-ops { display: flex; gap: 2px; flex: none; }
+  .cd-ops button {
+    width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center;
+    color: var(--muted); border: 1px solid transparent; background: transparent; transition: .14s;
+  }
+  .cd-ops button svg { width: 13px; height: 13px; display: block; }
+  .cd-ops button:hover { background: var(--ctl-hover); color: var(--text); border-color: var(--line-ctl); }
+  /* disabled 按钮本身就不派发 click，别再开 pointer-events:none —— 否则点击会穿到卡片上误开编辑 */
+  .cd-ops button[disabled] { opacity: .22; }
+  .cd-ops button.danger:hover { color: var(--danger); background: rgba(194,65,58,.09); border-color: rgba(194,65,58,.28); }
+
   /* goals */
   .goal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
   .goal-card { display: flex; flex-direction: column; }
@@ -1166,6 +1201,10 @@ try {
     .nav button { font-size: 10px; }
     .nav .ico { font-size: 18px; }
     .stat { padding: 13px; }
+    /* 窄屏：天数区与按钮各让一点，标题才不会被挤没 */
+    .cd-days { flex-basis: 50px; }
+    .cd-num { font-size: 22px; }
+    .cd-ops button { width: 22px; height: 22px; }
   }
 
   /* 大尺寸直屏（Find X8 Ultra 之类约 450dp 宽）：留白略放宽，字号微调 */
@@ -2229,6 +2268,11 @@ function seedState() {
         createdAt: now - day * 2, updatedAt: now - day * 2
       }
     ],
+    /* 倒数日示例：用相对天数，什么时候装都是「快到了」的样子 */
+    countdowns: [
+      { id: 'cd1', title: '妈妈生日', date: toKey(addDays(new Date(), 21)), note: '记得提前订蛋糕', createdAt: now },
+      { id: 'cd2', title: '年初旅行', date: toKey(addDays(new Date(), 61)), note: '先把机票定下来', createdAt: now - day }
+    ],
     finance,
     settings: { theme: THEME_FALLBACK },
     seeded: true
@@ -2357,6 +2401,21 @@ function normalizeState(raw) {
   s.habits = Array.isArray(s.habits) ? s.habits : [];
   s.habitLogs = s.habitLogs && typeof s.habitLogs === 'object' ? s.habitLogs : {};
   s.journal = Array.isArray(s.journal) ? s.journal : [];
+  /* 倒数日：数组顺序就是展示顺序（用户手动排），所以这里只清洗、不重排 */
+  s.countdowns = (Array.isArray(s.countdowns) ? s.countdowns : []).map(c => {
+    if (!c || typeof c !== 'object') return null;
+    const title = String(c.title || '').trim();
+    const date = String(c.date || '').trim();
+    if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
+    return {
+      id: String(c.id || uid()),
+      title: title.slice(0, 40),
+      date,
+      note: String(c.note || '').trim().slice(0, 80),
+      createdAt: Number(c.createdAt) || Date.now(),
+      updatedAt: Number(c.updatedAt) || 0
+    };
+  }).filter(Boolean);
   if (!s.finance || typeof s.finance !== 'object') s.finance = {};
   s.finance.transactions = Array.isArray(s.finance.transactions) ? s.finance.transactions : [];
   s.finance.budget = Math.max(0, Number(s.finance.budget) || 0);
@@ -2993,6 +3052,8 @@ function goalSubStats(g) {
 
 const ICON_PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L18.5 9.5a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="M13.5 6.5 17.5 10.5"/></svg>';
 const ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7"/><path d="M6.6 7l.8 11.6A2 2 0 0 0 9.4 20.5h5.2a2 2 0 0 0 2-1.9L17.4 7"/><path d="M10.5 11v6M13.5 11v6"/></svg>';
+const ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5.5 11.5 6.5-6.5 6.5 6.5"/></svg>';
+const ICON_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m5.5 12.5 6.5 6.5 6.5-6.5"/></svg>';
 const ICON_SHARE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5.6" r="2.3"/><circle cx="6" cy="12" r="2.3"/><circle cx="18" cy="18.4" r="2.3"/><path d="M8.1 10.9 15.9 6.7M8.1 13.1l7.8 4.2"/></svg>';
 const ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.8v10.6"/><path d="M8.2 10.6 12 14.4l3.8-3.8"/><path d="M5.4 13.4v4.8a1.8 1.8 0 0 0 1.8 1.8h9.6a1.8 1.8 0 0 0 1.8-1.8v-4.8"/></svg>';
 const ICON_UPLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14.6V4"/><path d="M8.2 7.8 12 4l3.8 3.8"/><path d="M5.4 13.4v4.8a1.8 1.8 0 0 0 1.8 1.8h9.6a1.8 1.8 0 0 0 1.8-1.8v-4.8"/></svg>';
@@ -3364,6 +3425,75 @@ function foldCard(key, titleHTML, bodyHTML, opts) {
   </div>`;
 }
 
+/* ==================== 倒数日 ==================== */
+/** 自然日差：目标日 − 今天。按本地零点算，绕开时分和夏令时的误差 */
+function cdDiff(dateStr) {
+  const d = parseKey(dateStr);
+  if (isNaN(d.getTime())) return null;
+  const t = new Date();
+  return Math.round((Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())
+    - Date.UTC(t.getFullYear(), t.getMonth(), t.getDate())) / 86400000);
+}
+
+function cdDateText(dateStr) {
+  const d = parseKey(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日 · 周${WEEK[d.getDay()]}`;
+}
+
+function countdownItemHTML(c, idx, total) {
+  const diff = cdDiff(c.date);
+  const past = diff != null && diff < 0;
+  const today = diff === 0;
+  const n = diff == null ? 0 : Math.abs(diff);
+  /* 位数多的天数缩小字号，三位数不至于撑破 56px 的天数区 */
+  const numCls = String(n).length >= 4 ? ' sm' : (String(n).length === 3 ? ' md' : '');
+  const days = today
+    ? `<div class="cd-days"><span class="cd-cap">就是</span><span class="cd-num md">今天</span></div>`
+    : `<div class="cd-days"><span class="cd-cap">${past ? '已过' : '还有'}</span><span class="cd-num${numCls}">${n}</span><span class="cd-unit">天</span></div>`;
+  /* 整张卡片点开编辑；右侧四个按钮各自优先响应 */
+  return `<article class="cd-item${today ? ' is-today' : ''}${past ? ' is-past' : ''}" data-action="edit-countdown" data-id="${c.id}">
+    ${days}
+    <div class="cd-main">
+      <div class="cd-title" title="${esc(c.title)}">${esc(c.title)}</div>
+      <div class="cd-meta">${cdDateText(c.date)}</div>
+      ${c.note ? `<div class="cd-note" title="${esc(c.note)}">${esc(c.note)}</div>` : ''}
+    </div>
+    <div class="cd-ops">
+      <button type="button" data-action="move-countdown" data-id="${c.id}" data-dir="-1" title="上移" aria-label="上移"${idx === 0 ? ' disabled' : ''}>${ICON_UP}</button>
+      <button type="button" data-action="move-countdown" data-id="${c.id}" data-dir="1" title="下移" aria-label="下移"${idx === total - 1 ? ' disabled' : ''}>${ICON_DOWN}</button>
+      <button type="button" data-action="edit-countdown" data-id="${c.id}" title="编辑" aria-label="编辑">${ICON_PENCIL}</button>
+      <button type="button" class="danger" data-action="del-countdown" data-id="${c.id}" title="删除" aria-label="删除">${ICON_TRASH}</button>
+    </div>
+  </article>`;
+}
+
+function countdownCardHTML() {
+  const list = state.countdowns || [];
+  const body = list.length
+    ? `<div class="cd-list">${list.map((c, i) => countdownItemHTML(c, i, list.length)).join('')}</div>`
+    : `<div class="empty"><div class="big">📅</div>还没有倒数日。写下一个值得期待的日子，抬眼就知道还剩几天。</div>
+       <div class="cd-empty-add"><button type="button" class="btn ghost" data-action="add-countdown">+ 添加倒数日</button></div>`;
+  return foldCard('journal:countdown',
+    `倒数日${list.length ? ` <span class="small muted">${list.length}</span>` : ''}`,
+    body,
+    { extra: `<button type="button" class="link-btn" data-action="add-countdown">+ 添加</button>` });
+}
+
+function openCountdownForm(id) {
+  const c = id ? (state.countdowns || []).find(x => x.id === id) : null;
+  openModal(`<div class="modal-head"><h3>${c ? '编辑倒数日' : '添加倒数日'}</h3><button type="button" class="close" data-action="close-modal" aria-label="关闭">✕</button></div>
+    <form data-form="countdown" data-id="${c ? c.id : ''}">
+      <label>记什么<input name="title" maxlength="40" required autocomplete="off" placeholder="如：妈妈生日、项目上线" value="${c ? esc(c.title) : ''}"></label>
+      <label>哪一天<input type="date" name="date" required value="${c ? esc(c.date) : todayKey()}"></label>
+      <label>备注<input name="note" maxlength="80" autocomplete="off" placeholder="选填，一句话提醒" value="${c ? esc(c.note) : ''}"></label>
+      <div class="form-actions">
+        <button type="button" class="btn ghost" data-action="close-modal">取消</button>
+        <button type="submit" class="btn primary">保存</button>
+      </div>
+    </form>`);
+}
+
 function renderJournal() {
   const editing = editingJournal ? state.journal.find(j => j.id === editingJournal) : null;
   const entries = [...state.journal].sort((a, b) => String(b.date).localeCompare(String(a.date)) || (b.createdAt || 0) - (a.createdAt || 0));
@@ -3419,6 +3549,7 @@ function renderJournal() {
     foldMap['y:' + year] === true && [...months.keys()].every(m => foldMap['m:' + m] === true));
 
   $('#view-journal').innerHTML = `
+    ${countdownCardHTML()}
     ${journalFormHTML(editing, !!editing)}
     ${entries.length ? `<div class="card">
       <div class="card-head"><h3>日记归档 <span class="small muted">共 ${entries.length} 篇</span></h3>
@@ -4450,6 +4581,28 @@ document.addEventListener('submit', e => {
     return;
   }
 
+  if (kind === 'countdown') {
+    const title = String(fd.get('title') || '').trim();
+    const date = String(fd.get('date') || '').trim();
+    const note = String(fd.get('note') || '').trim();
+    if (!title) { toast('给这个日子起个名字'); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isNaN(parseKey(date).getTime())) { toast('选一个有效日期'); return; }
+    state.countdowns = state.countdowns || [];
+    const id = form.dataset.id;
+    const old = id ? state.countdowns.find(x => x.id === id) : null;
+    if (old) {
+      Object.assign(old, { title, date, note, updatedAt: Date.now() });
+      toast('倒数日已更新');
+    } else {
+      state.countdowns.push({ id: uid(), title, date, note, createdAt: Date.now(), updatedAt: Date.now() });
+      toast('已添加倒数日');
+    }
+    closeModal();
+    saveState();
+    render();
+    return;
+  }
+
   if (kind === 'tx') {
     const amount = Math.round((Number(fd.get('amount')) || 0) * 100) / 100;
     if (!(amount > 0)) { toast('请输入正确的金额'); return; }
@@ -4593,6 +4746,29 @@ document.addEventListener('click', e => {
   }
   if (action === 'close-modal') { closeModal(); return; }
   if (action === 'dismiss-demo') { state.seeded = false; saveState(); render(); return; }
+
+  /* ---- 倒数日 ---- */
+  if (action === 'add-countdown') { openCountdownForm(); return; }
+  if (action === 'edit-countdown') { openCountdownForm(id); return; }
+  if (action === 'del-countdown') {
+    const c = (state.countdowns || []).find(x => x.id === id);
+    if (!c) return;
+    askConfirm({ title: '删掉这个倒数日？', message: `「${c.title}」会被移除，日记内容不受影响。`, okText: '删除' }, () => {
+      state.countdowns = state.countdowns.filter(x => x.id !== id);
+      saveState(); render(); toast('已删除');
+    });
+    return;
+  }
+  if (action === 'move-countdown') {
+    const dir = Number(el.dataset.dir) || 0;
+    const list = state.countdowns || [];
+    const i = list.findIndex(x => x.id === id);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= list.length) return;
+    [list[i], list[j]] = [list[j], list[i]];
+    saveState(); render();
+    return;
+  }
 
   if (action === 'toggle-habit') {
     const key = el.dataset.date || todayKey();
@@ -5092,7 +5268,7 @@ $('#resetBtn').addEventListener('click', () => {
   closeMobileTools();
   const doWipe = () => {
     const theme = state.settings.theme;
-    state = { goals: [], archivedGoals: [], habits: [], habitLogs: {}, journal: [], finance: { transactions: [], budget: 0 }, settings: { theme } };
+    state = { goals: [], archivedGoals: [], habits: [], habitLogs: {}, journal: [], countdowns: [], finance: { transactions: [], budget: 0 }, settings: { theme } };
     editingJournal = null;
     financeMonth = todayKey().slice(0, 7);
     financeFilter = 'all';
