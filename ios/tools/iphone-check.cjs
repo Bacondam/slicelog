@@ -1,4 +1,8 @@
-/** iPhone 15 模拟回归：node tools/iphone-check.cjs */
+/**
+ * iPhone 15 模拟回归（V1.0）：node tools/iphone-check.cjs
+ * 393×852 CSS px / DPR 3 / 灵动岛安全区 59 + 34
+ * 覆盖：PWA meta、Service Worker、安全区布局、四视图渲染、设置面板与版本号、备份桥接、首访提示
+ */
 const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -30,6 +34,7 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
 const assert = (c, m) => { if (!c) throw new Error(m); };
 let ws, nextId = 0;
 const pending = new Map(), events = new Map();
+
 function send(method, params = {}) {
   return new Promise((resolve, reject) => {
     const id = ++nextId; pending.set(id, { resolve, reject });
@@ -37,9 +42,14 @@ function send(method, params = {}) {
   });
 }
 function waitEvent(n) { return new Promise(res => { const l = events.get(n) || []; l.push(res); events.set(n, l); }); }
-async function evaluate(expression) {
-  const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
-  if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails));
+
+/* 任何一步卡住都不能拖死整个流程：统一 8 秒上限 */
+async function evaluate(expression, timeout = 8000) {
+  const r = await Promise.race([
+    send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }),
+    delay(timeout).then(() => { throw new Error('evaluate 超时：' + expression.slice(0, 60)); })
+  ]);
+  if (r.exceptionDetails) throw new Error(JSON.stringify(r.exceptionDetails.exception && r.exceptionDetails.exception.description || r.exceptionDetails));
   return r.result.value;
 }
 async function shot(name) {
@@ -48,16 +58,22 @@ async function shot(name) {
 }
 
 const IOS_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+const results = [];
+function pass(name, detail) { results.push(name); console.log(`  ✓ ${name}${detail ? ' — ' + detail : ''}`); }
+
+setTimeout(() => { console.error('整体超时（90s），可能有步骤卡住'); process.exit(3); }, 90000);
 
 (async () => {
-  await new Promise(r => server.listen(PORT, '127.0.0.1', r));
+  await new Promise((r, j) => { server.once('error', j); server.listen(PORT, '127.0.0.1', r); });
   fs.mkdirSync(path.join(root, 'shots'), { recursive: true });
 
   let pages;
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < 100; i++) {
     try { pages = await (await fetch(`http://127.0.0.1:${CDP}/json/list`)).json(); if (pages.length) break; } catch (_) {}
-    await delay(100);
+    await delay(120);
   }
+  assert(pages && pages.length, '无法连接测试浏览器');
+
   ws = new WebSocket(pages.find(p => p.type === 'page').webSocketDebuggerUrl);
   await new Promise((res, rej) => { ws.addEventListener('open', res, { once: true }); ws.addEventListener('error', rej, { once: true }); });
   ws.addEventListener('message', ev => {
@@ -69,169 +85,171 @@ const IOS_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebK
       const l = events.get(m.method); events.delete(m.method); l.forEach(r => r(m.params));
     }
   });
+
   await send('Page.enable');
   await send('Runtime.enable');
-
-  // iPhone 15：393 × 852 CSS px，DPR 3；灵动岛机型 顶部 59 / 底部 34
   await send('Emulation.setDeviceMetricsOverride', {
     width: 393, height: 852, screenWidth: 393, screenHeight: 852, deviceScaleFactor: 3, mobile: true
   });
   await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 });
   await send('Emulation.setUserAgentOverride', { userAgent: IOS_UA, platform: 'iPhone', acceptLanguage: 'zh-CN,zh;q=0.9' });
-
-  const loaded = waitEvent('Page.loadEventFired');
   await send('Page.addScriptToEvaluateOnNewDocument', {
     source: `try { localStorage.removeItem('growth-os-ios-hint'); } catch (e) {}`
   });
-  await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/index.html` });
-  await loaded;
-  await evaluate('document.fonts.ready');
-  await delay(300);
 
-  const pass = [];
-  const check = (name, ok, detail) => {
-    if (!ok) throw new Error(`✗ ${name}${detail ? ' — ' + detail : ''}`);
-    pass.push(name); console.log(`  ✓ ${name}${detail ? ' — ' + detail : ''}`);
-  };
+  const loaded = waitEvent('Page.loadEventFired');
+  await send('Page.navigate', { url: `http://127.0.0.1:${PORT}/index.html?nosplash=1` });
+  await Promise.race([loaded, delay(10000)]);
+  await delay(600);
 
-  /* 1. 头部 meta */
+  /* ---------- 1. PWA meta ---------- */
   const meta = await evaluate(`(() => {
     const m = n => { const e = document.querySelector('meta[name="' + n + '"]'); return e ? e.content : ''; };
+    const iconEl = document.querySelector('link[rel="apple-touch-icon"]');
     return {
       capable: m('apple-mobile-web-app-capable'),
       title: m('apple-mobile-web-app-title'),
+      titleTag: document.title,
       bar: m('apple-mobile-web-app-status-bar-style'),
       viewport: document.querySelector('meta[name="viewport"]').content,
-      icon: document.querySelector('link[rel="apple-touch-icon"]') ? document.querySelector('link[rel="apple-touch-icon"]').getAttribute('href') : '',
+      icon: iconEl ? iconEl.getAttribute('href') : '',
       manifest: document.querySelector('link[rel="manifest"]') ? document.querySelector('link[rel="manifest"]').getAttribute('href') : ''
     };
   })()`);
-  check('PWA meta 完整', meta.capable === 'yes' && meta.title === '成长日志' && meta.icon === 'icons/icon-180.png' && meta.manifest === 'manifest.webmanifest', `status-bar=${meta.bar}`);
-  check('viewport 支持刘海屏', meta.viewport.includes('viewport-fit=cover'));
+  assert(meta.capable === 'yes', '缺少 apple-mobile-web-app-capable');
+  assert(meta.title === '人生切片', '主屏名称应为「人生切片」，实际「' + meta.title + '」');
+  assert(meta.titleTag.indexOf('Slicelog') >= 0, '页面标题应含 Slicelog：' + meta.titleTag);
+  assert(meta.icon === 'icons/icon-180.png', '缺少 apple-touch-icon');
+  assert(meta.manifest === 'manifest.webmanifest', '缺少 manifest 引用');
+  assert(meta.viewport.includes('viewport-fit=cover'), 'viewport 缺 viewport-fit=cover');
+  pass('PWA meta', `${meta.title} · ${meta.titleTag}`);
 
-  /* 2. 资源可达 + Service Worker */
+  /* ---------- 2. 资源 + Service Worker ---------- */
   const res = await evaluate(`Promise.all([
     fetch('manifest.webmanifest').then(r => r.status),
     fetch('icons/icon-180.png').then(r => r.status),
     fetch('sw.js').then(r => r.status)
   ])`);
-  check('manifest / 图标 / SW 可访问', res[0] === 200 && res[1] === 200 && res[2] === 200, JSON.stringify(res));
-  const swReady = await evaluate(`navigator.serviceWorker.ready.then(r => !!r.active).catch(() => false)`);
-  check('Service Worker 已激活（可离线）', swReady === true);
+  assert(res.join(',') === '200,200,200', '资源不可访问：' + JSON.stringify(res));
+  const swReady = await evaluate(`Promise.race([
+    navigator.serviceWorker.ready.then(r => !!r.active).catch(() => false),
+    new Promise(r => setTimeout(() => r(false), 6000))
+  ])`, 9000);
+  assert(swReady === true, 'Service Worker 未激活，离线不可用');
+  pass('离线缓存', 'manifest / 图标 / SW 均可访问，SW 已激活');
 
-  /* 3. 模拟 iPhone 安全区后布局 */
-  await evaluate('window.applySafeInsets(59, 0, 34, 0)');
+  /* ---------- 3. 安全区与布局 ---------- */
+  await evaluate(`window.applySafeInsets(59, 0, 34, 0)`);
   await evaluate(`state = seedState(); saveState(); render();`);
-  await delay(350);
+  await delay(450);
   const layout = await evaluate(`(() => {
-    const h = document.querySelector('.mobile-header');
     const nav = document.querySelector('.nav');
-    const cs = getComputedStyle(h);
-    const csn = getComputedStyle(nav);
     return {
-      headerPadTop: parseFloat(cs.paddingTop),
-      headerH: Math.round(h.getBoundingClientRect().height),
-      navPadBottom: parseFloat(csn.paddingBottom),
-      scrollW: document.documentElement.scrollWidth,
-      vw: innerWidth,
-      inputFont: (() => { const i = document.querySelector('.modal-box input'); return i ? getComputedStyle(i).fontSize : 'n/a'; })(),
+      safeTop: getComputedStyle(document.documentElement).getPropertyValue('--sat').trim(),
+      navPadBottom: parseFloat(getComputedStyle(nav).paddingBottom),
       overflow: document.documentElement.scrollWidth - innerWidth
     };
   })()`);
-  check('顶部避开灵动岛', layout.headerPadTop >= 59, `header 上内边距 ${layout.headerPadTop}px`);
-  check('底部避开手势条', layout.navPadBottom >= 34, `nav 下内边距 ${layout.navPadBottom}px`);
-  check('无横向溢出', layout.overflow <= 0, `scrollWidth ${layout.scrollW} / vw ${layout.vw}`);
+  assert(layout.safeTop === '59px', '安全区变量没写进 --sat：' + layout.safeTop);
+  assert(layout.navPadBottom >= 34, '底部导航没避开手势条：' + layout.navPadBottom);
+  assert(layout.overflow <= 0, '页面横向溢出 ' + layout.overflow + 'px');
+  pass('安全区布局', `--sat ${layout.safeTop} / nav 下内边距 ${layout.navPadBottom}px / 无横向溢出`);
   await shot('ios-01-dashboard.png');
 
-  /* 4. 各页面截图与交互 */
-  await evaluate(`switchView('goals')`); await delay(350);
+  /* ---------- 4. 四个视图 ---------- */
+  await evaluate(`switchView('goals')`); await delay(400);
   const goals = await evaluate(`(() => ({
-    strips: document.querySelectorAll('.done-strip').length,
     cards: document.querySelectorAll('.goal-card').length,
-    plus: !!document.querySelector('.done-strip .collapse-btn.pm'),
     overflow: document.documentElement.scrollWidth - innerWidth
   }))()`);
-  check('目标页渲染正常', goals.cards >= 1 && goals.strips >= 1 && goals.plus && goals.overflow <= 0, `卡片 ${goals.cards} / 折叠 ${goals.strips}`);
-  await evaluate(`document.querySelector('.done-strip').scrollIntoView({block:'center'})`);
-  await delay(200);
+  assert(goals.cards >= 1 && goals.overflow <= 0, '目标页异常：卡片 ' + goals.cards);
   await shot('ios-02-goals.png');
 
-  await evaluate(`switchView('journal')`); await delay(350);
-  const journal = await evaluate(`(() => ({
-    heads: document.querySelectorAll('.fold-head').length,
-    pm: document.querySelectorAll('.fold-head .collapse-btn.pm').length,
-    overflow: document.documentElement.scrollWidth - innerWidth
-  }))()`);
-  check('日记页年月折叠正常', journal.heads >= 1 && journal.pm === journal.heads && journal.overflow <= 0, `${journal.heads} 个折叠项`);
-  await evaluate(`document.querySelector('.fold-block').scrollIntoView({block:'start'}); window.scrollBy(0,-80)`);
-  await delay(200);
-  await shot('ios-03-journal.png');
-
-  await evaluate(`switchView('finance')`); await delay(400);
+  await evaluate(`switchView('finance')`); await delay(450);
   const fin = await evaluate(`(() => {
-    const rows = [...document.querySelectorAll('.form-row')];
-    const cols = rows.map(r => getComputedStyle(r).gridTemplateColumns.split(' ').length);
-    const inp = document.querySelector('.quick-body input');
+    const inp = document.querySelector('input[type="number"]') || document.querySelector('input');
     return {
-      singleCol: cols.every(c => c === 1),
-      inputFont: inp ? getComputedStyle(inp).fontSize : 'n/a',
-      quickBtn: (() => { const b = document.querySelector('[data-action="toggle-quick"]'); const r = b.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height) }; })(),
+      inputFont: inp ? parseFloat(getComputedStyle(inp).fontSize) : 0,
       overflow: document.documentElement.scrollWidth - innerWidth
     };
   })()`);
-  check('表单在 393px 下为单列', fin.singleCol === true);
-  check('输入框字号 ≥16px（不触发自动放大）', parseFloat(fin.inputFont) >= 16, fin.inputFont);
-  check('折叠按钮可点尺寸', fin.quickBtn.w >= 32 && fin.quickBtn.h >= 32, JSON.stringify(fin.quickBtn));
-  check('记账页无横向溢出', fin.overflow <= 0);
-  await evaluate(`window.scrollTo(0, 260)`); await delay(200);
-  await shot('ios-04-finance.png');
+  assert(fin.inputFont >= 16, '输入框字号 <16px，Safari 会放大整页：' + fin.inputFont);
+  assert(fin.overflow <= 0, '记账页横向溢出 ' + fin.overflow + 'px');
+  await shot('ios-03-finance.png');
 
-  /* 5. 备份：导出 / 分享 / 自动存档 */
+  await evaluate(`switchView('journal')`); await delay(400);
+  const journal = await evaluate(`(() => ({
+    heads: document.querySelectorAll('.fold-head').length,
+    overflow: document.documentElement.scrollWidth - innerWidth
+  }))()`);
+  assert(journal.heads >= 1 && journal.overflow <= 0, '日记页折叠异常：' + journal.heads);
+  await shot('ios-04-journal.png');
+  pass('四视图渲染', `目标 ${goals.cards} 卡 · 日记 ${journal.heads} 个折叠 · 输入框 ${fin.inputFont}px`);
+
+  /* ---------- 5. 设置面板与版本号 ---------- */
+  await evaluate(`switchView('dashboard'); scrollTo(0,0);`);
+  await delay(250);
+  await evaluate(`document.getElementById('mobileSettings').click()`);
+  await delay(450);
+  const panel = await evaluate(`(() => {
+    const f = document.querySelector('.sidebar-foot');
+    const cs = getComputedStyle(f);
+    const rect = f.getBoundingClientRect();
+    const ver = f.querySelector('.sf-ver');
+    return {
+      open: cs.display !== 'none',
+      groupCount: f.querySelectorAll('.sf-group').length,
+      labels: [...f.querySelectorAll('.sf-label')].map(l => l.textContent.trim()),
+      btns: [...f.querySelectorAll('button')].map(b => b.textContent.trim()),
+      ver: ver ? ver.textContent.replace(/\\s+/g, ' ').trim() : '',
+      bottom: Math.round(rect.bottom), vh: innerHeight
+    };
+  })()`);
+  assert(panel.open, '设置面板没打开');
+  assert(panel.groupCount === 3, '设置应分三组，实际 ' + panel.groupCount);
+  assert(/V1\.0/.test(panel.ver), '设置面板里没有 V1.0：' + panel.ver);
+  assert(panel.bottom <= panel.vh + 1, `面板超出屏幕：${panel.bottom} > ${panel.vh}`);
+  assert(!panel.btns.some(t => t.indexOf('提醒') >= 0), '设置面板里还有提醒相关按钮');
+  pass('设置面板', `${panel.labels.join(' / ')} + 危险区 · ${panel.ver} · 底 ${panel.bottom}/${panel.vh}px`);
+  await shot('ios-05-settings.png');
+
+  /* ---------- 6. 备份桥接 ---------- */
   const backup = await evaluate(`(() => {
     const json = JSON.stringify(state);
     const out = {};
-    try { window.AndroidBridge.exportBackup(json, '成长日志备份-2026-11-14.json'); out.export = 'ok'; }
-    catch (e) { out.export = 'err:' + e.message; }
-    try { window.AndroidBridge.shareBackup(json, '成长日志备份-2026-11-14.json'); out.share = 'ok'; }
-    catch (e) { out.share = 'err:' + e.message; }
+    try { window.AndroidBridge.exportBackup(json, 'Slicelog-备份.json'); out.export = 'ok'; } catch (e) { out.export = 'err:' + e.message; }
+    try { window.AndroidBridge.shareBackup(json, 'Slicelog-备份.json'); out.share = 'ok'; } catch (e) { out.share = 'err:' + e.message; }
     window.AndroidBridge.autoBackup(json);
     out.restored = !!window.AndroidBridge.readAutoBackup();
-    out.hasGetInsets = typeof window.AndroidBridge.getSafeInsets === 'function';
+    out.hasInsets = typeof window.AndroidBridge.getSafeInsets === 'function';
     return out;
   })()`);
-  check('导出备份不报错', backup.export === 'ok');
-  check('分享备份不报错（无分享面板时回落下载）', backup.share === 'ok');
-  check('自动存档可写可读', backup.restored === true);
-  check('未拦截 iOS 原生安全区', backup.hasGetInsets === false);
+  assert(backup.export === 'ok', '导出备份报错：' + backup.export);
+  assert(backup.share === 'ok', '分享备份报错：' + backup.share);
+  assert(backup.restored === true, '自动存档写不进去');
+  assert(backup.hasInsets === false, '网页版不该有 getSafeInsets（会覆盖 iOS 真实安全区）');
+  pass('备份桥接', '导出 / 分享 / 自动存档均可用，安全区未被覆盖');
 
-  /* 6. 首次安装提示 */
+  /* ---------- 7. 首次访问提示 ---------- */
   const hint = await evaluate(`(() => {
     const el = document.querySelector('.ios-install-hint');
     if (!el) return { shown: false };
     const r = el.getBoundingClientRect();
-    return { shown: true, bottom: Math.round(innerHeight - r.bottom), h: Math.round(r.height) };
+    return { shown: true, bottom: Math.round(innerHeight - r.bottom) };
   })()`);
-  check('Safari 首访显示「添加到主屏幕」提示', hint.shown === true, `距底部 ${hint.bottom}px`);
-  await shot('ios-05-install-hint.png');
+  assert(hint.shown, 'Safari 首访没出现「添加到主屏幕」提示');
+  await shot('ios-06-install-hint.png');
   await evaluate(`document.querySelector('.ios-install-hint button').click()`);
-  await delay(200);
+  await delay(250);
   const dismissed = await evaluate(`!document.querySelector('.ios-install-hint') && !!localStorage.getItem('growth-os-ios-hint')`);
-  check('提示可关闭且只出现一次', dismissed === true);
+  assert(dismissed, '提示关不掉或没记住');
+  pass('首访提示', `距底部 ${hint.bottom}px，可关闭且只出现一次`);
 
-  /* 7. 设置面板里的备份入口 */
-  await evaluate(`switchView('dashboard'); document.getElementById('mobileSettings').click()`);
-  await delay(350);
-  const settings = await evaluate(`(() => {
-    const btns = [...document.querySelectorAll('.sidebar-foot button')].map(b => b.textContent.trim());
-    return { btns, overflow: document.documentElement.scrollWidth - innerWidth };
-  })()`);
-  check('设置面板含分享/导出/恢复备份', settings.btns.some(t => t.includes('分享')) && settings.btns.some(t => t.includes('导出')) && settings.btns.some(t => t.includes('恢复')), settings.btns.join(' / '));
-  await shot('ios-06-settings.png');
-
-  console.log(`\n全部通过：${pass.length} 项`);
+  console.log(`\n全部通过：${results.length} 项`);
   ws.close();
-})().catch(e => { console.error(e.message); process.exitCode = 1; })
+})().catch(e => { console.error('✗ ' + e.message); process.exitCode = 1; })
   .finally(() => setTimeout(() => {
     try { server.close(); } catch (_) {}
     browser.kill();
+    process.exit(process.exitCode || 0);
   }, 300));

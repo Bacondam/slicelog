@@ -1,5 +1,5 @@
-/* 成长日志 PWA：离线缓存应用外壳 */
-const CACHE = 'growthos-v1.7.0';
+/* 人生切片 PWA：离线缓存应用外壳 */
+const CACHE = 'slicelog-v1.0.0';
 const ASSETS = [
   './',
   './index.html',

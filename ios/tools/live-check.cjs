@@ -76,7 +76,7 @@ function check(name, ok, extra = '') {
   await delay(900);
 
   const title = await ev('document.title');
-  check('页面标题正确', title.includes('成长日志'), title);
+  check('页面标题正确', title.includes('Slicelog'), title);
 
   const urlOk = await ev('location.protocol');
   check('https 安全上下文', urlOk === 'https:', urlOk);
@@ -92,7 +92,7 @@ function check(name, ok, extra = '') {
 
   const manifestHref = await ev(`document.querySelector('link[rel="manifest"]') ? document.querySelector('link[rel="manifest"]').href : ''`);
   const manifestOk = await ev(`fetch(document.querySelector('link[rel="manifest"]').href).then(r => r.ok ? r.json().then(j => j.name) : 'HTTP_' + r.status).catch(e => 'ERR_' + e.message)`);
-  check('manifest 可取到', typeof manifestOk === 'string' && manifestOk.includes('成长日志'), `${manifestOk} | ${manifestHref}`);
+  check('manifest 可取到', typeof manifestOk === 'string' && manifestOk.includes('Slicelog'), `${manifestOk} | ${manifestHref}`);
 
   const iconOk = await ev(`fetch('icons/icon-180.png').then(r => r.ok ? r.status + ' ' + (r.headers.get('content-type')||'') : 'HTTP_' + r.status).catch(e => 'ERR')`);
   check('主屏图标可下载', String(iconOk).includes('200'), String(iconOk));
