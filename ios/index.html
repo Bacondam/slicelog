@@ -192,6 +192,7 @@ try {
     --accent-soft: #E7EEDF;
     --accent-2: #B0762F;
     --accent-2-ink: #8B5C24;
+    --accent-2-soft: #F5E8D4;
     --accent-hi: #87A182;
     --on-accent: #FFFEFB;
     --danger: #A9473C;
@@ -213,6 +214,7 @@ try {
     --accent-soft: #DDE8F7;
     --accent-2: #A9702F;
     --accent-2-ink: #8A5A24;
+    --accent-2-soft: #F5E9D8;
     --accent-hi: #6D92C7;
     --on-accent: #FFFFFF;
     --danger: #AC4038;
@@ -233,6 +235,7 @@ try {
     --accent-soft: #F8E3D9;
     --accent-2: #7C7430;
     --accent-2-ink: #6B6429;
+    --accent-2-soft: #EFEDD9;
     --accent-hi: #D18A72;
     --on-accent: #FFFEFC;
     --danger: #9A332C;
@@ -253,6 +256,7 @@ try {
     --accent-soft: #DCEEEA;
     --accent-2: #A9702F;
     --accent-2-ink: #8A5A24;
+    --accent-2-soft: #F5E9D8;
     --accent-hi: #55A79C;
     --on-accent: #FFFFFF;
     --danger: #A63E39;
@@ -273,6 +277,7 @@ try {
     --accent-soft: #ECECE8;
     --accent-2: #A8792F;
     --accent-2-ink: #875F22;
+    --accent-2-soft: #F6ECDA;
     --accent-hi: #6E7278;
     --on-accent: #FFFFFF;
     --danger: #A33B33;
@@ -293,6 +298,7 @@ try {
     --accent-soft: rgba(207,213,220,.22);
     --accent-2: #C79A5B;
     --accent-2-ink: #DCB57F;
+    --accent-2-soft: rgba(199,154,91,.18);
     --accent-hi: #E4E8ED;
     --on-accent: #15171A;
     --danger: #E88C80;
@@ -728,7 +734,9 @@ try {
 
   /* goals */
   .goal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
-  .goal-card { display: flex; flex-direction: column; }
+  .goal-card { display: flex; flex-direction: column; position: relative; }
+  /* 优先目标：左侧一道次强调色竖条，扫一眼就知道被顶到前面了 */
+  .goal-card.is-prio { box-shadow: inset 3px 0 0 var(--accent-2), var(--shadow); }
   .goal-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .goal-card h3 { font-size: 16px; margin: 9px 0 2px; letter-spacing: -.2px; }
   .goal-card .note { font-size: 12px; color: var(--muted); margin-top: 2px; }
@@ -764,6 +772,8 @@ try {
   .group-head { display: flex; align-items: center; gap: 6px; margin: 0 2px 7px; font-size: 12px; font-weight: 600; color: var(--muted); }
   .group-head::before { content: ''; width: 3px; height: 12px; border-radius: 2px; background: var(--accent); opacity: .5; }
   .group-head .cnt { font-weight: 500; opacity: .75; }
+  .group-head.prio { color: var(--accent-2-ink); }
+  .group-head.prio::before { background: var(--accent-2); opacity: .9; }
 
   /* 目标完成按钮 */
   .goal-check {
@@ -846,9 +856,18 @@ try {
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink, var(--accent));
     font-size: 11px; font-weight: 600;
   }
-  /* 分类标签统一到强调色系：靠文字区分类别，不再用 5 种彩色（会和主题配色打架） */
-  .chip.cat-1, .chip.cat-2, .chip.cat-3, .chip.cat-4, .chip.cat-5 {
-    background: var(--accent-soft); color: var(--accent-ink, var(--accent));
+  /* 分类两类都用主题里的深色实底 + 反白字，色相不同：短期吃主强调，长期吃次强调（金/赭/橄榄） */
+  .chip.cat-0 { background: var(--accent); color: var(--on-accent); }
+  .chip.cat-1 { background: var(--accent-2-ink); color: var(--on-accent); }
+  /* 优先改成浅底 + 金边 + 金深字：分类是深色实块，优先是浅色标记块，
+     不然长期也吃次强调色时，两个实块会撞成同一片金 */
+  .chip.tag-prio {
+    background: var(--accent-2-soft); color: var(--accent-2-ink);
+    box-shadow: inset 0 0 0 1px var(--accent-2);
+  }
+  .chip.tag-prio::before {
+    content: ''; width: 4px; height: 4px; border-radius: 50%;
+    background: currentColor; opacity: .8;
   }
 
   /* habits page */
@@ -1441,6 +1460,7 @@ try {
 
   /* ② 分类：胶囊选择器，替代原生下拉 */
   .cat-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .cat-picker.two { grid-template-columns: repeat(2, 1fr); }
   .cat-opt {
     padding: 9px 8px; border-radius: 11px; border: 1px solid var(--line-ctl);
     background: var(--ctl-bg); color: var(--muted); font-size: 13px; font-weight: 600;
@@ -1451,6 +1471,28 @@ try {
     background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink, var(--accent));
   }
   .cat-opt:active { transform: scale(.96); }
+  /* 选中态直接用卡片上的同款深色实底，选的时候就能看到最终效果（所见即所得） */
+  .cat-opt.on[data-cat="短期"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .cat-opt.on[data-cat="长期"] { background: var(--accent-2-ink); border-color: var(--accent-2-ink); color: var(--on-accent); }
+  /* 标签：优先 / 普通，两个并排；优先用次强调色，和分类的主色区分开 */
+  .tag-picker { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .tag-opt {
+    position: relative;
+    display: flex; flex-direction: column; gap: 2px; padding: 9px 10px; text-align: left;
+    border-radius: 11px; border: 1px solid var(--line-ctl); background: var(--ctl-bg);
+    color: var(--muted); transition: .15s;
+  }
+  .tag-opt b { font-size: 13px; font-weight: 600; letter-spacing: .2px; }
+  .tag-opt em { font-style: normal; font-size: 10.5px; opacity: .8; }
+  .tag-opt:hover { border-color: var(--accent); color: var(--text); }
+  /* 选中态各用各的色：普通跟主题强调色，优先用次强调色，免得选「普通」时也变金色 */
+  .tag-opt.on { border-color: var(--accent); color: var(--accent-ink, var(--accent)); background: var(--accent-soft); }
+  .tag-opt.on[data-tag="priority"] { border-color: var(--accent-2); color: var(--accent-2-ink); background: var(--accent-2-soft); }
+  .tag-opt.on b { font-weight: 700; }
+  .tag-opt.on::after {
+    content: '✓'; position: absolute; top: 7px; right: 9px;
+    font-size: 10px; font-weight: 700; line-height: 1;
+  }
 
   /* ③ 截止时间：自绘入口按钮，替代原生 date/time 输入框 */
   .field-btn {
@@ -2167,7 +2209,13 @@ function quoteOfDay(d) {
   return QUOTES[((n % QUOTES.length) + QUOTES.length) % QUOTES.length];
 }
 
-const CATS = [['学习', 1], ['健康', 0], ['事业', 3], ['财务', 2], ['关系', 4], ['其他', 5]];
+/* 目标分类只留两个：短期想做、长期想做。旧的六类（学习/健康/事业/财务/关系/其他）
+   统一并入「长期」，用户可自己改成短期。第二个数字是配色序号（见 .chip.cat-N） */
+const CATS = [['短期', 0], ['长期', 1]];
+const GOAL_CATS = CATS.map(c => c[0]);
+/* 目标标签：优先置顶，普通按建立时间排 */
+const GOAL_TAGS = [['priority', '优先'], ['normal', '普通']];
+const isPrio = g => !!g && g.tag === 'priority';
 /* 记账图标：全部线性描边，1.7px，24 栅格，跟习惯/学习/日记同一套视觉语言 */
 const FIN_ICONS = {
   food: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 12.4h16.8a8.4 8.4 0 0 1-16.8 0z"/><path d="M9 8.9c0-1 .9-1.4.9-2.4M13.4 8.9c0-1 .9-1.4.9-2.4"/></svg>',
@@ -2232,7 +2280,7 @@ function applyTheme(id) {
   }
   return t;
 }
-const catClass = name => { const f = CATS.find(c => c[0] === name); return f ? f[1] : 5; };
+const catClass = name => { const f = CATS.find(c => c[0] === name); return f ? f[1] : 1; };
 const fmtDate = k => { const d = parseKey(k); return isNaN(d.getTime()) ? k : `${d.getMonth() + 1}月${d.getDate()}日 周${WEEK[d.getDay()]}`; };
 const fmtDuration = min => {
   const m = Math.max(0, Math.round(min));
@@ -2344,7 +2392,7 @@ function seedState() {
   return {
     goals: [
       {
-        id: 'g1', track: 'sub', title: '全年读完 24 本书', category: '学习',
+        id: 'g1', track: 'sub', title: '全年读完 24 本书', category: '长期', tag: 'priority',
         deadline: `${new Date().getFullYear()}-12-31`, note: '每月两本，优先非虚构。', createdAt: now - day * 40,
         done: false, doneAt: null,
         subtasks: [
@@ -2355,7 +2403,7 @@ function seedState() {
         ]
       },
       {
-        id: 'g2', track: 'sub', title: '累计跑步 500 公里', category: '健康',
+        id: 'g2', track: 'sub', title: '累计跑步 500 公里', category: '长期', tag: 'normal',
         deadline: '', note: '每周至少三次，慢慢来。', createdAt: now - day * 38,
         done: false, doneAt: null,
         subtasks: [
@@ -2365,7 +2413,7 @@ function seedState() {
         ]
       },
       {
-        id: 'g3', track: 'sub', title: '存款达到 10 万元', category: '财务',
+        id: 'g3', track: 'sub', title: '存款达到 10 万元', category: '长期', tag: 'priority',
         deadline: '', note: '每月固定存下收入的 30%。', createdAt: now - day * 30,
         done: false, doneAt: null,
         subtasks: [
@@ -2374,7 +2422,7 @@ function seedState() {
         ]
       },
       {
-        id: 'g4', track: 'sub', title: '完成一次半程马拉松', category: '健康',
+        id: 'g4', track: 'sub', title: '完成一次半程马拉松', category: '长期', tag: 'normal',
         deadline: toKey(addDays(new Date(), -14)), note: '城市半马 2 小时 08 分完赛。',
         createdAt: now - day * 96, done: true, doneAt: now - day * 14,
         subtasks: [
@@ -2383,7 +2431,7 @@ function seedState() {
         ]
       },
       {
-        id: 'g5', track: 'sub', title: '把阳台收拾成能坐着看书的地方', category: '其他',
+        id: 'g5', track: 'sub', title: '把阳台收拾成能坐着看书的地方', category: '短期', tag: 'normal',
         deadline: '', note: '', createdAt: now - day * 12, done: false, doneAt: null,
         subtasks: [
           { id: 'g5s1', title: '量好尺寸，定一张小桌', done: true, doneAt: now - day * 4 },
@@ -2490,7 +2538,11 @@ function normGoal(g) {
   if (!g || typeof g !== 'object') return null;
   if (!g.id) g.id = uid();
   g.title = String(g.title || '未命名目标');
-  g.category = String(g.category || '其他');
+  /* 分类只认短期 / 长期；旧的六类一律并入长期，避免老数据变成「其他」 */
+  g.category = GOAL_CATS.includes(String(g.category)) ? String(g.category) : '长期';
+  /* 标签只有优先 / 普通；老数据没有这个字段，默认普通 */
+  g.tag = (g.tag === 'priority' || g.tag === 'prio' || g.tag === true || g.prio === true) ? 'priority' : 'normal';
+  delete g.prio;
   if (g.track === 'count') countToSubs(g);
   g.track = 'sub';
   g.current = Math.max(0, Number(g.current) || 0);
@@ -2936,7 +2988,7 @@ function renderDashboard() {
   const pct = habits.length ? Math.round(done / habits.length * 100) : 0;
   const streak = globalStreak();
   const monthPrefix = tKey.slice(0, 7);
-  const activeGoals = state.goals.filter(g => !g.done);
+  const activeGoals = goalSort(state.goals.filter(g => !g.done));
   const monthDone = state.goals.filter(g => g.done && g.doneAt && toKey(new Date(g.doneAt)).slice(0, 7) === monthPrefix).length;
   const fin = financeSummary(monthPrefix);
   const hour = new Date().getHours();
@@ -3061,31 +3113,31 @@ function detailGoals() {
   const finished = all.filter(g => g.done);
   const avg = active.length ? Math.round(active.reduce((a, g) => a + goalPct(g), 0) / active.length) : 0;
   const counts = {};
-  all.forEach(g => { const k = g.category || '其他'; counts[k] = (counts[k] || 0) + 1; });
-  const items = Object.entries(counts).map(([name, n], i) => ({
-    label: name, value: n, color: FIN_COLORS[i % FIN_COLORS.length], valueText: `${n} 个`
-  })).sort((a, b) => b.value - a.value);
+  all.forEach(g => { const k = g.category || '长期'; counts[k] = (counts[k] || 0) + 1; });
+  const items = GOAL_CATS.filter(name => counts[name] > 0).map((name, i) => ({
+    label: name, value: counts[name], color: FIN_COLORS[i % FIN_COLORS.length], valueText: `${counts[name]} 个`
+  }));
   const subDone = all.reduce((a, g) => a + goalSubStats(g).done, 0);
   const subTotal = all.reduce((a, g) => a + goalSubStats(g).total, 0);
-  const rows = active.slice(0, 6).map(g => {
+  const rows = goalSort(active).slice(0, 6).map(g => {
     const p = goalPct(g);
     const st = goalSubStats(g);
     return `<div class="goal-mini">
       <div class="row"><strong>${esc(g.title)}</strong><span>${p}%</span></div>
       <div class="progress slim"><i style="width:${p}%"></i></div>
-      <div class="row"><span>${st.total ? `小目标 ${st.done}/${st.total}` : `${fmtNum(g.current)} / ${fmtNum(g.target)} ${esc(g.unit || '')}`}</span><span>${esc(g.category || '其他')}</span></div>
+      <div class="row"><span>${st.total ? `小目标 ${st.done}/${st.total}` : `${fmtNum(g.current)} / ${fmtNum(g.target)} ${esc(g.unit || '')}`}</span><span>${isPrio(g) ? '优先 · ' : ''}${esc(g.category || '长期')}</span></div>
     </div>`;
   }).join('');
   return {
     title: '目标进度',
-    sub: '按分类看目标分布，确认精力放在了正确的地方。',
+    sub: '按短期 / 长期看目标分布，确认精力放在了正确的地方。',
     value: `${avg}%`, valueLabel: '进行中目标平均进度',
     note: `进行中 ${active.length} 个 · 已完成 ${finished.length} 个。`,
-    chartTitle: '目标分类分布', chartHint: '按目标数量',
+    chartTitle: '短期 / 长期分布', chartHint: '按目标数量',
     donut: all.length ? donutChart(items, { center: `${all.length}`, centerLabel: '个目标' }) : '',
     donutEmpty: '还没有目标，先写下一个想做成的事。',
     facts: [
-      ['进行中', `${active.length} 个`],
+      ['进行中', `${active.length} 个 · 优先 ${active.filter(isPrio).length} 个`],
       ['已完成', `${finished.length} 个`],
       ['小目标完成', `${subDone} / ${subTotal} 个`],
       ['平均进度', `${avg}%`]
@@ -3315,10 +3367,12 @@ function goalCardHTML(g, collapsible) {
   const countText = st.total ? `${st.done}/${st.total} 步` : '';
   const checkTitle = g.done ? '恢复为进行中' : blocked ? `还有 ${st.left} 个小目标没完成` : '标记为已完成';
 
-  return `<article class="goal-card card${g.done ? ' is-done' : ''}" data-id="${g.id}">
+  const prio = isPrio(g);
+  return `<article class="goal-card card${g.done ? ' is-done' : ''}${prio && !g.done ? ' is-prio' : ''}" data-id="${g.id}">
       <div class="goal-top">
         <button class="goal-check${g.done ? ' on' : ''}${blocked ? ' locked' : ''}" data-action="toggle-goal" data-id="${g.id}" title="${checkTitle}">${blocked ? '!' : '✓'}</button>
-        <span class="chip cat-${catClass(g.category)}">${esc(g.category || '其他')}</span>
+        <span class="chip cat-${catClass(g.category)}">${esc(g.category || '长期')}</span>
+        ${prio && !g.done ? `<span class="chip tag-prio">优先</span>` : ''}
         <div class="goal-acts">
           <button class="icon-btn" data-action="edit-goal" data-id="${g.id}" title="编辑" aria-label="编辑">${ICON_PENCIL}</button>
           <button class="icon-btn danger" data-action="del-goal" data-id="${g.id}" title="删除" aria-label="删除">${ICON_TRASH}</button>
@@ -3348,31 +3402,40 @@ function ensureDoneOpenMap() {
   return s.doneOpen;
 }
 
+/** 进行中目标的排序：优先的永远在上面；同一档里按建立时间，越早建立的越靠上。
+    截止日期只当最后的兜底（同一毫秒建立的极少数情况），不再主导排序 */
+function goalSort(list) {
+  return list.slice().sort((a, b) => {
+    const pa = isPrio(a) ? 0 : 1;
+    const pb = isPrio(b) ? 0 : 1;
+    if (pa !== pb) return pa - pb;
+    return (Number(a.createdAt) || 0) - (Number(b.createdAt) || 0)
+      || String(a.deadline || '9999-12-31').localeCompare(String(b.deadline || '9999-12-31'));
+  });
+}
+
 function renderGoals() {
   const all = state.goals;
-  const active = all.filter(g => !g.done).sort((a, b) => {
-    const da = a.deadline || '9999-12-31';
-    const db = b.deadline || '9999-12-31';
-    return String(da).localeCompare(String(db)) || (a.createdAt || 0) - (b.createdAt || 0);
-  });
+  const active = goalSort(all.filter(g => !g.done));
   const finished = all.filter(g => g.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
 
   const counts = {};
-  all.forEach(g => { const k = g.category || '其他'; counts[k] = (counts[k] || 0) + 1; });
+  all.forEach(g => { const k = g.category || '长期'; counts[k] = (counts[k] || 0) + 1; });
   const cats = CATS.map(c => c[0]).filter(name => counts[name] > 0);
   const filterOk = f => f === 'all' || cats.includes(f);
   if (!filterOk(goalFilter)) goalFilter = 'all';
 
-  const match = g => goalFilter === 'all' || (g.category || '其他') === goalFilter;
+  const match = g => goalFilter === 'all' || (g.category || '长期') === goalFilter;
   const activeShown = active.filter(match);
   const doneShown = finished.filter(match);
+  const prioTotal = active.filter(isPrio).length;
 
   const groupHTML = (list, emptyText) => {
     if (!list.length) return `<div class="card" style="background:transparent;border-style:dashed"><div class="empty">${emptyText}</div></div>`;
-    const order = [...new Set(list.map(g => g.category || '其他'))]
+    const order = [...new Set(list.map(g => g.category || '长期'))]
       .sort((a, b) => catOrder(a) - catOrder(b) || String(a).localeCompare(String(b)));
     return order.map(cat => {
-      const items = list.filter(g => (g.category || '其他') === cat);
+      const items = goalSort(list.filter(g => (g.category || '长期') === cat));
       return `<div class="goal-group">
         <div class="group-head">${esc(cat)}<span class="cnt">${items.length}</span></div>
         <div class="goal-grid">${items.map(goalCardHTML).join('')}</div>
@@ -3380,10 +3443,30 @@ function renderGoals() {
     }).join('');
   };
 
+  /* 进行中按「优先 → 短期 → 长期」分段：标了优先的不再按分类拆分，统一置顶，
+     卡上的分类胶囊说明它属于短期还是长期 */
+  const activeSections = (list) => {
+    if (!list.length) {
+      return `<div class="card" style="background:transparent;border-style:dashed"><div class="empty">${
+        goalFilter === 'all' ? '还没有进行中的目标，点右上角新建一个。' : `「${esc(goalFilter)}」里没有进行中的目标。`
+      }</div></div>`;
+    }
+    const prio = list.filter(isPrio);
+    const rest = list.filter(g => !isPrio(g));
+    const block = (title, items, isP) => items.length ? `<div class="goal-group">
+        <div class="group-head${isP ? ' prio' : ''}">${esc(title)}<span class="cnt">${items.length}</span></div>
+        <div class="goal-grid">${items.map(goalCardHTML).join('')}</div>
+      </div>` : '';
+    return block('优先', prio, true)
+      + (goalFilter === 'all'
+        ? CATS.map(([name]) => block(name, rest.filter(g => (g.category || '长期') === name))).join('')
+        : block(goalFilter, rest));
+  };
+
   /* 顶部只留一个入口：目标就是目标，不再分「目标」和「学习」两条路 */
   const head = `
     <div class="page-actions">
-      <h2>进行中 ${active.length} 个${finished.length ? ` · 已完成 ${finished.length} 个` : ''}</h2>
+      <h2>进行中 ${active.length} 个${prioTotal ? ` · 优先 ${prioTotal} 个` : ''}${finished.length ? ` · 已完成 ${finished.length} 个` : ''}</h2>
       <div class="chips">
         <button class="btn primary" data-action="add-goal">+ 目标</button>
       </div>
@@ -3421,7 +3504,7 @@ function renderGoals() {
         ${archived.map(g => `<div class="arch-row">
           <div class="ar-main">
             <span class="ar-title">${esc(g.title)}</span>
-            <span class="ar-meta">${esc([g.category || '其他',
+            <span class="ar-meta">${esc([isPrio(g) ? '优先' : '', g.category || '长期',
               g.doneAt ? `完成于 ${fmtDate(toKey(new Date(g.doneAt)))}` : '',
               g.archivedAt ? `归档于 ${fmtDate(toKey(new Date(g.archivedAt)))}` : ''
             ].filter(Boolean).join(' · '))}</span>
@@ -3435,7 +3518,7 @@ function renderGoals() {
   const mainSections = all.length ? `
     <section class="goal-section">
       <div class="section-head"><h3>进行中</h3><span class="cnt">${activeShown.length}</span></div>
-      ${groupHTML(activeShown, goalFilter === 'all' ? '还没有进行中的目标，点右上角新建一个。' : `「${esc(goalFilter)}」分类下没有进行中的目标。`)}
+      ${activeSections(activeShown)}
     </section>
     <section class="goal-section">
       <div class="section-head"><h3>已完成</h3><span class="cnt">${doneShown.length}</span>
@@ -4218,7 +4301,8 @@ function startSubEdit(btn) {
 
 function openGoalModal(id) {
   const g = id ? state.goals.find(x => x.id === id) : null;
-  const selCat = (g && g.category) ? g.category : '学习';
+  const selCat = (g && GOAL_CATS.includes(g.category)) ? g.category : '长期';
+  const selTag = (g && g.tag === 'priority') ? 'priority' : 'normal';
   const dStr = g ? (g.deadline || '') : '';
   const tStr = g ? (g.dueTime || '') : '';
   openModal(`
@@ -4226,10 +4310,18 @@ function openGoalModal(id) {
     <form data-form="goal" data-id="${g ? g.id : ''}">
       <label>目标名称<input name="title" required maxlength="60" value="${esc(g ? g.title : '')}" placeholder="例如：全年读完 24 本书" autocomplete="off"></label>
       <label>分类
-        <div class="cat-picker">
+        <div class="cat-picker two">
           ${CATS.map(([name]) => `<button type="button" class="cat-opt${name === selCat ? ' on' : ''}" data-action="pick-cat" data-cat="${name}">${name}</button>`).join('')}
         </div>
         <input type="hidden" name="category" value="${esc(selCat)}">
+      </label>
+      <label>标签
+        <div class="tag-picker">
+          ${GOAL_TAGS.map(([v, label]) => `<button type="button" class="tag-opt${v === selTag ? ' on' : ''}" data-action="pick-tag" data-tag="${v}">
+            <b>${label}</b><em>${v === 'priority' ? '永远排在前面' : '按建立时间排'}</em>
+          </button>`).join('')}
+        </div>
+        <input type="hidden" name="tag" value="${selTag}">
       </label>
       <label>截止
         <button type="button" class="field-btn" data-action="pick-deadline">
@@ -4256,7 +4348,8 @@ function doneGoalsSorted() {
 function goalRowMeta(g, mode) {
   const st = goalSubStats(g);
   return [
-    g.category || '其他',
+    isPrio(g) ? '优先' : '',
+    g.category || '长期',
     mode === 'archive'
       ? (g.archivedAt ? `归档于 ${fmtDate(toKey(new Date(g.archivedAt)))}` : '已归档')
       : (g.doneAt ? `完成于 ${fmtDate(toKey(new Date(g.doneAt)))}` : '已完成'),
@@ -4662,7 +4755,8 @@ document.addEventListener('submit', e => {
     const track = 'sub';
     const data = {
       title,
-      category: String(fd.get('category') || '其他'),
+      category: GOAL_CATS.includes(String(fd.get('category'))) ? String(fd.get('category')) : '长期',
+      tag: String(fd.get('tag')) === 'priority' ? 'priority' : 'normal',
       deadline: String(fd.get('deadline') || ''),
       dueTime: /^([01]\d|2[0-3]):[0-5]\d$/.test(dueTimeRaw) ? dueTimeRaw : '',
       subtasks,
@@ -4955,7 +5049,15 @@ document.addEventListener('click', e => {
     if (!wrap) return;
     wrap.querySelectorAll('.cat-opt').forEach(b => b.classList.toggle('on', b === el));
     const hid = wrap.parentElement.querySelector('input[name="category"]');
-    if (hid) hid.value = el.dataset.cat || '其他';
+    if (hid) hid.value = el.dataset.cat || '长期';
+    return;
+  }
+  if (action === 'pick-tag') {
+    const wrap = el.closest('.tag-picker');
+    if (!wrap) return;
+    wrap.querySelectorAll('.tag-opt').forEach(b => b.classList.toggle('on', b === el));
+    const hid = wrap.parentElement.querySelector('input[name="tag"]');
+    if (hid) hid.value = el.dataset.tag === 'priority' ? 'priority' : 'normal';
     return;
   }
   if (action === 'pick-icon') {
