@@ -188,6 +188,7 @@
         <button class="test" data-run="settings"><span class="num">5</span><span class="tx"><b>设置面板</b><em>备份 / 外观 / 清空 分组</em></span></button>
         <button class="test" data-run="dash"><span class="num">6</span><span class="tx"><b>概览</b><em>成长热力图已删除</em></span></button>
         <button class="test" data-run="countdown"><span class="num">7</span><span class="tx"><b>日记 · 倒数日</b><em>天数 / 增删改 / 上下排序</em></span></button>
+        <button class="test" data-run="goalcat"><span class="num">8</span><span class="tx"><b>目标 · 分类与优先</b><em>短期 / 长期 + 优先置顶</em></span></button>
       </div>
     </div>
 
@@ -273,6 +274,7 @@
     form: "financeMode='month'; state.settings.finQuickCollapsed=false; switchView('finance'); render(); setTimeout(function(){var el=document.querySelector('.date-field'); if(el){el.scrollIntoView({block:'center'});}},300);",
     subedit: "switchView('goals'); setTimeout(function(){var b=document.querySelector('.sub-title-btn'); if(b){b.click(); b.scrollIntoView({block:'center'});}},300);",
     goals: "switchView('goals'); setTimeout(function(){scrollTo(0,0);},120);",
+    goalcat: "switchView('goals'); setTimeout(function(){scrollTo(0,0);},120);",
     settings: "var b=document.getElementById('mobileSettings'); if(b){b.click();}",
     dash: "switchView('dashboard'); setTimeout(function(){scrollTo(0,0);},120);",
     countdown: "state.settings.cardFold=state.settings.cardFold||{}; state.settings.cardFold['journal:countdown']=true; switchView('journal'); render(); setTimeout(function(){var el=document.querySelector('.cd-item')||document.querySelector('.cd-list'); if(el){el.scrollIntoView({block:'center'});} else {scrollTo(0,0);}},360);"

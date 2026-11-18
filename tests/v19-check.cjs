@@ -135,7 +135,7 @@ async function main() {
     };
   })()`);
   /* 2.10 起只有「目标 + 小目标」，按数量的字段整组下线 */
-  const expectNames = ['title', 'category', 'deadline', 'dueTime', 'subtasks'];
+  const expectNames = ['title', 'category', 'tag', 'deadline', 'dueTime', 'subtasks'];
   assert(JSON.stringify(fields.names) === JSON.stringify(expectNames), '表单字段异常：' + JSON.stringify(fields.names));
   assert(!fields.names.includes('note'), 'note 不该出现在表单里');
   assert(fields.hasSelect === false, '表单里还有原生下拉框');
@@ -149,20 +149,20 @@ async function main() {
   })()`);
   assert(trackPanel.seg === 0 && trackPanel.countPanes === 0 && !trackPanel.trackField,
     '表单里还留着按数量的控件：' + JSON.stringify(trackPanel));
-  assert(fields.chips === 6 && fields.chipOn === '学习', '分类胶囊异常：' + fields.chips + ' / ' + fields.chipOn);
+  assert(fields.chips === 2 && fields.chipOn === '长期', '分类胶囊异常：' + fields.chips + ' / ' + fields.chipOn);
   assert(new Set(fields.inputBgs).size === 1, '输入框底色不统一：' + JSON.stringify(fields.inputBgs));
   assert(new Set(fields.inputRadius).size === 1, '输入框圆角不统一：' + JSON.stringify(fields.inputRadius));
-  pass('目标表单精简', `字段 ${fields.names.join('/')}，分类 6 个胶囊 + 只走小目标，控件底色圆角一致`);
+  pass('目标表单精简', `字段 ${fields.names.join('/')}，分类 2 个胶囊 + 只走小目标，控件底色圆角一致`);
 
   /* ---------- 3. 分类胶囊点击写回隐藏字段 ---------- */
-  await evaluate(`[...document.querySelectorAll('.cat-opt')].find(b => b.textContent === '财务').click()`);
+  await evaluate(`[...document.querySelectorAll('.cat-opt')].find(b => b.textContent === '短期').click()`);
   await delay(150);
   const catPick = await evaluate(`(() => {
     const f = document.querySelector('form[data-form="goal"]');
     return { val: f.querySelector('input[name="category"]').value, on: f.querySelectorAll('.cat-opt.on').length, onText: f.querySelector('.cat-opt.on').textContent };
   })()`);
-  assert(catPick.val === '财务' && catPick.on === 1 && catPick.onText === '财务', '分类选择没写回：' + JSON.stringify(catPick));
-  pass('分类胶囊', '点「财务」→ 隐藏字段同步，选中态唯一');
+  assert(catPick.val === '短期' && catPick.on === 1 && catPick.onText === '短期', '分类选择没写回：' + JSON.stringify(catPick));
+  pass('分类胶囊', '点「短期」→ 隐藏字段同步，选中态唯一');
 
   /* ---------- 4. 时间选择：三个常用时间 + 自定义 ---------- */
   await evaluate(`document.querySelector('[data-action="pick-deadline"]').click()`);
@@ -268,7 +268,7 @@ async function main() {
     };
   })()`);
   assert(card.hasGoal, '目标没创建成功');
-  assert(card.category === '财务' && card.dueTime === '21:35', '分类或时间没带进新目标：' + JSON.stringify(card));
+  assert(card.category === '短期' && card.dueTime === '21:35', '分类或时间没带进新目标：' + JSON.stringify(card));
   assert(!card.folded && card.items === 2, '有小目标时应默认展开：' + JSON.stringify(card));
   assert(card.foldRight, '折叠按钮不在最右：' + JSON.stringify(card.acts));
   assert(new Set(card.sizes).size === 1 && card.sizes[0] === '30x30', '操作按钮尺寸不一致：' + JSON.stringify(card.sizes));
@@ -316,7 +316,7 @@ async function main() {
     /* v2.2 起学习卡并入普通目标卡，这里只看目标卡本身的图标 */
     const goals = {
       cards: q('#view-goals .goal-card'),
-      chip: q('#view-goals .goal-card .chip'),
+      chip: q('#view-goals .goal-card .chip[class*="cat-"]'),
       acts: q('#view-goals .goal-card .icon-btn svg'),
       subEdit: q('#view-goals .goal-card [data-action="edit-sub"]'),
       update: q('#view-goals .goal-card [data-action="edit-progress"]')

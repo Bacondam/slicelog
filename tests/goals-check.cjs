@@ -178,14 +178,14 @@ async function shot(name) {
   assert(restored.done === false && restored.backInActive, '恢复为进行中失败');
 
   // 6. 分类筛选
-  await evaluate(`document.querySelector('.filter-chip[data-cat="健康"]').click()`);
+  await evaluate(`document.querySelector('.filter-chip[data-cat="长期"]').click()`);
   await delay(350);
   const filtered = await evaluate(`(() => ({
     on: document.querySelector('.filter-chip.on').textContent.trim(),
-    cards: [...document.querySelectorAll('#view-goals .goal-card .chip')].map(c => c.textContent.trim())
+    cards: [...document.querySelectorAll('#view-goals .goal-card .chip[class*="cat-"]')].map(c => c.textContent.trim())
   }))()`);
   console.log('filter:', JSON.stringify(filtered));
-  assert(filtered.cards.every(c => c === '健康'), '分类筛选没有过滤掉其他分类');
+  assert(filtered.cards.length > 0 && filtered.cards.every(c => c === '长期'), '分类筛选没有过滤掉其他分类');
   await shot('goals-filter');
 
   // 7. 新建目标时填写小目标
@@ -196,7 +196,7 @@ async function shot(name) {
   await evaluate(`(() => {
     const f = document.querySelector('form[data-form="goal"]');
     f.querySelector('[name="title"]').value = '拿下驾照';
-    f.querySelector('[name="category"]').value = '其他';
+    f.querySelector('[name="category"]').value = '长期';
     f.querySelector('[name="subtasks"]').value = '科目一\\n科目二\\n科目三';
     f.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
   })()`);
