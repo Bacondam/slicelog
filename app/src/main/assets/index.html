@@ -743,11 +743,15 @@ try {
     border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink, var(--accent));
     font-size: 11px; font-weight: 600;
   }
-  /* 分类只有两个：短期用强调色底，长期用描边，两者一眼能分开又不抢主题色 */
-  .chip.cat-0 { background: var(--accent-soft); color: var(--accent-ink, var(--accent)); }
-  .chip.cat-1 { background: var(--ctl-bg); color: var(--muted); border: 1px solid var(--line-ctl); }
-  /* 优先标签用次强调色实底（六款主题里对比度 5.6:1 以上），和分类胶囊区分开 */
-  .chip.tag-prio { background: var(--accent-2-ink); color: var(--on-accent); }
+  /* 分类两类都用主题里的深色实底 + 反白字，色相不同：短期吃主强调，长期吃次强调（金/赭/橄榄） */
+  .chip.cat-0 { background: var(--accent); color: var(--on-accent); }
+  .chip.cat-1 { background: var(--accent-2-ink); color: var(--on-accent); }
+  /* 优先改成浅底 + 金边 + 金深字：分类是深色实块，优先是浅色标记块，
+     不然长期也吃次强调色时，两个实块会撞成同一片金 */
+  .chip.tag-prio {
+    background: var(--accent-2-soft); color: var(--accent-2-ink);
+    box-shadow: inset 0 0 0 1px var(--accent-2);
+  }
   .chip.tag-prio::before {
     content: ''; width: 4px; height: 4px; border-radius: 50%;
     background: currentColor; opacity: .8;
@@ -1350,9 +1354,12 @@ try {
     transition: .15s; text-align: center;
   }
   .cat-opt:hover { border-color: var(--accent); color: var(--accent); }
+  /* 选中态直接用卡片上的同款深色实底，选的时候就能看到最终效果（所见即所得） */
   .cat-opt.on {
     background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink, var(--accent));
   }
+  .cat-opt.on[data-cat="短期"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .cat-opt.on[data-cat="长期"] { background: var(--accent-2-ink); border-color: var(--accent-2-ink); color: var(--on-accent); }
   .cat-opt:active { transform: scale(.96); }
   /* 标签：优先 / 普通，两个并排，选中态用次强调色，跟分类区分开 */
   .tag-picker { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }

@@ -4,8 +4,9 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const port = 9375;
-const profile = path.join(root, '.edge-v218shot-profile');
+const port = 9391;
+const os = require('os');
+const profile = path.join(os.tmpdir(), 'edge-v218-' + Date.now());
 const browser = spawn('C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe', [
   '--headless=new', '--disable-gpu', '--no-first-run', `--remote-debugging-port=${port}`,
   `--user-data-dir=${profile}`, '--hide-scrollbars', 'about:blank'
@@ -43,7 +44,9 @@ const shot = async f => {
     source: `window.AndroidBridge={getSafeInsets(){return '34,0,24,0';},getScreenInfo(){return 'test';},exportBackup(){},shareBackup(){},autoBackup(){},readAutoBackup(){return '';},setSystemBars(){},openAppSettings(){}};`
   });
   const loaded = waitEvent('Page.loadEventFired');
-  await send('Page.navigate', { url: 'http://127.0.0.1:8770/app?sat=32&sab=24' });
+  await send('Network.enable');
+  await send('Network.setCacheDisabled', { cacheDisabled: true });
+  await send('Page.navigate', { url: 'http://127.0.0.1:8770/app?sat=32&sab=24&v=' + Date.now() });
   await loaded; await delay(2400);
 
   await evaluate(`(function(){
